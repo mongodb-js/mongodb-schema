@@ -1,72 +1,188 @@
-function infer(schema, obj) {
-    schema['$count'] = ('$count' in schema) ? schema['$count'] + 1 : 1;
-    
-    if (!('$type' in schema)) {
-        schema['$type'] = {};
+DBCollection.prototype.schema = function(options) {
+
+    /**
+     * right-aligned string split
+     * 
+     * @param {String} str string to split 
+     * @param {String} sep character to use for split, or null for any whitespace
+     * @param {Number} maxsplit maximum number of splits (from the end of the string)
+     *
+     * @returns {Array} an array with (if provided, at most maxsplit) elements
+     *
+     * @example
+     * // returns ["foo.bar", "baz"]
+     * _rsplit( "foo.bar.baz", ".", 1 )
+     */
+    function _rsplit(str, sep, maxsplit) {
+        var split = str.split(sep || /\s+/);
+        return maxsplit ? [ split.slice(0, -maxsplit).join(sep) ].concat(split.slice(-maxsplit)) : split;    
     }
-    var type = typeof obj;
-    schema['$type'][type] = (type in schema['$type']) ? schema['$type'][type] + 1 : 1;
 
-    if (obj && typeof obj == 'object') {
-
-        Object.keys(obj).forEach(function(key) {
-            var val = obj[key];
-            if (!(key in schema)) {
-                schema[key] = {};
-            }
-
-            if (val instanceof Array) {
-                // special case: lists, here collapse
-                val.forEach(function (el) {
-                    infer(schema[key], el);
-                });
-            } else {
-                // objects need to be handled recursively
-                infer(schema[key], val)
-            }
-        });
-
-    }
-    return schema;
-}
-
-function cleanup(schema) {
-
-    if (typeof schema !== 'object') {
-        return schema;
-    }
-    
-    var prob = schema['$count'];
-
-    Object.keys(schema).forEach( function(key) {
-        // remove sole object types
-        if (key === '$type') {
-            var type_keys = Object.keys(schema[key]);
-            if (type_keys.length == 1) {
-                if (type_keys[0] == 'object') {
-                    delete schema[key];
+    /**
+     * flattens an object and results in an object with only top-level properties with dot-notation
+     * 
+     * @param {Object} obj object to flatten
+     *
+     * @return {Number} maxsplit maximum number of splits (from the end of the string)
+     *
+     * @example
+     * // returns {"a.b" 1, "a.c": false}
+     * _flatten( {a: {b: 1, c: false}} )
+     */
+    var _flatten = function(obj) {
+        function recursive(obj) {
+            var result = {};
+            
+            for (var o in obj) {
+                if (!obj.hasOwnProperty(o)) continue;
+                if ((typeof obj[o]) == 'object') {
+                    var flatObject = recursive(obj[o]);
+                    for (var x in flatObject) {
+                        if (!flatObject.hasOwnProperty(x)) continue;
+                        
+                        result[o + '.' + x] = flatObject[x];
+                    }
                 } else {
-                    schema[key] = type_keys[0];
+                    result[o] = obj[o];
                 }
             }
+            return result;
+        }
+
+        // first flatten completely
+        var flatobj = recursive(obj);
+
+        // now fold back in $-prefixed leaves
+        var finalobj = {};
+        
+        for (var f in flatobj) {
+            // only own proerties
+            if (!flatobj.hasOwnProperty(f)) continue;
+
+            if (f.indexOf('.') !== -1) {
+                split = _rsplit(f, '.', 1);
+                if (!(split[0] in finalobj)) {
+                    finalobj[split[0]] = {};
+                }
+                finalobj[split[0]][split[1]] = flatobj[f];
+            } else {
+                finalobj[f] = flatobj[f];
+            }
+        }
+
+        return finalobj;
+    };
+
+    
+    /**
+     * recursively infers a schema of an object, keeping track of counts, types of nested objects
+     *
+     * @mixin {Object} schema resulting schema, initially {}
+     * @param {Object} obj object to infer schema
+     * 
+     */
+    function _infer(schema, obj) {
+        schema['$c'] = ('$c' in schema) ? schema['$c'] + 1 : 1;
+        
+        if (!('$t' in schema)) {
+            schema['$t'] = {};
+        }
+
+        // special case: ObjectId, it's an object but we don't want to reach into it
+        if (obj instanceof ObjectId) {
+            type = 'ObjectId';
+            schema['$t'][type] = (type in schema['$t']) ? schema['$t'][type] + 1 : 1;
+            return schema;        
+        }
+
+        var type = typeof obj;
+        schema['$t'][type] = (type in schema['$t']) ? schema['$t'][type] + 1 : 1;
+
+        if (obj && typeof obj == 'object') {
+
+            Object.keys(obj).forEach(function(key) {
+                var val = obj[key];
+                if (!(key in schema)) {
+                    schema[key] = {};
+                }
+
+                if (val instanceof Array) {
+                    // special case: lists, here collapse
+                    val.forEach(function (el) {
+                        _infer(schema[key], el);
+                    });
+                    schema[key]['$a'] = true;
+                } else {
+                    // objects need to be handled recursively
+                    _infer(schema[key], val)
+                }
+            });
+
+        }
+        return schema;
+    }
+
+    /**
+     * clean up the output of _infer, collapsing single types and calculating 
+     * probabilities (stored in "$p" field)
+     *
+     * @param {Object} schema 
+     * @param {Number} count keep track of count in recursive calls
+     * 
+     * @returns {Object} cleaned up schema
+     */
+    function _cleanup(schema, count) {
+
+        if (typeof schema !== 'object') {
+            return schema;
         }
         
-        cleanup(schema[key]);
-    });
+        Object.keys(schema).forEach( function(key) {
+            // remove sole object types
+            if (key === '$t') {
+                var type_keys = Object.keys(schema[key]);
+                if (type_keys.length == 1) {
+                    if (type_keys[0] == 'object') {
+                        delete schema[key];
+                    } else {
+                        schema[key] = type_keys[0];
+                    }
+                }
+            }
+            if (key === '$c') {
+                if (count) {
+                    schema['$p'] = schema['$c'] / count;
+                }
+                count = schema['$c'];
+            }
+            _cleanup(schema[key], count);
+        });
 
-    return schema;
-}
+        return schema;
+    }
 
-
-DBCollection.prototype.schema = function(numSamples) {
-    var numSamples = numSamples || 100;
+    // define defaults
+    var options = options || {};
+    options.numSamples = options.numSamples || 100;
+    options.flat = options.flat || false;
+    
     var schema = {};
-    var cursor = this.find({}, null, numSamples /* limit */, 0 /* skip*/, 0 /* batchSize */);
 
+    // get documents
+    var cursor = this.find({}, null, options.numSamples /* limit */, 0 /* skip*/, 0 /* batchSize */);
+
+    // infer schema of each
     cursor.forEach(function (doc) {
-        schema = infer(schema, doc);
+        schema = _infer(schema, doc);
     });
 
-    schema = cleanup(schema);
-    return schema;
+    // clean up schema
+    schema = _cleanup(schema);
+
+    // return deep or flat version
+    if (options.flat) {
+        return _flatten(schema);
+    } else {
+        return schema;
+    }
 }

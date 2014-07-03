@@ -12,10 +12,10 @@ Two ways to invoke the script.
 
 ##### 1. Load the script directly (one-time usage)
 
-This will load the `schema-infer.js` and the open the shell as usual. You will have to add the script every time you open the shell. 
+This will load the `mongodb-schema.js` and the open the shell as usual. You will have to add the script every time you open the shell. 
 
 ```
-mongo schema-infer.js --shell
+mongo mongodb-schema.js --shell
 ```
 
 ##### 2. Load the script via the `.mongorc.js` file (permanent usage)
@@ -23,10 +23,10 @@ mongo schema-infer.js --shell
 You can also add the following line to your `~/.mongorc.js` file to always load the file on shell startup (unless started with `--norc`):
 
 ```js
-load('/<path-to>/schema-infer.js')
+load('/<path-to>/mongodb-schema.js')
 ```
 
-Replace the `<path-to>` part with the actual path where the `schema-infer.js` is located.
+Replace the `<path-to>` part with the actual path where the `mongodb-schema.js` is located.
 
 
 ### Usage

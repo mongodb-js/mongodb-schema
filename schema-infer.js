@@ -1,5 +1,13 @@
+/**
+ * calculates schema of a collection by sampling some of the documents
+ * 
+ * @param {Object} options
+ *
+ * @returns {Object} the schema document with counts ($c), types ($t),
+ *                   an array flag ($a) and probability of occurrence
+ *                   given the parent field ($p).
+ */
 DBCollection.prototype.schema = function(options) {
-
     /**
      * right-aligned string split
      * 
@@ -132,11 +140,9 @@ DBCollection.prototype.schema = function(options) {
      * @returns {Object} cleaned up schema
      */
     function _cleanup(schema, count) {
-
         if (typeof schema !== 'object') {
             return schema;
         }
-        
         Object.keys(schema).forEach( function(key) {
             // remove sole object types
             if (key === '$t') {

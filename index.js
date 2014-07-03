@@ -1,1 +1,1 @@
-module.exports = require('./mongodb-schema.js');
+module.exports = require('./lib/mongodb-schema.js');

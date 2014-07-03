@@ -98,7 +98,7 @@
         }
 
         // special case: ObjectId, it's an object but we don't want to reach into it
-        if (obj instanceof ObjectId) {
+        if (typeof ObjectId !== 'undefined' && obj instanceof ObjectId) {
             type = 'ObjectId';
             schema['$t'][type] = (type in schema['$t']) ? schema['$t'][type] + 1 : 1;
             return schema;        

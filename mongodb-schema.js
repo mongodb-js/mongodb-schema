@@ -210,3 +210,8 @@ if (typeof DBCollection !== 'undefined') {
         return schema(cursor, options);
     }
 }
+
+// export for node.js if module is defined
+if (typeof module !== 'undefined') {
+    module.exports = schema;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "mongodb-schema",
+  "description": "Infer a probabilistic schema of javascript object, JSON documents or a MongoDB collection",
+  "version": "0.0.1",
+  "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
+  "license": "Apache",
+  "homepage": "http://github.com/rueckstiess/mongodb-schema",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rueckstiess/mongodb-schema.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rueckstiess/mongodb-schema/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mongodb",
+    "schema"
+  ]
+}

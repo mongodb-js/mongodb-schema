@@ -31,7 +31,7 @@ var documents = [
 ];
 
 // infer schema
-schema_obj = schema( documents, {flat: true} );
+schema_obj = schema( documents, {flat: false} );
 
 // pretty print
 console.log( JSON.stringify(schema_obj, null, '\t') );
@@ -43,22 +43,21 @@ This would output:
     "$c": 2,
     "a": {
         "$c": 2,
+        "$t": {
+            "number": 1,
+            "object": 1
+        },
+        "b": {
+            "$c": 1,
+            "$t": "string",
+            "$p": 0.5
+        },
         "$p": 1
-    },
-    "a.$t": {
-        "number": 1,
-        "object": 1
-    },
-    "a.b": {
-        "$c": 1,
-        "$t": "string",
-        "$p": 0.5
     }
 }
 ```
 
 <br>
-
 
 ## Usage with MongoDB
 

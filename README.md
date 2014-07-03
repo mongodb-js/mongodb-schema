@@ -20,7 +20,7 @@ npm install mongodb-schema
 
 ### Usage 
 
-Then load the module and use it like this (optionally with an options object as second parameter):
+Then load the module and use call `schema( documents )`, and optionally pass in an `options` object as second parameter:
 ```js
 var schema = require('mongodb-schema');
 
@@ -37,6 +37,25 @@ schema_obj = schema( documents, {flat: true} );
 console.log( JSON.stringify(schema_obj, null, '\t') );
 ```
 
+This would output:
+```json
+{
+    "$c": 2,
+    "a": {
+        "$c": 2,
+        "$p": 1
+    },
+    "a.$t": {
+        "number": 1,
+        "object": 1
+    },
+    "a.b": {
+        "$c": 1,
+        "$t": "string",
+        "$p": 0.5
+    }
+}
+```
 
 <br>
 
@@ -88,7 +107,7 @@ You can pass in an options object into the `.schema()` method. Currently it supp
 db.foo.schema( {numSamples: 20, flat: true} )
 ```
 
-This will use the first 20 documents to calculate the schema and return the schema as flat object (all fields are collapsed to the top with dot-notation). 
+This will use the first 20 documents to calculate the schema and return the schema as flat object (all fields are collapsed to the top with dot-notation). See the [Examples](#examples) section below for nested vs. flat schemata. 
 
 <br>
 

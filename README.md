@@ -3,7 +3,7 @@ mongodb-schema
 
 Infer probabilistic schema of JSON documents, javascript objects or a MongoDB collection. 
 
-This package is dual-purpose. It serves as a node.js module and can also be used with MongoDB directly, where it extends the `DBCollection` shell object.
+This package is dual-purpose. It serves as a [node.js module](#usage-with-nodejs) and can also be used with [MongoDB](#usage-with-mongodb) directly, where it extends the `DBCollection` shell object.
 
 _mongodb-schema_ is an early prototype. Use at your own risk.
 

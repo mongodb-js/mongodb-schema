@@ -1,13 +1,14 @@
 /**
  * calculates schema of a collection by sampling some of the documents
  * 
- * @param {Object} options
+ * @param {Array} documents 
+ * @param {Object} options currently only supports one option: {flat: true}
  *
  * @returns {Object} the schema document with counts ($c), types ($t),
  *                   an array flag ($a) and probability of occurrence
  *                   given the parent field ($p).
  */
-DBCollection.prototype.schema = function(options) {
+ function schema(documents, options) {
     /**
      * right-aligned string split
      * 
@@ -169,16 +170,11 @@ DBCollection.prototype.schema = function(options) {
 
     // define defaults
     var options = options || {};
-    options.numSamples = options.numSamples || 100;
     options.flat = options.flat || false;
     
+    // infer schema of each document
     var schema = {};
-
-    // get documents
-    var cursor = this.find({}, null, options.numSamples /* limit */, 0 /* skip*/, 0 /* batchSize */);
-
-    // infer schema of each
-    cursor.forEach(function (doc) {
+    documents.forEach(function (doc) {
         schema = _infer(schema, doc);
     });
 
@@ -190,5 +186,27 @@ DBCollection.prototype.schema = function(options) {
         return _flatten(schema);
     } else {
         return schema;
+    }
+}
+
+/**
+ * extend the DBCollection object to provide the schema method
+ * 
+ * @param {Object} options supports two options: {numSamples: 123, flat: true}
+ *
+ * @returns {Object} the schema document with counts ($c), types ($t),
+ *                   an array flag ($a) and probability of occurrence
+ *                   given the parent field ($p).
+ */
+if (typeof DBCollection !== 'undefined') {
+    DBCollection.prototype.schema = function(options) {
+        // default options
+        var options = options || {};
+        options.numSamples = options.numSamples || 100;
+
+        // get documents
+        var cursor = this.find({}, null, options.numSamples /* limit */, 0 /* skip*/, 0 /* batchSize */);
+
+        return schema(cursor, options);
     }
 }

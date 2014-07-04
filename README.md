@@ -38,12 +38,13 @@ var options = {flat: true};
 var callback = function(err, res) {
     // handle error
     if (err) {
-        return console.err( err );
+        return console.error( err );
     }
     // else pretty print to console
     console.log( JSON.stringify( res, null, '\t' ) );
 }
 
+// put it all together
 schema( documents, options, callback );
 ```
 

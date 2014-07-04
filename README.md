@@ -20,7 +20,8 @@ npm install mongodb-schema
 
 ### Usage 
 
-Then load the module and use call `schema( documents )`, and optionally pass in an `options` object as second parameter:
+Then load the module and use call `schema( documents, options, callback )`, which will call `callback(err, res)` with an error or the result once it's done analysing the documents.
+
 ```js
 var schema = require('mongodb-schema');
 
@@ -30,11 +31,20 @@ var documents = [
     {a: {b: "hello"}}
 ];
 
-// infer schema
-schema_obj = schema( documents, {flat: false} );
+// define options
+var options = {flat: true};
 
-// pretty print
-console.log( JSON.stringify(schema_obj, null, '\t') );
+// define callback function
+var callback = function(err, res) {
+    // handle error
+    if (err) {
+        return console.err( err );
+    }
+    // else pretty print to console
+    console.log( JSON.stringify( res, null, '\t' ) );
+}
+
+schema( documents, options, callback );
 ```
 
 This would output:
@@ -47,12 +57,12 @@ This would output:
             "number": 1,
             "object": 1
         },
-        "b": {
-            "$c": 1,
-            "$t": "string",
-            "$p": 0.5
-        },
         "$p": 1
+    },
+    "a.b": {
+        "$c": 1,
+        "$t": "string",
+        "$p": 0.5
     }
 }
 ```

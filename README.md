@@ -73,7 +73,7 @@ This will load the `mongodb-schema.js` and the open the shell as usual. You will
 mongo <basepath>/lib/mongodb-schema.js --shell
 ```
 
-Replace the `<basepath>` part with the actual path where the `mongodb-schema` is located.
+Replace the `<basepath>` part with the actual path where the `mongodb-schema` folder is located.
 
 #### 2. Load the script via the `.mongorc.js` file (permanent usage)
 
@@ -83,7 +83,7 @@ You can also add the following line to your `~/.mongorc.js` file to always load 
 load('<basepath>/lib/mongodb-schema.js')
 ```
 
-Replace the `<basepath>` part with the actual path where the `mongodb-schema` is located.
+Replace the `<basepath>` part with the actual path where the `mongodb-schema` folder is located.
 
 
 ### Usage

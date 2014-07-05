@@ -78,7 +78,7 @@ There are two ways to load the script, one-time (for testing) and permanent (for
 
 #### 1. Load the script directly (one-time usage)
 
-This will load the `mongodb-schema.js` and the open the shell as usual. You will have to add the script every time you open the shell. 
+This will first load `mongodb-schema.js` and the open the shell as usual. You will have to add the script every time you open the shell. 
 
 ```
 mongo <basepath>/lib/mongodb-schema.js --shell

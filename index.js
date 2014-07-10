@@ -3,6 +3,11 @@ var schema_sync = require('./lib/mongodb-schema.js');
 // async wrapper for mongodb-schema 
 var schema = function(documents, options, callback) {
     
+    if (typeof options === 'function') {
+        callback = options;
+        options = {};
+    }
+
     // only execute on next event loop iteration
     process.nextTick(function () {
         try {
@@ -14,4 +19,5 @@ var schema = function(documents, options, callback) {
     }); 
 }
 
-module.exports = schema;
+module.exports.schema = schema;
+module.exports.schema_sync = schema_sync;

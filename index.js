@@ -19,4 +19,5 @@ var schema = function(documents, options, callback) {
     }); 
 }
 
-module.exports = schema;
+module.exports.schema = schema;
+module.exports.schema_sync = schema_sync;

@@ -96,7 +96,7 @@ describe('mongodb-schema', function() {
         var docs = [
             {
                 a: "foo", 
-                b: 1, 
+                b: [1, 2, 3], 
                 c: true,
                 d: new Date(2014, 1, 1),
                 e: null,
@@ -229,6 +229,43 @@ describe('mongodb-schema', function() {
                 "object": 1
             };
             assert.deepEqual(result.a['$type'], expected);
+        });
+
+        it('should let you change the meta-variable names', function () {
+            var result = schema_sync([
+                {a: 1},
+                {a: [-2, -3]}
+            ], { 
+                data: true, 
+                metavars: { 
+                    count: '#count', 
+                    type: '#type', 
+                    data: '#data', 
+                    array: '#array', 
+                    prob: '#prob' 
+                } 
+            });
+
+            var expected = {
+                "#count": 3,
+                "#type": "number",
+                "#data": {
+                    "min": -3,
+                    "max": 1
+                },
+                "#array": true,
+                "#prob": 1.5
+            };
+
+            assert.deepEqual(result.a, expected);
+        });
+
+        it('should collect categories in $other when maxCardinality is reached', function () {
+            var result = schema_sync([
+                {a: "a"}, {a: "a"}, {a: "b"}, {a: "c"}, {a: "d"}, {a: "e"}, {a: "f"}
+            ], {data: {maxCardinality: 3}});
+
+            assert.ok('$other' in result.a['$data']);
         });
 
     });

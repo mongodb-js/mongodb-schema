@@ -393,3 +393,11 @@ schema([
 }
 ```
 
+
+#### Merge Existing Schema
+
+Sometimes you want to merge an existing schema with some new data. In that case, you can pass in the existing schema, and it will be amended with the new data. Use the `merge` option to pass in an existing schema, like so:
+
+```js
+schema( documents, {merge: myExistingSchema} )
+```

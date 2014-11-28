@@ -66,13 +66,14 @@ describe('mongodb-schema', function() {
 
         it('should collapse arrays, set the $array flag and increase $count numbers', function () {
             var result = schema_sync([
-                {a: [1, 2, 3]}
+                {a: [1, 2, 3, 4]}, 
+                {a: [5, 6]}
             ]);
 
             var expected = {
-                "$count": 1,
+                "$count": 2,
                 "a": {
-                    "$count": 3,
+                    "$count": 6,
                     "$type": "number",
                     "$array": true,
                     "$prob": 3

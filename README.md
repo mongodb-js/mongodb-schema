@@ -317,4 +317,79 @@ We can see a total of 5 documents (top-level `"$count"`) and `"a"` was present 3
 
 Additionally, the schema contains a `$prob` value, indicating the relative probability for a sub-document given its parent document. 
 
+#### Array Collapsing
+
+Arrays are not handled as a distinct data type. Instead, they are collapsed and interpreted as individual values for the given field. This is similar to how MongoDB treats arrays in context of querying: `db.coll.find({a: 1})` will match documents like `{a: [1, 4, 9]}`.
+
+Because each value of the array is treated as a separate instance of the sub-document, this affects the statistics like `$count` and `$prob`, and you can end up with a probability larger than 1, as it represents the average length of the array. 
+
+To indentify a schema with a collapsed array field, the `$array` flag is set to `true` if at least one array was collapsed for a given field.
+
+Example:
+
+```js
+schema([
+    {a: [1, 2, 3, 4]}, 
+    {a: [5, 6]}
+])
+
+// output
+{
+    "$count": 2,
+    "a": {
+        "$count": 6,
+        "$type": "number",
+        "$array": true,
+        "$prob": 3
+    }
+}
+```
+
+
+#### Meta Variables
+
+By default, the meta variables used to present schema data are prefixed with a `$` symbol. The individual meta variables are:
+
+- `$count`
+- `$prob`
+- `$type`
+- `$data`
+- `$array`
+- `$other`
+
+The reason for the `$`-prefix is to distinguish any meta fields from actual data fields. MongoDB's drivers prevent $-prefixed keys to be written to the server, therefore we can be sure not to overwrite any user data. 
+
+However, if the schema is going to be stored in MongoDB itself, then the names have to change, for above reasons. This can be achieved with the `metavars` option. Here is an example: 
+
+```js
+
+schema([
+    {a: 1},
+    {a: [-2, -3]}
+], { 
+    data: true, 
+    metavars: { 
+        count: '#count', 
+        type: '#type', 
+        data: '#data', 
+        array: '#array', 
+        prob: '#prob' 
+    } 
+})
+
+// output
+{
+    "#count": 2,
+    "a": {
+        "#count": 3,
+        "#type": "number",
+        "#data": {
+            "min": -3,
+            "max": 1
+        },
+        "#array": true,
+        "#prob": 1.5
+    }
+}
+```
 

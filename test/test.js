@@ -81,7 +81,22 @@ describe('mongodb-schema', function() {
             };
 
             assert.deepEqual(result, expected);
-        });       
+        });    
+
+        it('should accept an existing schema and merge with new data', function () {
+            var result = schema_sync([
+                {a: 1}
+            ], {data: true});   
+
+            result = schema_sync([
+                {a: 2}
+            ], {data: true, merge: result});
+
+            assert.equal(result['$count'], 2);
+            assert.equal(result.a['$count'], 2);
+            assert.deepEqual(result.a['$data'], {"min": 1, "max": 2});    
+
+        }); 
 
         it('should flatten the schema with the {flat: true} option', function () {
             var result = schema_sync([

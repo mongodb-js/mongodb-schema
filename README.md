@@ -128,7 +128,7 @@ The schema format is in JSON, and the shape resembles the shape of a superpositi
 ### Example
 
 Here's a first example, created from a set of 3 documents: 
-```javascript
+```js
 
 schema([ 
   {"a": 1, "b": "foo", "c": {"d": null, "e": 4.3}},
@@ -175,7 +175,7 @@ A lot going on here already. There is a top-level `$count`, that just counts all
 
 If you pass in the option `{flat: true}` as second parameter to `schema`, every sub-level is flattened down to the root level, using dot-notation. Here is the same schema as above, but with the flat option:
 
-```
+```js
 {
     "$count": 3,
     "a": {
@@ -218,7 +218,7 @@ You can enable data inference mode with the `{data: true}` option. The schema an
 ##### Numbers and Dates
 
 For numbers and dates, you will get a `min` and `max` value of all the documents seen. Example:
-```
+```js
 schema([ 
     {"a": 2}, {"a": 8}, {"a": 1}, {"a": 7}
 ], {data: true})
@@ -248,7 +248,7 @@ If some of the string values repeat, the type is set to `category`. In that case
 
 Example:
 
-```
+```js
 schema([
     {a: "a"}, {a: "a"}, {a: "b"}, {a: "c"}, {a: "d"}, {a: "e"}, {a: "f"}
 ], { data: { maxCardinality: 3 }});

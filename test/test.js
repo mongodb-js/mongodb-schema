@@ -83,6 +83,14 @@ describe('mongodb-schema', function() {
             assert.deepEqual(result, expected);
         });   
 
+        it('should not break with empty arrays for data inference', function () {
+            var result = schema_sync([
+                {a: []}
+            ], {data: true});
+
+            console.log(JSON.stringify(result, null, "    "));
+        });
+
         it('should infer data for collapsed arrays', function () {
             var result = schema_sync([
                 {a: [1, 2, 3, 4]}, 

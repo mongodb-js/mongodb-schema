@@ -87,8 +87,6 @@ describe('mongodb-schema', function() {
             var result = schema_sync([
                 {a: []}
             ], {data: true});
-
-            console.log(JSON.stringify(result, null, "    "));
         });
 
         it('should infer data for collapsed arrays', function () {
@@ -319,6 +317,16 @@ describe('mongodb-schema', function() {
             };
 
             assert.deepEqual(result.a, expected);
+        });
+
+
+        it('should work with raw mode and output the same final result', function () {
+            var result = schema_sync([{a:1}], {data: true, raw: true});
+            result = schema_sync([{a:2}], {data: true, raw: true, merge: result}).cleanup();
+            
+            var expected = schema_sync([{a:1}, {a:2}], {data: true});
+
+            assert.deepEqual(result, expected);
         });
 
         it('should collect categories in $other when maxCardinality is reached', function () {

@@ -292,31 +292,24 @@ describe('mongodb-schema', function() {
 
         it('should let you change the meta-variable names', function () {
             var result = schema_sync([
-                {a: 1},
-                {a: [-2, -3]}
+                {a: "a"}, {a: "a"}, {a: "b"}, {a: ["c"]}, {a: "d"}, {a: "e"}, {a: "f"}
             ], { 
-                data: true, 
+                data: {maxCardinality: 3}, 
                 metavars: { 
                     count: '#count', 
                     type: '#type', 
                     data: '#data', 
                     array: '#array', 
-                    prob: '#prob' 
-                } 
+                    prob: '#prob',
+                    other: '#other'
+                }
             });
 
-            var expected = {
-                "#count": 3,
-                "#type": "number",
-                "#data": {
-                    "min": -3,
-                    "max": 1
-                },
-                "#array": true,
-                "#prob": 1.5
-            };
-
-            assert.deepEqual(result.a, expected);
+            assert(result.a['#count'] !== undefined);
+            assert(result.a['#type'] !== undefined);
+            assert(result.a['#prob'] !== undefined);
+            assert(result.a['#array'] !== undefined);
+            assert(result.a['#data']['#other'] !== undefined);
         });
 
 

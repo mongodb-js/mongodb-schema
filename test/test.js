@@ -123,6 +123,16 @@ describe('mongodb-schema', function() {
 
             assert.deepEqual(result.a['$type'], "category");
 
+            var result = schema_sync([
+                {a: "1"}, {a: "2"}, {a: "3"}, {a: "4"}
+            ], {data: true});   
+
+            result = schema_sync([
+                {a: "5"}, {a: "6"}
+            ], {data: true, merge: result});
+
+            assert.deepEqual(result.a['$type'], "text");
+
         });
 
         it('should flatten the schema with the {flat: true} option', function () {

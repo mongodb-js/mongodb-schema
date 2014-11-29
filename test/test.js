@@ -81,7 +81,21 @@ describe('mongodb-schema', function() {
             };
 
             assert.deepEqual(result, expected);
-        });    
+        });   
+
+        it('should infer data for collapsed arrays', function () {
+            var result = schema_sync([
+                {a: [1, 2, 3, 4]}, 
+                {a: [5, 6]}
+            ], {data: true});
+
+            var expected = {
+                min: 1,
+                max: 6
+            }; 
+            
+            assert.deepEqual(result.a['$data'], expected);
+        }); 
 
         it('should accept an existing schema and merge with new data', function () {
             var result = schema_sync([
@@ -97,6 +111,19 @@ describe('mongodb-schema', function() {
             assert.deepEqual(result.a['$data'], {"min": 1, "max": 2});    
 
         }); 
+
+        it('should merge existing text/category data correctly with new strings', function() {
+            var result = schema_sync([
+                {a: "foo"}, {a: "foo"}, {a: "bar"}, {a: "bar"}
+            ], {data: true});   
+
+            result = schema_sync([
+                {a: "foo"}, {a: "bar"}
+            ], {data: true, merge: result});
+
+            assert.deepEqual(result.a['$type'], "category");
+
+        });
 
         it('should flatten the schema with the {flat: true} option', function () {
             var result = schema_sync([

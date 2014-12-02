@@ -294,22 +294,15 @@ describe('mongodb-schema', function() {
             var result = schema_sync([
                 {a: "a"}, {a: "a"}, {a: "b"}, {a: ["c"]}, {a: "d"}, {a: "e"}, {a: "f"}
             ], { 
-                data: {maxCardinality: 3}, 
-                metavars: { 
-                    count: '#count', 
-                    type: '#type', 
-                    data: '#data', 
-                    array: '#array', 
-                    prob: '#prob',
-                    other: '#other'
-                }
+                data: { maxCardinality: 3 }, 
+                metavars: { prefix: '#', other: 'rest', count: 'num', prob: 'p' }
             });
 
-            assert(result.a['#count'] !== undefined);
+            assert(result.a['#num'] !== undefined);
             assert(result.a['#type'] !== undefined);
-            assert(result.a['#prob'] !== undefined);
+            assert(result.a['#p'] !== undefined);
             assert(result.a['#array'] !== undefined);
-            assert(result.a['#data']['#other'] !== undefined);
+            assert(result.a['#data']['#rest'] !== undefined);
         });
 
 

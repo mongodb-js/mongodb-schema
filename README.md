@@ -7,6 +7,9 @@ This package is dual-purpose. It serves as a [node.js module](#usage-with-nodejs
 
 _mongodb-schema_ is an early prototype. Use at your own risk.
 
+##### Upgrade Warning
+Version 0.4.0 has significant changes in the schema format compared to 0.3.0 and may break backwards-compatibility. Upgrade with caution.
+
 <br>
 
 ## Usage with Node.js

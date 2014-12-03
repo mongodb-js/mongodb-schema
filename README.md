@@ -31,21 +31,11 @@ var documents = [
     {a: {b: "hello"}}
 ];
 
-// define options
-var options = {flat: true};
-
-// define callback function
-var callback = function(err, res) {
-    // handle error
-    if (err) {
-        return console.error( err );
-    }
-    // else pretty print to console
-    console.log( JSON.stringify( res, null, '\t' ) );
-}
-
-// put it all together
-schema( documents, options, callback );
+// call with options and callback function
+schema( documents, {flat: true}, function (err, res) {
+    if (err) return console.error( err );
+    console.log( JSON.stringify( res, null, "\t" ) );
+})
 ```
 
 This would output:
@@ -171,6 +161,13 @@ schema([
 
 A lot going on here already. There is a top-level `$count`, that just counts all the parsed documents. Each of the first-level sub-documents `"a"`, `"b"`, `"c"` get their own section in the schema, just as if all documents were superimposed on top of each other (think "transparent slides"). Each sub-document has a `$count` of its own, together with `$type` information and a probability `$prob`. These fields are explained below. 
 
+### Sampling Size
+
+The MongoDB shell version of the script has an additional parameter `samples`, which by default is set to 100 and limits the number of samples to 100. You can change it to another value, or use the option `{samples: 'all'}` to look at all the documents (careful: this can be computationally expensive, depending on the number of documents).
+
+This option is not available when used as a stand-alone javascript or node module.
+
+
 ### Flat Format
 
 If you pass in the option `{flat: true}` as second parameter to `schema`, every sub-level is flattened down to the root level, using dot-notation. Here is the same schema as above, but with the flat option:
@@ -217,7 +214,7 @@ You can enable data inference mode with the `{data: true}` option. The schema an
 
 ##### Numbers and Dates
 
-For numbers and dates, you will get a `min` and `max` value of all the documents seen. Example:
+For numbers and dates, you will get  some statistics under the `$stats`  field, with `min` and `max` value of all the documents seen. Example:
 ```js
 schema([ 
     {"a": 2}, {"a": 8}, {"a": 1}, {"a": 7}
@@ -229,7 +226,7 @@ schema([
     "a": {
         "$count": 4,
         "$type": "number",
-        "$data": {
+        "$stats": {
             "min": 1,
             "max": 8
         },
@@ -238,13 +235,20 @@ schema([
 }
 ```
 
-#### Strings
+#### Categories
 
-When you enable data inference, the `string` type is replaced by either `text` or `category`, depending on the string values. 
+When you enable data inference, all sampled values are stored, and if there are some duplicate values, the `$category` flag is set to `true` on the field and the histogram of values is returned under `$hist`. The shape of histogram values is `{v: <value>, c: <count>}`, for example: 
 
-If there are at least 2 string values and all the strings are unique, the type will be set to `text`, indicating that the field is likely some kind of free text field (a description for example). `text` types currently don't have a `$data` field and don't output any kind of data statistics.
+```
+$hist: [
+    {v: "foo", c: 62},
+    {v: "bar", c: 38}
+]
+```
 
-If some of the string values repeat, the type is set to `category`. In that case, the `$data` field contains a histogram of how often each category was observed. The maximum cardinality is set to 100. If there are more categories than this value, an `$other` field counter will instead be increased. This is limit the amount of memory needed to keep the histogram stats. The maximum cardinality can be configured with the `data.maxCardinality` value. Instead of assigning `true` to the data option, you can pass in a sub-document to set the maximum cardinality:
+The choice for array of documents with `v` and `c` keys was made because non-string values, like dates and numbers, cannot be JSON keys. 
+
+The maximum cardinality is set to 100. If there are more categories, an additional array element `{o: <count>}` is included where `o` stands for "other". This is to limit the amount of memory needed to keep the histogram stats. The maximum cardinality can be configured with the `data.maxCardinality` value. Instead of assigning `true` to the data option, you can pass in a sub-document to set the maximum cardinality:
 
 Example:
 
@@ -258,13 +262,14 @@ schema([
     "$count": 7,
     "a": {
         "$count": 7,
-        "$type": "category",
-        "$data": {
-            "a": 2,
-            "b": 1,
-            "c": 1,
-            "$other": 3
-        },
+        "$type": "string",
+        "$category": true,
+        "$hist": [
+            {"v": "a", "c": 2},
+            {"v": "b", "c": 1},
+            {"v": "c", "c": 1},
+            {"o": 3}
+        ],
         "$prob": 1
     }
 }
@@ -353,9 +358,9 @@ By default, the meta variables used to present schema data are prefixed with a `
 - `$count`
 - `$prob`
 - `$type`
-- `$data`
+- `$stats`
+- `$hist`
 - `$array`
-- `$other`
 
 The reason for the `$`-prefix is to distinguish any meta fields from actual data fields. MongoDB's drivers prevent $-prefixed keys to be written to the server, therefore we can be sure not to overwrite any user data. 
 
@@ -369,21 +374,19 @@ schema([
 ], { 
     data: true, 
     metavars: { 
-        count: '#count', 
-        type: '#type', 
-        data: '#data', 
-        array: '#array', 
-        prob: '#prob' 
+        prefix: "#", 
+        count: "num", 
+        stats: "statistics"
     } 
 })
 
 // output
 {
-    "#count": 2,
+    "#num": 2,
     "a": {
-        "#count": 3,
+        "#num": 3,
         "#type": "number",
-        "#data": {
+        "#statistics": {
             "min": -3,
             "max": 1
         },
@@ -396,8 +399,23 @@ schema([
 
 #### Merge Existing Schema
 
-Sometimes you want to merge an existing schema with some new data. In that case, you can pass in the existing schema, and it will be amended with the new data. Use the `merge` option to pass in an existing schema, like so:
+Sometimes you want to merge an existing schema with some new data. In that case, you can pass in the existing schema, and it will be amended with the new values. Use the `merge` option to pass in an existing schema, like so:
 
 ```js
 schema( documents, {merge: myExistingSchema} )
 ```
+
+This works fine when the `data` option is not set, but if you infer data as well, this is not going to work, because the cleanup step throws away histograms of non-categorical data. If you want to merge a schema and also infer data, the best way is to use the `raw` mode. This mode returns the schema before the cleanup step. You can pass the raw schema back into another call to merge.
+
+To clean the raw data up and convert it to a "final" version, just call the `.cleanup()` function on the raw schema object. 
+
+Example:
+
+```js
+var raw_schema = schema( documents, {raw: true, data: true});
+raw_schema = schema( more_documents, {raw; true, merge: raw_schema});
+raw_schema = schema( even_more_documents, {raw; true, merge: raw_schema});
+var schema = raw_schema.cleanup();
+```
+
+

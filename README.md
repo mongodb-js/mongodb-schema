@@ -8,7 +8,7 @@ This package is dual-purpose. It serves as a [node.js module](#usage-with-nodejs
 _mongodb-schema_ is an early prototype. Use at your own risk.
 
 ##### Upgrade Warning
-Version 0.5.0 has significant changes in the schema format compared to 0.4.0 and may break backwards-compatibility. Upgrade with caution.
+Version 0.5.x has significant changes in the schema format compared to 0.4.x and may break backwards-compatibility. Upgrade with caution.
 
 <br>
 
@@ -414,9 +414,7 @@ By default, the meta variables used to present schema data are prefixed with a `
 - `#data`
 - `#array`
 
-The reason for the `#`-prefix is to distinguish any meta fields from actual data fields. MongoDB's drivers prevent #-prefixed keys to be written to the server, therefore we can be sure not to overwrite any user data. 
-
-However, if the schema is going to be stored in MongoDB itself, then the names have to change, for above reasons. This can be achieved with the `metavars` option. Here is an example: 
+The reason for the `#`-prefix is to distinguish any meta fields from actual data fields. Should this cause a conflict with your actual data, choose a different prefix that does not collide with data keys. This can be achieved with the `metavars` option. Here is an example: 
 
 ```js
 
@@ -426,24 +424,24 @@ schema([
 ], { 
     data: true, 
     metavars: { 
-        prefix: "#", 
+        prefix: "__", 
         count: "num", 
-        stats: "statistics"
+        data: "statistics"
     } 
 })
 
 // output
 {
-    "#num": 2,
+    "__num": 2,
     "a": {
-        "#num": 3,
-        "#type": "number",
-        "#statistics": {
+        "__num": 3,
+        "__type": "number",
+        "__statistics": {
             "min": -3,
             "max": 1
         },
-        "#array": true,
-        "#prob": 1.5
+        "__array": true,
+        "__prob": 1.5
     }
 }
 ```

@@ -26,12 +26,15 @@ describe('mongodb-schema', function() {
                     "$prob": 1
                 }
             };
-            assert.deepEqual(result, expected);
+            assert.deepEqual(result['$count'], 1);
+            assert.deepEqual(result.a, expected.a);
+            assert.deepEqual(result.b, expected.b);
         });
 
         it('should work with an empty list of documents', function () {
             var result = schema_sync([]);
-            assert.deepEqual(result, {});
+            assert.equal(Object.keys(result).length, 1);
+            assert.equal(Object.keys(result)[0], '__schema');
         });
 
         it('should correctly parse nested documents', function () {
@@ -60,6 +63,7 @@ describe('mongodb-schema', function() {
                     "$prob": 1
                 }
             };
+            delete result['__schema'];
 
             assert.deepEqual(result, expected);
         });
@@ -80,7 +84,7 @@ describe('mongodb-schema', function() {
                 }
             };
 
-            assert.deepEqual(result, expected);
+            assert.deepEqual(result.a, expected.a);
         });   
 
         it('should not break with empty arrays for data inference', function () {
@@ -308,11 +312,10 @@ describe('mongodb-schema', function() {
 
         it('should work with raw mode and output the same final result', function () {
             var result = schema_sync([{a:1}], {data: true, raw: true});
-            result = schema_sync([{a:2}], {data: true, raw: true, merge: result}).cleanup();
-            
+            var result = schema_sync([{a:2}], {data: true, raw: true, merge: result}).cleanup();
             var expected = schema_sync([{a:1}, {a:2}], {data: true});
-
-            assert.deepEqual(result, expected);
+            
+            assert.deepEqual(result.a, expected.a);
         });
 
         it('should collect categories in $other when maxCardinality is reached', function () {

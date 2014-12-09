@@ -14,19 +14,19 @@ describe('mongodb-schema', function() {
         it('should work with a simple document', function () {
             var result = schema_sync([{a: 1, b: 1}]);
             var expected = { 
-                "$count":1,
+                "#count":1,
                 "a": {
-                    "$count": 1,
-                    "$type": "number",
-                    "$prob": 1
+                    "#count": 1,
+                    "#type": "number",
+                    "#prob": 1
                 },
                 "b": {
-                    "$count": 1,
-                    "$type": "number",
-                    "$prob": 1
+                    "#count": 1,
+                    "#type": "number",
+                    "#prob": 1
                 }
             };
-            assert.deepEqual(result['$count'], 1);
+            assert.deepEqual(result['#count'], 1);
             assert.deepEqual(result.a, expected.a);
             assert.deepEqual(result.b, expected.b);
         });
@@ -41,26 +41,26 @@ describe('mongodb-schema', function() {
             var result = schema_sync([
                 {a: {b: 1}},
                 {a: {b: {c: 2}}},          
-            ]);
+            ], {flat: false});
 
             var expected = {
-                "$count": 2,
+                "#count": 2,
                 "a": {
-                    "$count": 2,
+                    "#count": 2,
                     "b": {
-                        "$count": 2,
-                        "$type": {
+                        "#count": 2,
+                        "#type": {
                             "number": 1,
                             "object": 1
                         },
                         "c": {
-                            "$count": 1,
-                            "$type": "number",
-                            "$prob": 0.5
+                            "#count": 1,
+                            "#type": "number",
+                            "#prob": 0.5
                         },
-                        "$prob": 1
+                        "#prob": 1
                     },
-                    "$prob": 1
+                    "#prob": 1
                 }
             };
             delete result['__schema'];
@@ -68,19 +68,19 @@ describe('mongodb-schema', function() {
             assert.deepEqual(result, expected);
         });
 
-        it('should collapse arrays, set the $array flag and increase $count numbers', function () {
+        it('should collapse arrays, set the #array flag and increase #count numbers', function () {
             var result = schema_sync([
                 {a: [1, 2, 3, 4]}, 
                 {a: [5, 6]}
             ]);
 
             var expected = {
-                "$count": 2,
+                "#count": 2,
                 "a": {
-                    "$count": 6,
-                    "$type": "number",
-                    "$array": true,
-                    "$prob": 3
+                    "#count": 6,
+                    "#type": "number",
+                    "#array": true,
+                    "#prob": 3
                 }
             };
 
@@ -104,7 +104,7 @@ describe('mongodb-schema', function() {
                 max: 6
             }; 
             
-            assert.deepEqual(result.a['$data'], expected);
+            assert.deepEqual(result.a['#data'], expected);
         }); 
 
         it('should accept an existing schema and merge with new data', function () {
@@ -116,9 +116,9 @@ describe('mongodb-schema', function() {
                 {a: 2}
             ], {data: true, merge: result});
 
-            assert.equal(result['$count'], 2);
-            assert.equal(result.a['$count'], 2);
-            assert.deepEqual(result.a['$data'], {"min": 1, "max": 2});    
+            assert.equal(result['#count'], 2);
+            assert.equal(result.a['#count'], 2);
+            assert.deepEqual(result.a['#data'], {"min": 1, "max": 2});    
 
         }); 
 
@@ -131,7 +131,7 @@ describe('mongodb-schema', function() {
                 {a: "foo"}, {a: "bar"}
             ], {data: true, merge: result});
 
-            assert.deepEqual(result.a['$type'], "category");
+            assert.deepEqual(result.a['#type'], "category");
 
             var result = schema_sync([
                 {a: "1"}, {a: "2"}, {a: "3"}, {a: "4"}
@@ -141,7 +141,7 @@ describe('mongodb-schema', function() {
                 {a: "5"}, {a: "6"}
             ], {data: true, merge: result});
 
-            assert.deepEqual(result.a['$type'], "text");
+            assert.deepEqual(result.a['#type'], "text");
 
         });
 
@@ -186,47 +186,47 @@ describe('mongodb-schema', function() {
         it('should infer types correctly (not testing ObjectId currently)', function () {
             var result = schema_sync(docs);
 
-            assert.equal(result.a['$type'], 'string');
-            assert.equal(result.b['$type'], 'number');
-            assert.equal(result.c['$type'], 'boolean');
-            assert.equal(result.d['$type'], 'date');
-            assert.equal(result.e['$type'], 'null');
-            assert.equal(result.f['$type'], 'string');
+            assert.equal(result.a['#type'], 'string');
+            assert.equal(result.b['#type'], 'number');
+            assert.equal(result.c['#type'], 'boolean');
+            assert.equal(result.d['#type'], 'date');
+            assert.equal(result.e['#type'], 'null');
+            assert.equal(result.f['#type'], 'string');
         });
 
         it('should distinguish `text` and `category` types when using {data: true}', function () {
             var result = schema_sync(docs, {data: true});
 
-            assert.equal(result.a['$type'], 'text');
-            assert.equal(result.b['$type'], 'number');
-            assert.equal(result.c['$type'], 'boolean');
-            assert.equal(result.d['$type'], 'date');
-            assert.equal(result.e['$type'], 'null');
-            assert.equal(result.f['$type'], 'category');
+            assert.equal(result.a['#type'], 'text');
+            assert.equal(result.b['#type'], 'number');
+            assert.equal(result.c['#type'], 'boolean');
+            assert.equal(result.d['#type'], 'date');
+            assert.equal(result.e['#type'], 'null');
+            assert.equal(result.f['#type'], 'category');
         });
 
         it('should calculate bounds for date/number and histograms for category', function () {
             var result = schema_sync(docs, {data: true});
 
-            assert.ok( !('$data' in result.a) );
-            assert.ok( !('$data' in result.c) );
-            assert.ok( !('$data' in result.e) );
+            assert.ok( !('#data' in result.a) );
+            assert.ok( !('#data' in result.c) );
+            assert.ok( !('#data' in result.e) );
 
-            assert.deepEqual(result.b['$data'], {
+            assert.deepEqual(result.b['#data'], {
                 min: 1, 
                 max: 8
             });
-            assert.deepEqual(result.d['$data'], {
+            assert.deepEqual(result.d['#data'], {
                 min: new Date(2012, 1, 1),
                 max: new Date(2014, 1, 1)
             });
-            assert.deepEqual(result.f['$data'], {
+            assert.deepEqual(result.f['#data'], {
                 foo: 2,
                 bar: 1
             });
         });
 
-        it('should track $data for arrays', function () {
+        it('should track #data for arrays', function () {
             var result = schema_sync([
                 {a: ["foo", "foo", "bar"]},
                 {a: ["bar", "baz", "foo"]}
@@ -238,7 +238,7 @@ describe('mongodb-schema', function() {
                 "baz": 1
             }
 
-            assert.deepEqual(result.a['$data'], expected);
+            assert.deepEqual(result.a['#data'], expected);
         });
 
         it('should not infer data for mixed numbers and dates', function () {
@@ -248,7 +248,7 @@ describe('mongodb-schema', function() {
                 {a: new Date(2014, 08, 20)}
             ], {data: true});
 
-            assert.ok( !('$data' in result.a) );
+            assert.ok( !('#data' in result.a) );
         });
 
         it('should handle mixed types for arrays', function () {
@@ -264,7 +264,7 @@ describe('mongodb-schema', function() {
                 "null": 1
             };
 
-            assert.deepEqual(result.a['$type'], expected);
+            assert.deepEqual(result.a['#type'], expected);
         }); 
 
         it('should count sub-fields correctly', function () {
@@ -274,10 +274,10 @@ describe('mongodb-schema', function() {
                 {a: 1, b: 1}
             ]);
 
-            assert.equal(result['$count'], 3);
-            assert.equal(result.a['$count'], 3);
-            assert.equal(result.b['$count'], 2);
-            assert.equal(result.c['$count'], 1);
+            assert.equal(result['#count'], 3);
+            assert.equal(result.a['#count'], 3);
+            assert.equal(result.b['#count'], 2);
+            assert.equal(result.c['#count'], 1);
         });
 
         it('should return a type histogram for mixed types', function () {
@@ -291,7 +291,7 @@ describe('mongodb-schema', function() {
                 "null": 1,
                 "object": 1
             };
-            assert.deepEqual(result.a['$type'], expected);
+            assert.deepEqual(result.a['#type'], expected);
         });
 
         it('should let you change the meta-variable names', function () {
@@ -318,12 +318,12 @@ describe('mongodb-schema', function() {
             assert.deepEqual(result.a, expected.a);
         });
 
-        it('should collect categories in $other when maxCardinality is reached', function () {
+        it('should collect categories in #other when maxCardinality is reached', function () {
             var result = schema_sync([
                 {a: "a"}, {a: "a"}, {a: "b"}, {a: "c"}, {a: "d"}, {a: "e"}, {a: "f"}
             ], {data: {maxCardinality: 3}});
 
-            assert.ok('$other' in result.a['$data']);
+            assert.ok('#other' in result.a['#data']);
         });
 
     });
@@ -333,7 +333,7 @@ describe('mongodb-schema', function() {
             schema([{a:1, b:1}, {a:2, b:2}], {}, function (err, result) {
                 if (err) throw err;
                 assert.equal(err, null);
-                assert.equal(result['$count'], 2);
+                assert.equal(result['#count'], 2);
                 done();
             });
         });

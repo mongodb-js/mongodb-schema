@@ -8,7 +8,7 @@ This package is dual-purpose. It serves as a [node.js module](#usage-with-nodejs
 _mongodb-schema_ is an early prototype. Use at your own risk.
 
 ##### Upgrade Warning
-Version 0.4.0 has significant changes in the schema format compared to 0.3.0 and may break backwards-compatibility. Upgrade with caution.
+Version 0.5.0 has significant changes in the schema format compared to 0.4.0 and may break backwards-compatibility. Upgrade with caution.
 
 <br>
 
@@ -35,7 +35,7 @@ var documents = [
 ];
 
 // call with options and callback function
-schema( documents, {flat: true}, function (err, res) {
+schema( documents, {flat: false}, function (err, res) {
     if (err) return console.error( err );
     console.log( JSON.stringify( res, null, "\t" ) );
 })
@@ -44,19 +44,38 @@ schema( documents, {flat: true}, function (err, res) {
 This would output:
 ```json
 {
-    "$count": 2,
+    "#count": 2,
     "a": {
-        "$count": 2,
-        "$type": {
+        "#count": 2,
+        "#type": {
             "number": 1,
             "object": 1
         },
-        "$prob": 1
+        "b": {
+            "#count": 1,
+            "#type": "string",
+            "#prob": 0.5
+        },
+        "#prob": 1
     },
-    "a.b": {
-        "$count": 1,
-        "$type": "string",
-        "$prob": 0.5
+    "__schema": {
+        "version": "0.5.0",
+        "options": {
+            "flat": false,
+            "raw": false,
+            "data": false,
+            "filter": null,
+            "merge": false,
+            "metavars": {
+                "prefix": "#",
+                "count": "count",
+                "type": "type",
+                "data": "data",
+                "array": "array",
+                "prob": "prob",
+                "other": "other"
+            }
+        }
     }
 }
 ```
@@ -116,7 +135,9 @@ This will use the first 20 documents to calculate the schema and return the sche
 
 ## Schema Format
 
-The schema format is in JSON, and the shape resembles the shape of a superposition of all inferred documents. Each level of the schema (from the root level down into each nested sub-document) has annotations with special meta-variables, which by default start with a `$`. Examples of such annotations are `$count`, `$type`, etc.
+The schema format is in JSON, and the shape resembles the shape of a superposition of all inferred documents. Each level of the schema (from the root level down into each nested sub-document) has annotations with special meta-variables, which by default start with a `#`. Examples of such annotations are `#count`, `#type`, etc. By default,
+the schema is then flattened at the end, to bring all nested keys to the root level (this option can be disabled with 
+`{flat: false}`). Lastly, the schema contains a special key `__schema`, under which the schema version and the options to generate the schema are stored.
 
 ### Example
 
@@ -131,38 +152,57 @@ schema([
 
 // output
 {
-    "$count": 3,
+    "#count": 3,
     "a": {
-        "$count": 3,
-        "$type": "number",
-        "$prob": 1
+        "#count": 3,
+        "#type": "number",
+        "#prob": 1
     },
     "b": {
-        "$count": 3,
-        "$type": "string",
-        "$prob": 1
+        "#count": 3,
+        "#type": "string",
+        "#prob": 1
     },
     "c": {
-        "$count": 2,
-        "d": {
-            "$count": 2,
-            "$type": {
-                "null": 1,
-                "string": 1
-            },
-            "$prob": 1
+        "#count": 2,
+        "#prob": 0.6666666666666666
+    },
+    "c.d": {
+        "#count": 2,
+        "#type": {
+            "null": 1,
+            "string": 1
         },
-        "e": {
-            "$count": 2,
-            "$type": "number",
-            "$prob": 1
-        },
-        "$prob": 0.6666666666666666
+        "#prob": 1
+    },
+    "c.e": {
+        "#count": 2,
+        "#type": "number",
+        "#prob": 1
+    },
+    "__schema": {
+        "version": "0.5.0",
+        "options": {
+            "raw": false,
+            "flat": true,
+            "data": false,
+            "filter": null,
+            "merge": false,
+            "metavars": {
+                "prefix": "#",
+                "count": "count",
+                "type": "type",
+                "data": "data",
+                "array": "array",
+                "prob": "prob",
+                "other": "other"
+            }
+        }
     }
 }
 ```
 
-A lot going on here already. There is a top-level `$count`, that just counts all the parsed documents. Each of the first-level sub-documents `"a"`, `"b"`, `"c"` get their own section in the schema, just as if all documents were superimposed on top of each other (think "transparent slides"). Each sub-document has a `$count` of its own, together with `$type` information and a probability `$prob`. These fields are explained below. 
+A lot going on here already. There is a top-level `#count`, that just counts all the parsed documents. Each of the sub-documents on any nested level get their own section in the schema, just as if all documents were superimposed on top of each other (think "transparent slides"). Each sub-document has a `#count` of its own, together with `#type` information and a probability `#prob`. These fields are explained below. 
 
 ### Sampling Size
 
@@ -173,42 +213,59 @@ This option is not available when used as a stand-alone javascript or node modul
 
 ### Flat Format
 
-If you pass in the option `{flat: true}` as second parameter to `schema`, every sub-level is flattened down to the root level, using dot-notation. Here is the same schema as above, but with the flat option:
+If you pass in the option `{flat: false}` as second parameter to `schema`, The flattening is skipped and the document is returned in its nested form. Here is the same schema as above, but with the `{flat: false}` option:
 
 ```js
 {
-    "$count": 3,
+    "#count": 3,
     "a": {
-        "$count": 3,
-        "$type": "number",
-        "$prob": 1
+        "#count": 3,
+        "#type": "number",
+        "#prob": 1
     },
     "b": {
-        "$count": 3,
-        "$type": "string",
-        "$prob": 1
+        "#count": 3,
+        "#type": "string",
+        "#prob": 1
     },
     "c": {
-        "$count": 2,
-        "$prob": 0.6666666666666666
-    },
-    "c.d": {
-        "$count": 2,
-        "$type": {
-            "null": 1,
-            "string": 1
+        "#count": 2,
+        "d": {
+            "#count": 2,
+            "#type": {
+                "null": 1,
+                "string": 1
+            },
+            "#prob": 1
         },
-        "$prob": 1
+        "e": {
+            "#count": 2,
+            "#type": "number",
+            "#prob": 1
+        },
+        "#prob": 0.6666666666666666
     },
-    "c.e": {
-        "$count": 2,
-        "$type": "number",
-        "$prob": 1
+    "__schema": {
+        "version": "0.5.0",
+        "options": {
+            "flat": false,
+            "raw": false,
+            "data": false,
+            "filter": null,
+            "merge": false,
+            "metavars": {
+                "prefix": "#",
+                "count": "count",
+                "type": "type",
+                "data": "data",
+                "array": "array",
+                "prob": "prob",
+                "other": "other"
+            }
+        }
     }
 }
 ```
-
-Notice how the `"c"` sub-document doesn't contain information about its sub fields `"d"` and `"e"`. This is now tracked separate under `"c.d"` and `"d.e"`.
 
 ### Data Inference
 
@@ -217,7 +274,7 @@ You can enable data inference mode with the `{data: true}` option. The schema an
 
 ##### Numbers and Dates
 
-For numbers and dates, you will get  some statistics under the `$stats`  field, with `min` and `max` value of all the documents seen. Example:
+For numbers and dates, you will get some statistics under the `#data`  field, with `min` and `max` value of all the documents seen. Example:
 ```js
 schema([ 
     {"a": 2}, {"a": 8}, {"a": 1}, {"a": 7}
@@ -225,33 +282,24 @@ schema([
 
 // output
 {
-    "$count": 4,
+    "#count": 4,
     "a": {
-        "$count": 4,
-        "$type": "number",
-        "$stats": {
+        "#count": 4,
+        "#type": "number",
+        "#data": {
             "min": 1,
             "max": 8
         },
-        "$prob": 1
+        "#prob": 1
     }
 }
 ```
 
-#### Categories
+#### Strings
 
-When you enable data inference, all sampled values are stored, and if there are some duplicate values, the `$category` flag is set to `true` on the field and the histogram of values is returned under `$hist`. The shape of histogram values is `{v: <value>, c: <count>}`, for example: 
+When you enable data inference, the type of strings changes to either `text` or `category`. `text` is free-form string like a description. It is assumed that the descriptions are unique. `category` is chosen when duplicate values are encountered. In the case of `category`, the `#data` key of the field contains a histogram of values and their counts.
 
-```
-$hist: [
-    {v: "foo", c: 62},
-    {v: "bar", c: 38}
-]
-```
-
-The choice for array of documents with `v` and `c` keys was made because non-string values, like dates and numbers, cannot be JSON keys. 
-
-The maximum cardinality is set to 100. If there are more categories, an additional array element `{o: <count>}` is included where `o` stands for "other". This is to limit the amount of memory needed to keep the histogram stats. The maximum cardinality can be configured with the `data.maxCardinality` value. Instead of assigning `true` to the data option, you can pass in a sub-document to set the maximum cardinality:
+The maximum cardinality is set to 100 by default. If there are more categories, an additional key `#other` is included. This is to limit the amount of memory needed to keep the histogram stats. The maximum cardinality can be configured with the `data.maxCardinality` value. Instead of assigning `true` to the data option, you can pass in a sub-document to set the maximum cardinality:
 
 Example:
 
@@ -262,18 +310,20 @@ schema([
 
 // output
 {
-    "$count": 7,
+    "#count": 7,
     "a": {
-        "$count": 7,
-        "$type": "string",
-        "$category": true,
-        "$hist": [
-            {"v": "a", "c": 2},
-            {"v": "b", "c": 1},
-            {"v": "c", "c": 1},
-            {"o": 3}
-        ],
-        "$prob": 1
+        "#count": 7,
+        "#type": "category",
+        "#data": {
+            "a": 2,
+            "b": 1,
+            "c": 1,
+            "#other": 3
+        },
+        "#prob": 1
+    },
+    "__schema": {
+        // ...
     }
 }
 ```
@@ -281,11 +331,11 @@ schema([
 
 #### Counts and Probabilities
 
-The schema keeps count of the number of documents and sub-documents on each level. This information is stored in the `$count` field. If we pass in a single empty document `{}`, the output is this: 
+The schema keeps count of the number of documents and sub-documents on each level. This information is stored in the `#count` field. If we pass in a single empty document `{}`, the output is this: 
 
 ```json
 {   
-    "$count": 1,
+    "#count": 1,
 }
 ```
 
@@ -293,45 +343,45 @@ Passing in a document with a field `{a: 1}` returns this schema:
 
 ```json
 {   
-    "$count": 1,
+    "#count": 1,
     "a": {
-        "$count": 1,
-        "$type": "number",
-        "$prob": 1
+        "#count": 1,
+        "#type": "number",
+        "#prob": 1
     }
 }
 ```
 
-The `"a"` sub-document receives its own `$count` field and only counts the number of occurences where the the `"a"` sub-document was present. Another example, for this list of documents: `[ {a: 1}, {b: 1}, {a: 0}, {a: 2}, {b: 5} ]`:
+The `"a"` sub-document receives its own `#count` field and only counts the number of occurences where the the `"a"` sub-document was present. Another example, for this list of documents: `[ {a: 1}, {b: 1}, {a: 0}, {a: 2}, {b: 5} ]`:
 
 ```json
 {
-    "$count": 5,
+    "#count": 5,
     "a": {
-        "$count": 3,
-        "$type": "number",
-        "$prob": 0.6
+        "#count": 3,
+        "#type": "number",
+        "#prob": 0.6
     },
     "b": {
-        "$count": 2,
-        "$type": "number",
-        "$prob": 0.4
+        "#count": 2,
+        "#type": "number",
+        "#prob": 0.4
     }
 }
 ```
 
-We can see a total of 5 documents (top-level `"$count"`) and `"a"` was present 3 times, `"b"` twice. 
+We can see a total of 5 documents (top-level `"#count"`) and `"a"` was present 3 times, `"b"` twice. 
 <br>
 
-Additionally, the schema contains a `$prob` value, indicating the relative probability for a sub-document given its parent document. 
+Additionally, the schema contains a `#prob` value, indicating the relative probability for a sub-document given its parent document. 
 
 #### Array Collapsing
 
 Arrays are not handled as a distinct data type. Instead, they are collapsed and interpreted as individual values for the given field. This is similar to how MongoDB treats arrays in context of querying: `db.coll.find({a: 1})` will match documents like `{a: [1, 4, 9]}`.
 
-Because each value of the array is treated as a separate instance of the sub-document, this affects the statistics like `$count` and `$prob`, and you can end up with a probability larger than 1, as it represents the average length of the array. 
+Because each value of the array is treated as a separate instance of the sub-document, this affects the statistics like `#count` and `#prob`, and you can end up with a probability larger than 1, as it represents the average length of the array. 
 
-To indentify a schema with a collapsed array field, the `$array` flag is set to `true` if at least one array was collapsed for a given field.
+To indentify a schema with a collapsed array field, the `#array` flag is set to `true` if at least one array was collapsed for a given field.
 
 Example:
 
@@ -343,12 +393,12 @@ schema([
 
 // output
 {
-    "$count": 2,
+    "#count": 2,
     "a": {
-        "$count": 6,
-        "$type": "number",
-        "$array": true,
-        "$prob": 3
+        "#count": 6,
+        "#type": "number",
+        "#array": true,
+        "#prob": 3
     }
 }
 ```
@@ -356,16 +406,15 @@ schema([
 
 #### Meta Variables
 
-By default, the meta variables used to present schema data are prefixed with a `$` symbol. The individual meta variables are:
+By default, the meta variables used to present schema data are prefixed with a `#` symbol. The individual meta variables are:
 
-- `$count`
-- `$prob`
-- `$type`
-- `$stats`
-- `$hist`
-- `$array`
+- `#count`
+- `#prob`
+- `#type`
+- `#data`
+- `#array`
 
-The reason for the `$`-prefix is to distinguish any meta fields from actual data fields. MongoDB's drivers prevent $-prefixed keys to be written to the server, therefore we can be sure not to overwrite any user data. 
+The reason for the `#`-prefix is to distinguish any meta fields from actual data fields. MongoDB's drivers prevent #-prefixed keys to be written to the server, therefore we can be sure not to overwrite any user data. 
 
 However, if the schema is going to be stored in MongoDB itself, then the names have to change, for above reasons. This can be achieved with the `metavars` option. Here is an example: 
 

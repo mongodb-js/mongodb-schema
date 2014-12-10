@@ -1,6 +1,6 @@
 {
   "name": "mongodb-schema",
-  "description": "Infer a probabilistic schema javascript objects, JSON documents or a MongoDB collection",
+  "description": "Infer probabilistic schema of javascript objects or a MongoDB collection.",
   "version": "0.5.2",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
   "license": "Apache",

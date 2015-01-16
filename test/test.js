@@ -47,6 +47,7 @@ describe('mongodb-schema', function() {
                 "#count": 2,
                 "a": {
                     "#count": 2,
+                    "#type": "object",
                     "b": {
                         "#count": 2,
                         "#type": {

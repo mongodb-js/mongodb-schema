@@ -3,14 +3,14 @@
   "description": "Infer probabilistic schema of javascript objects or a MongoDB collection.",
   "version": "0.6.0",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
-  "license": "Apache",
-  "homepage": "http://github.com/rueckstiess/mongodb-schema",
+  "license": "MIT",
+  "homepage": "http://github.com/mongodb-js/mongodb-schema",
   "repository": {
     "type": "git",
-    "url": "git://github.com/rueckstiess/mongodb-schema.git"
+    "url": "git://github.com/mongodb-js/mongodb-schema.git"
   },
   "bugs": {
-    "url": "https://github.com/rueckstiess/mongodb-schema/issues"
+    "url": "https://github.com/mongodb-js/mongodb-schema/issues"
   },
   "main": "index.js",
   "scripts": {

@@ -137,7 +137,7 @@ This will use the first 20 documents to calculate the schema and return the sche
 
 The schema format is in JSON, and the shape resembles the shape of a superposition of all inferred documents. Each level of the schema (from the root level down into each nested sub-document) has annotations with special meta-variables, which by default start with a `#`. Examples of such annotations are `#count`, `#type`, etc. By default,
 the schema is then flattened at the end, to bring all nested keys to the root level (this option can be disabled with 
-`{flat: false}`). Lastly, the schema contains a special key `__schema`, under which the schema version and the options to generate the schema are stored.
+`{flat: false}`). The schema also contains a special key `__schema`, under which the schema version and the options used to generate the schema are stored.
 
 ### Example
 

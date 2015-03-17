@@ -20,6 +20,8 @@
     "mongodb",
     "schema"
   ],
+  "dependencies": {
+  },
   "devDependencies": {
     "mocha": "^2.0.1"
   }

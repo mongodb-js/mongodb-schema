@@ -6,17 +6,18 @@ var MongoClient = require('mongodb').MongoClient,
 var url = 'mongodb://localhost:27017/test';
 
 MongoClient.connect(url, function(err, db) {
-  assert.equal(null, err);
+  assert.ifError(err);
 
   // Get the documents collection
   var collection = db.collection('types');
 
   // find all documents and print them out
   collection.find({}).toArray(function(err, docs) {
-    assert.equal(err, null);
+    assert.ifError(err);
 
-    console.log(JSON.stringify(docs, null, 2));
+    // don't use JSON.stringify here, it loses a lot of information like _bsontype
+    console.log(docs);
     db.close();
-
   });
 });
+

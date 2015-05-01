@@ -27,8 +27,8 @@ describe('mongodb-schema', function() {
     assert.doesNotThrow(function () { schema() });
   });
 
-  it('should parse all types without error', function () {
-    assert.ok(schema(allTypes));
+  it('should parse documents of all types without error', function () {
+    assert.ok( schema(allTypes) );
   });
 });
 

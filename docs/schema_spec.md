@@ -10,7 +10,7 @@ Status: Draft<br>
 
 ### 0. Definitions
 
-Whe talk about _documents_ when we mean the data stored in MongoDB (a collection has many documents), but we talk about an _object_, when we mean the JSON representation of a document. For both documents and objects, we will adopt the JSON notation ([json.org]()), where the document/object consists of _members_ and each member is a _name_/_value_ pair.
+Whe talk about _documents_ when we mean the data stored in MongoDB (a collection has many documents), but we talk about an _object_, when we mean the JSON representation of a document. For both documents and objects, we will adopt the JSON taxonomy ([json.org]()), where the document/object consists of _members_ and each member is a _name_/_value_ pair.
 
 > ##### Example
 
@@ -71,11 +71,11 @@ Within the schema, the value of any such member is an object. This is explicitly
 >         "b": {
 >           "#schema": [...],   // tag for a.b
 >         },  
->         "c": {
+>         "counts": {
 >           "#schema": [...],   // tag for a.c
 >         }
 >       },
->       "c": {
+>       "counts": {
 >         "#schema": [...],     // tag c
 >       }
 >     }
@@ -88,11 +88,11 @@ The tag array contains one element for each distinct type encountered in the sam
 
 Each element in the array is an object with the following members:
 
-- `t`: (_type_) integer representing the (decimal) BSON type, unique within each schema tag
-- `n`: (_number_) integer representing the number of documents encountered in the sample set that contain this field
-- `p`: (_probability_) float representing the (relative) probability of this field being present given its parent field is present
-- `u`: (_unique_) boolean representing whether or not the values of this field are unique under the given type
-- `d`: (_data_) object containing type-specific additional data
+- `type`: integer representing the (decimal) BSON type, unique within each schema tag
+- `number`: integer representing the number of documents encountered in the sample set that contain this field
+- `prob`: float representing the (relative) probability of this field being present given its parent field is present
+- `unique`: boolean representing whether or not the values of this field are unique under the given type
+- `data`: object containing type-specific additional data
 
 
 > ##### Example
@@ -102,14 +102,14 @@ Each element in the array is an object with the following members:
 >     "a": {
 >       "#schema": [       // tag for a
 >         {
->           "t": 2,        // "string" type
->           "n": 160,      // 160 encounters
->           "p": 0.8,      // relative probability 0.8 means 200 parent objects
->           "u": false,    // the values contain duplicates
->           "d": {...}     // placeholder, defined further below
+>           "type": 2,        // "string" type
+>           "number": 160,      // 160 encounters
+>           "prob": 0.8,      // relative probability 0.8 means 200 parent objects
+>           "unique": false,    // the values contain duplicates
+>           "data": {...}     // placeholder, defined further below
 >         },
 >         {
->           "t": 3,        // "nested document" type
+>           "type": 3,        // "nested document" type
 >           ...
 >         }
 >       ]
@@ -118,77 +118,77 @@ Each element in the array is an object with the following members:
 
 ### 4. Type-Specific Data
 
-Inside a tag, each element is specified uniquely by its type, represented in the `t` member and its decimal value which corresponds with the BSON type. For each BSON type, this section defines a structure for the `d` member, which carries additional information specific for the type.
+Inside a tag, each element is specified uniquely by its type, represented in the `t` member and its decimal value which corresponds with the BSON type. For each BSON type, this section defines a structure for the `data` member, which carries additional information specific for the type.
 
 
 #### Type 1: float
 
-The `d` object contains the following members:
+The `data` object contains the following members:
 
 - `min`: The smallest value encountered in any sample document
 - `max`: The largest value encountered in any sample document
 - `avg`: The mean of all sample document values
 - `med`: The median of all sample document values
-- `v`: An array of all values encountered, in order of traversal
+- `values`: An array of all values encountered, in order of traversal
 
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "min": 0.0
 >       "max": 32.8,
 >       "avg": 9.3499999,
 >       "med": 5.25,
->       "v": [ 0.0, 1.4, 6.4, 3.2, 8.6, 18.3, 32.8, 4.1 ]
+>       "values": [ 0.0, 1.4, 6.4, 3.2, 8.6, 18.3, 32.8, 4.1 ]
 >     }
 
 
 #### Type 2: string
 
 
-The `d` object contains the following members:
+The `data` object contains the following members:
 
 - `min`: The smallest value encountered in any sample document
 - `max`: The largest value encountered in any sample document
-- `v`: Unique set of all values encountered, ordered by counts descending
-- `c`: count for each value, same order as above
+- `values`: Unique set of all values encountered, ordered by counts descending
+- `counts`: count for each value, same order as above
 
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "min": "atlas",
 >       "max": "zoo",
->       "v": [ "atlas", "song", "bird", "zoo", "breakfast" ],
->       "c": [ 15, 9, 7, 5, 2 ]
+>       "values": [ "atlas", "song", "bird", "zoo", "breakfast" ],
+>       "counts": [ 15, 9, 7, 5, 2 ]
 >     }
 
 
 #### Type 3: nested document
 
-The `d` object for nested document types is empty. All information about child members is tracked in the respective nested member tag.
+The `data` object for nested document types is empty. All information about child members is tracked in the respective nested member tag.
 
 
 #### Type 4: array
 
-The `d` object for arrays contains an `#array` member. It follows the structure of a regular `#schema` tag, but applies to elements inside arrays only. This concept is called _array introspection_.
+The `data` object for arrays contains an `#array` member. It follows the structure of a regular `#schema` tag, but applies to elements inside arrays only. This concept is called _array introspection_.
 
 > ##### Example
 
 > This array contains only strings (there is only a single element with type `2` in the `#schema` array). This element follows the normal rules for string types, as described above.
 
->     "d": {
+>     "data": {
 >       "#array": [
 >         {
->           "t": 2,
->           "n": 490,
->           "p": 1.0,
->           "u": false,
->           "d": {
+>           "type": 2,
+>           "number": 490,
+>           "prob": 1.0,
+>           "unique": false,
+>           "data": {
 >             "min": "AUH",
 >             "max": "ZRH",
->             "v": [ "NYC", "CDG", "FRA", "LHR", "ZRH", "AUH", "BKK", "LAX" ],
->             "c": [ 171, 110, 82, 40, 29, 23, 21, 14 ]
+>             "values": [ "NYC", "CDG", "FRA", "LHR", "ZRH", "AUH", "BKK", "LAX" ],
+>             "counts": [ 171, 110, 82, 40, 29, 23, 21, 14 ]
 >           }
 >         }
 >       ]
@@ -197,29 +197,29 @@ The `d` object for arrays contains an `#array` member. It follows the structure 
 
 #### Type 5: binary
 
-The `d` object contains a distribution of subtypes under the type binary. The `sub` member is an array of sub-types, and the `c` member is an array of counts of the encountered sub-types.
+The `data` object contains a distribution of subtypes under the type binary. The `sub` member is an array of sub-types, and the `counts` member is an array of counts of the encountered sub-types.
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "sub": [ 4, 3 ]
->       "c": [ 3004, 2554 ]
+>       "counts": [ 3004, 2554 ]
 >     }
 
 
 #### Type 6: undefined (deprecated)
 
-The `d` object is empty.
+The `data` object is empty.
 
 
 #### Type 7: ObjectId
 
-The `d` object contains the following fields:
+The `data` object contains the following fields:
 
 - `min`: The smallest ObjectId value found, encoded as strict extended JSON.
 - `max`: The largest ObjectId value found, encoded as strict extended JSON.
 
-Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, the `d` field further contains aggregated date and time information:
+Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, the `data` field further contains aggregated date and time information:
 
 - `weekdays`: An array of 7 elements, counting the ObjectIds created on respective week days, starting with Monday.
 - `hours`: An array of 24 elements, counting the ObjectIds created in respective hours, starting with (00-01h, or 12am-1am).
@@ -227,7 +227,7 @@ Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, t
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "min": {"$oid": "553f06eb1fc10e8d93515abb"},
 >       "max": {"$oid": "553f06fbbeefcf581c232257"},
 >       "weekdays": [1, 19, 23, 4, 6, 43, 1],
@@ -242,11 +242,11 @@ Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, t
 
 #### Type 8: boolean
 
-The `d` field contains the distribution of `true` and `false` values.
+The `data` field contains the distribution of `true` and `false` values.
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "true": 48,
 >       "false": 13,
 >     }
@@ -254,7 +254,7 @@ The `d` field contains the distribution of `true` and `false` values.
 
 #### Type 9: datetime
 
-the `d` field contains aggregated date and time information:
+the `data` field contains aggregated date and time information:
 
 - `weekdays`: An array of 7 elements, counting the ObjectIds created on respective week days, starting with Monday.
 - `hours`: An array of 24 elements, counting the ObjectIds created in respective hours, starting with (00-01h, or 12am-1am).
@@ -262,7 +262,7 @@ the `d` field contains aggregated date and time information:
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "min": {"$date": 1434933322},
 >       "max": {"$date": 1434939935},
 >       "weekdays": [1, 19, 23, 4, 6, 43, 1],
@@ -276,49 +276,49 @@ the `d` field contains aggregated date and time information:
 
 #### Type 10: null
 
-The `d` object is empty.
+The `data` object is empty.
 
 #### Type 11: regular expression
 
-The `d` object is empty.
+The `data` object is empty.
 
 #### Type 12: DBPointer (deprecated)
 
-The `d` object is empty.
+The `data` object is empty.
 
 #### Type 13: javascript code
 
-The `d` object is empty.
+The `data` object is empty.
 
 #### Type 15: javascript code with scope
 
-The `d` object is empty.
+The `data` object is empty.
 
 #### Type 16: 32-bit integer
 
-The `d` object contains the following members: 
+The `data` object contains the following members: 
 
 - `min`: The minimum value encountered
 - `max`: The maximum value encountered
 - `med`: The median of all encoutered values
 - `avg`: The mean of all encountered values
-- `v`: Unique set of all values encountered, ordered by values
-- `c`: count for each value, same order as above
+- `values`: Unique set of all values encountered, ordered by values
+- `counts`: count for each value, same order as above
 
 > ##### Example
 
->     "d" : {
+>     "data" : {
 >       "min": 3,
 >       "max": 72,
 >       "med": 20,
 >       "avg": 30.5,
->       "v": [ 19, 21, 24, 25, 28, 29, 30, 31, 36, 45, 58, 59, 72],   
->       "c": [ 3, 4, 8, 12, 13, 15, 21, 20, 19, 20, 16, 12, 7 ]
+>       "values": [ 19, 21, 24, 25, 28, 29, 30, 31, 36, 45, 58, 59, 72],   
+>       "counts": [ 3, 4, 8, 12, 13, 15, 21, 20, 19, 20, 16, 12, 7 ]
 >     }
 
 #### Type 17: timestamp
 
-the `d` field contains aggregated date and time information:
+the `data` field contains aggregated date and time information:
 
 - `weekdays`: An array of 7 elements, counting the ObjectIds created on respective week days, starting with Monday.
 - `hours`: An array of 24 elements, counting the ObjectIds created in respective hours, starting with (00-01h, or 12am-1am).
@@ -326,7 +326,7 @@ the `d` field contains aggregated date and time information:
 
 > ##### Example
 
->     "d": {
+>     "data": {
 >       "min": {"$date": 1434933322},
 >       "max": {"$date": 1434939935},
 >       "weekdays": [1, 19, 23, 4, 6, 43, 1],
@@ -340,37 +340,45 @@ the `d` field contains aggregated date and time information:
 
 #### Type 18: 64-bit integer
 
-The `d` object contains the following members: 
+The `data` object contains the following members: 
 
 - `min`: The minimum value encountered
 - `max`: The maximum value encountered
 - `med`: The median of all encoutered values
 - `avg`: The mean of all encountered values
-- `v`: Unique set of all values encountered, ordered by values
-- `c`: count for each value, same order as above
+- `values`: Unique set of all values encountered, ordered by values
+- `counts`: count for each value, same order as above
 
 > ##### Example
 
->     "d" : {
+>     "data" : {
 >       "min": 3,
 >       "max": 72,
 >       "med": 20,
 >       "avg": 30.5,
->       "v": [ 19, 21, 24, 25, 28, 29, 30, 31, 36, 45, 58, 59, 72],   
->       "c": [ 3, 4, 8, 12, 13, 15, 21, 20, 19, 20, 16, 12, 7 ]
+>       "values": [ 19, 21, 24, 25, 28, 29, 30, 31, 36, 45, 58, 59, 72],   
+>       "counts": [ 3, 4, 8, 12, 13, 15, 21, 20, 19, 20, 16, 12, 7 ]
 >     }
 
 #### Type 127: minkey
 
-The `d` object is empty.
+The `data` object is empty.
 
 #### Type 255: maxkey
 
-The `d` object is empty.
+The `data` object is empty.
 
 
+### 5. Adaptive Binning
 
-### X. Adaptive Binning
+Some data types contain a field `bins`, where the data is discretized into bins with a variablebin size, depending on the data distribution. 
+
+A _bin_ is defined 
+
+The `bins` object consists of the following members:
+
+- `size`: this is the size of an individual bin. For numbers (types 1, 16, 18), this is a unitless number that describes the size of a bin. 
+
 
 >       "bins": {                          // adaptive binning
 >         "size": 86400,                   // number of seconds per bucket

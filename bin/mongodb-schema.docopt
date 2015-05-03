@@ -1,0 +1,10 @@
+mongodb-schema
+
+Infer the probabilistic schema for a MongoDB collection.
+
+Usage:
+  mongodb-schema [<collection>] [<url>]
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.

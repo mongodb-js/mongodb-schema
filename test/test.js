@@ -2,6 +2,7 @@ var schema = require('../lib/schema'),
     defs = require('../lib/definitions'),
     assert = require('assert'),
     allTypes = require('../fixtures/all_types'),
+    BSON = require('bson'),
     pkg = require('../package.json');
 
 describe('mongodb-schema', function() {
@@ -30,5 +31,10 @@ describe('mongodb-schema', function() {
   it('should parse documents of all types without error', function () {
     assert.ok( schema(allTypes) );
   });
+
+  it('should create the correct type objects inside #schema tag', function () {
+    var result = schema([ {a: "foo"}, {a: 1, b: {c: BSON.ObjectId() }} ]);
+    console.log(JSON.stringify(result, null, 2));
+  })
 });
 

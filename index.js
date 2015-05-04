@@ -1,1 +1,1 @@
-var schema = module.exports = require('./lib/schema.js');
+var schema = module.exports = require('./lib');

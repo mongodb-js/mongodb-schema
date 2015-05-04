@@ -87,41 +87,38 @@ Within the schema, the value of any such member is an object. This is explicitly
 
 While the schema object itself describes the overall structure of the sample set, the aggregated characteristics of each member are contained within its tag.
 
-The tag array contains one element for each distinct type encountered in the sample set for the given field. The order of this array is not defined and considered an implementation detail. If a field is missing in a sample document, it is treated as type _undefined_, and we use the (deprecated) BSON type 6 to represent it.
+The tag object contains one member for each distinct type encountered in the sample set for the given member. The name for each member is the bsontype in decimal. If a member is missing in a sample document, it is treated as type _undefined_, and we use the (deprecated) BSON type 6 to represent it.
 
-Each element in the array is an object with the following members:
+Each member in the object has a value object with the following members:
 
-- `type`: integer representing the (decimal) BSON type, unique within each schema tag
-- `number`: integer representing the number of documents encountered in the sample set that contain this field
-- `prob`: float representing the (relative) probability of this field being present given its parent field is present
-- `unique`: boolean representing whether or not the values of this field are unique under the given type
+- `number`: integer representing the number of documents encountered in the sample set that contain this member
+- `prob`: float representing the (relative) probability of this member being present given its parent member is present
+- `unique`: boolean representing whether or not the values of this member are unique under the given type
 - `data`: object containing type-specific additional data
 
 
 > ##### Example
 
-> Field with its tag (`...` is placeholder for type-specific data field)
+> Member with its tag (`...` is placeholder for type-specific data member)
 
 >     "a": {
->       "#schema": [       // tag for a
->         {
->           "type": 2,        // "string" type
+>       "#schema": {            // tag for "a"
+>         "2": {                // "string" type
 >           "number": 160,      // 160 encounters
->           "prob": 0.8,      // relative probability 0.8 means 200 parent objects
+>           "prob": 0.8,        // relative probability 0.8 means 200 parent objects
 >           "unique": false,    // the values contain duplicates
->           "data": {...}     // placeholder, defined further below
+>           "data": {...}       // placeholder, defined further below
 >         },
->         {
->           "type": 3,        // "nested document" type
+>         "3": {                // "nested document" type     
 >           ...
 >         }
->       ]
+>       }
 >     }
 
 
 ### 4. Type-Specific Data
 
-Inside a tag, each element is specified uniquely by its type, represented in the `t` member and its decimal value which corresponds with the BSON type. For each BSON type, this section defines a structure for the `data` member, which carries additional information specific for the type.
+Inside a tag, each member is specified uniquely by its type, represented by the decimal name which corresponds with the BSON type. For each BSON type, this section defines a structure for the `data` member, which carries additional information specific for the type.
 
 
 #### Type 1: float
@@ -217,12 +214,12 @@ The `data` object is empty.
 
 #### Type 7: ObjectId
 
-The `data` object contains the following fields:
+The `data` object contains the following members:
 
 - `min`: The smallest ObjectId value found, encoded as strict extended JSON.
 - `max`: The largest ObjectId value found, encoded as strict extended JSON.
 
-Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, the `data` field further contains aggregated date and time information:
+Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, the `data` member further contains aggregated date and time information:
 
 - `weekdays`: An array of 7 elements, counting the ObjectIds created on respective week days, starting with Monday.
 - `hours`: An array of 24 elements, counting the ObjectIds created in respective hours, starting with (00-01h, or 12am-1am).
@@ -245,7 +242,7 @@ Additionally, because ObjectId has a timestamp encoded into its first 6 bytes, t
 
 #### Type 8: boolean
 
-The `data` field contains the distribution of `true` and `false` values.
+The `data` member contains the distribution of `true` and `false` values.
 
 > ##### Example
 
@@ -257,7 +254,7 @@ The `data` field contains the distribution of `true` and `false` values.
 
 #### Type 9: datetime
 
-the `data` field contains aggregated date and time information:
+the `data` member contains aggregated date and time information:
 
 - `weekdays`: An array of 7 elements, counting the ObjectIds created on respective week days, starting with Monday.
 - `hours`: An array of 24 elements, counting the ObjectIds created in respective hours, starting with (00-01h, or 12am-1am).
@@ -321,7 +318,7 @@ The `data` object contains the following members:
 
 #### Type 17: timestamp
 
-the `data` field contains aggregated date and time information:
+the `data` member contains aggregated date and time information:
 
 - `weekdays`: An array of 7 elements, counting the ObjectIds created on respective week days, starting with Monday.
 - `hours`: An array of 24 elements, counting the ObjectIds created in respective hours, starting with (00-01h, or 12am-1am).
@@ -374,7 +371,7 @@ The `data` object is empty.
 
 ### 5. Adaptive Binning
 
-Some data types contain a field `bins`, where the data is discretized into bins with a variablebin size, depending on the data distribution. 
+Some data types contain a member `bins`, where the data is discretized into bins with a variablebin size, depending on the data distribution. 
 
 A _bin_ is defined as ... @TODO
 

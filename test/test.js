@@ -3,7 +3,7 @@ var defs = require('../lib/definitions');
 var assert = require('assert');
 var allTypes = require('../fixtures/all_types');
 var BSON = require('bson');
-var find = require('lodash.find');
+var find = require('lodash').find;
 var pkg = require('../package.json');
 
 describe('mongodb-schema', function() {

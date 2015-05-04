@@ -58,8 +58,6 @@ describe('mongodb-schema', function() {
       }
     ]);
 
-    console.log(JSON.stringify(result, null, 2));
-
     assert.equal(result[root][defs.COUNT], 4);
 
     // a / string
@@ -84,6 +82,61 @@ describe('mongodb-schema', function() {
     assert.equal(bdIntType[defs.PROB], 1.0);
   });
 
+  it('should count string occurences correctly', function() {
+    var result = schema([
+      {
+        a: 'bar'
+      },
+      {
+        a: 'foo'
+      },
+      {
+        a: 'foo'
+      },
+      {
+        a: 'baz'
+      },
+      {
+        a: 'foo'
+      },
+      {
+        a: 'bar'
+      }
+    ]);
+    var data = result.a['#schema'][0].data;
+    assert.deepEqual(data.values, ['foo', 'bar', 'baz']);
+    assert.deepEqual(data.counts, [3, 2, 1]);
+  });
+
+  it('should aggregate floats correctly', function() {
+    var result = schema([
+      {
+        a: 0.75
+      },
+      {
+        a: 19.35
+      },
+      {
+        a: -1.3
+      },
+      {
+        a: 3.5
+      },
+      {
+        a: 4.8
+      },
+      {
+        a: 17.9
+      }
+    ]);
+
+    var data = result.a['#schema'][0].data;
+    assert.deepEqual(data.values, [0.75, 19.35, -1.3, 3.5, 4.8, 17.9]);
+    assert.equal(data.min, -1.3);
+    assert.equal(data.max, 19.35);
+    assert.equal(data.avg, 7.5);
+    // assert.equal(data.med, 4.15);    // until mathjs bug is fixed, there's no median
+  });
 
 });
 

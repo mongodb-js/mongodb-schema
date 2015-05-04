@@ -40,22 +40,9 @@ describe('mongodb-schema', function() {
   it('should compute probabilities correctly for root and nested levels', function() {
     var result = schema([
       {},
-      {
-        a: 'foo'
-      },
-      {
-        a: 1,
-        b: {
-          c: BSON.ObjectId(),
-          d: 1
-        }
-      },
-      {
-        a: 2,
-        b: {
-          d: 9
-        }
-      }
+      {a: 'foo'},
+      {a: 1, b: {c: BSON.ObjectId(), d: 1}},
+      {a: 2, b: {d: 9}}
     ]);
 
     assert.equal(result[root][defs.COUNT], 4);
@@ -84,24 +71,12 @@ describe('mongodb-schema', function() {
 
   it('should count string occurrences correctly', function() {
     var result = schema([
-      {
-        a: 'bar'
-      },
-      {
-        a: 'foo'
-      },
-      {
-        a: 'foo'
-      },
-      {
-        a: 'baz'
-      },
-      {
-        a: 'foo'
-      },
-      {
-        a: 'bar'
-      }
+      {a: 'bar'},
+      {a: 'foo'},
+      {a: 'foo'},
+      {a: 'baz'},
+      {a: 'foo'},
+      {a: 'bar'}
     ]);
     var data = result.a['#schema'][0].data;
     assert.deepEqual(data.values, ['foo', 'bar', 'baz']);
@@ -110,24 +85,12 @@ describe('mongodb-schema', function() {
 
   it('should aggregate floats correctly', function() {
     var result = schema([
-      {
-        a: 0.75
-      },
-      {
-        a: 19.35
-      },
-      {
-        a: -1.3
-      },
-      {
-        a: 3.5
-      },
-      {
-        a: 4.8
-      },
-      {
-        a: 17.9
-      }
+      {a: 0.75},
+      {a: 19.35},
+      {a: -1.3},
+      {a: 3.5},
+      {a: 4.8},
+      {a: 17.9}
     ]);
 
     var data = result.a['#schema'][0].data;
@@ -136,6 +99,17 @@ describe('mongodb-schema', function() {
     assert.equal(data.max, 19.35);
     assert.equal(data.avg, 7.5);
     // assert.equal(data.med, 4.15);    // until mathjs bug is fixed, there's no median
+  });
+
+
+  it('should compute probability of nested docs based on the subset of type-3 parents', function() {
+    var result = schema([
+      {a: 3},
+      {a: 2},
+      {a: {b: false}},
+      {a: {b: true}}
+    ]);
+    assert.equal(result.a.b['#schema'][0].prob, 1);
   });
 
 });

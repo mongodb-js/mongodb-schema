@@ -82,7 +82,7 @@ describe('mongodb-schema', function() {
     assert.equal(bdIntType[defs.PROB], 1.0);
   });
 
-  it('should count string occurences correctly', function() {
+  it('should count string occurrences correctly', function() {
     var result = schema([
       {
         a: 'bar'

@@ -32,9 +32,14 @@ describe('mongodb-schema', function() {
     assert.ok( schema(allTypes) );
   });
 
+  it('should detect the correct type for every type', function () {
+    var result = schema(allTypes);
+    console.log(JSON.stringify(result, null, 2));
+  });
+
   it('should create the correct type objects inside #schema tag', function () {
     var result = schema([ {a: "foo"}, {a: 1, b: {c: BSON.ObjectId() }} ]);
-    console.log(JSON.stringify(result, null, 2));
+    // @todo
   })
 });
 

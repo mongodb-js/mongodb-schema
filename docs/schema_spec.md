@@ -360,11 +360,11 @@ The `data` object contains the following members:
 >       "counts": [ 3, 4, 8, 12, 13, 15, 21, 20, 19, 20, 16, 12, 7 ]
 >     }
 
-#### Type 127: minkey
+#### Type 255: minkey
 
 The `data` object is empty.
 
-#### Type 255: maxkey
+#### Type 127: maxkey
 
 The `data` object is empty.
 

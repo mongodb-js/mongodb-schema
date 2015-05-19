@@ -85,6 +85,7 @@ describe('mongodb-schema', function() {
     it('should work', function() {
       assert.doesNotThrow(function() {
         following = schema('following', FIXTURES.basic.following);
+        // console.log('following schema', JSON.stringify(following, null, 2));
       });
     });
     // @todo: write more tests when not so tired...

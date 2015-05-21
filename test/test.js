@@ -1,4 +1,4 @@
-var schema = require('../');
+var getSchema = require('../');
 var assert = require('assert');
 var EJSON = require('mongodb-extended-json');
 var _ = require('lodash');
@@ -18,7 +18,7 @@ describe('mongodb-schema', function() {
     var users;
     it('should work', function() {
       assert.doesNotThrow(function() {
-        users = schema('users', FIXTURES.basic.users);
+        users = getSchema('users', FIXTURES.basic.users);
       });
     });
     it('should detect all fields', function() {
@@ -59,7 +59,7 @@ describe('mongodb-schema', function() {
     var users;
     it('should work', function() {
       assert.doesNotThrow(function() {
-        users = schema('users', FIXTURES.embedded_documents.users);
+        users = getSchema('users', FIXTURES.embedded_documents.users);
       });
     });
 
@@ -84,8 +84,7 @@ describe('mongodb-schema', function() {
     var following;
     it('should work', function() {
       assert.doesNotThrow(function() {
-        following = schema('following', FIXTURES.basic.following);
-        // console.log('following schema', JSON.stringify(following, null, 2));
+        following = getSchema('following', FIXTURES.basic.following);
       });
     });
     // @todo: write more tests when not so tired...
@@ -93,30 +92,99 @@ describe('mongodb-schema', function() {
 
   describe('evolving schema', function() {
     // The hardest case and really why this module exists at all: proper
-    // handling for polymorphic schemas.  Consider the following scenario:
+    // handling for polymorphic schemas.  Consider the followi;ng scenario:
     //
     // 1. started out with schema in `only basic fields`.
-    // 2. then read a blog post about how awesome embedded documents are.
+    // 2. then read a blog post about how awesome; embedded documents are.
     // 3. then realized what a pain embedded documents are.
     var users;
     it('should work', function() {
       assert.doesNotThrow(function() {
-        users = schema('users', _.union(FIXTURES.basic.users, FIXTURES.embedded_documents.users));
-        //console.log('users schema', JSON.stringify(users, null, 2));
+        users = getSchema('users', _.union(FIXTURES.basic.users, FIXTURES.embedded_documents.users));
       });
     });
-    // @todo: figure out where we're not hitting a counter when not so tired...
-    it.skip('should have the correct probabilities for a field that was moved', function() {
+    it('should have the correct probabilities for a field that was moved', function() {
       var apple_push_token = users.fields.get('apple_push_token');
       assert.equal(apple_push_token.count, 1);
-      assert.equal(apple_push_token.has_children, false);
       assert.equal(apple_push_token.type, 'String');
       assert.equal(apple_push_token.types.get('String').count, 1);
       assert.equal(apple_push_token.types.get('String').unique, 1);
-      assert.equal(apple_push_token.types.get('String').probability, 0.5,
+      assert.equal(apple_push_token.probability, 0.5,
         '`apple_push_token` only appeared in 50% of documents but thinks it ' +
         'has a probability of ' +
-        (apple_push_token.types.get('String').probability * 100) + '%');
+        (apple_push_token.probability * 100) + '%');
+    });
+  });
+
+  describe('probability', function() {
+    var docs = [
+      {
+        _id: 1,
+        registered: true
+      },
+      {
+        _id: 2
+      }
+    ];
+
+    var schema;
+    it('should load the schema', function() {
+      assert.doesNotThrow(function() {
+        schema = getSchema('probability', docs);
+      });
+    });
+
+    it('should have a field level probability of 50% for `registered`', function() {
+      assert.equal(schema.fields.get('registered').probability, 0.5);
+    });
+    it('should have a probability of 100% for `registered` to be a boolean', function() {
+      assert.equal(schema.fields.get('registered').type, 'Boolean');
+      assert.equal(schema.fields.get('registered').types.get('Boolean').probability, 1);
+    });
+  });
+
+  describe('unique', function() {
+    var docs = [
+      {
+        _id: 1,
+        registered: true
+      },
+      {
+        _id: 2,
+        registered: true
+      }
+    ];
+
+    var schema;
+    it('should load the schema', function() {
+      assert.doesNotThrow(function() {
+        schema = getSchema('probability', docs);
+      });
+    });
+
+    it('should have count of 2 for `_id`', function() {
+      assert.equal(schema.fields.get('_id').count, 2);
+    });
+
+    it('should have unique of 2 for `_id`', function() {
+      assert.equal(schema.fields.get('_id').unique, 2);
+      assert.equal(schema.fields.get('_id').types.get('Number').unique, 2);
+    });
+
+    it('should not have duplicates for `_id`', function() {
+      assert.equal(schema.fields.get('_id').has_duplicates, false);
+    });
+
+    it('should have count of 2 for `registered`', function() {
+      assert.equal(schema.fields.get('registered').count, 2);
+    });
+
+    it('should have unique of 1 for `registered`', function() {
+      assert.equal(schema.fields.get('registered').unique, 1);
+    });
+
+    it('should have duplicates for `registered`', function() {
+      assert.equal(schema.fields.get('registered').has_duplicates, true);
     });
   });
 });

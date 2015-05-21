@@ -1,1 +1,21 @@
-[{"_id":{"$oid":"55581e0a9bf712d0c2b48d71"},"email":"tupjud@weigehib.gov","is_verified":false,"twitter_username":"@zaetisi","name":"Hunter Maxwell","stats_friends":2163,"apple_push_token":"d4b4e7f3361cec05fae848575d7e6e1da2f0dccdf8ccc86a8ff2124d8b0542f6","android_push_token":{"$undefined":true},"last_address_latitude":null,"last_address_longitude":null,"created_at":{"$date":"0115-07-26T05:51:21.284Z"}}]
+[
+  {
+    "_id": {
+      "$oid": "55581e0a9bf712d0c2b48d71"
+    },
+    "email": "tupjud@weigehib.gov",
+    "is_verified": false,
+    "twitter_username": "@zaetisi",
+    "name": "Hunter Maxwell",
+    "stats_friends": 2163,
+    "apple_push_token": "d4b4e7f3361cec05fae848575d7e6e1da2f0dccdf8ccc86a8ff2124d8b0542f6",
+    "android_push_token": {
+      "$undefined": true
+    },
+    "last_address_latitude": null,
+    "last_address_longitude": null,
+    "created_at": {
+      "$date": "0115-07-26T05:51:21.284Z"
+    }
+  }
+]

@@ -116,7 +116,7 @@ describe('mongodb-schema', function() {
     });
   });
 
-  describe('probability', function() {
+  describe('simple probability', function() {
     var docs = [
       {
         _id: 1,
@@ -143,6 +143,45 @@ describe('mongodb-schema', function() {
     });
   });
 
+  describe('mixed type probability', function() {
+    var docs = [
+      {
+        _id: 1,
+        registered: 1
+      },
+      {
+        _id: 2,
+        registered: '1'
+      },
+      {
+        _id: 3,
+        registered: true
+      }
+    ];
+
+    var schema;
+    it('should load the schema', function(done) {
+      assert.doesNotThrow(function() {
+        schema = getSchema('probability', docs, done);
+      });
+    });
+
+    it('should have a field level probability of 100% for `registered`', function() {
+      assert.equal(schema.fields.get('registered').probability, 1);
+    });
+    it('should have 3 types for `registered`', function() {
+      assert.equal(schema.fields.get('registered').types.length, 3);
+    });
+    it('should have a probability of 33% for `registered` to be a boolean', function() {
+      assert.equal(schema.fields.get('registered').types.get('Boolean').probability, (1 / 3));
+    });
+    it('should have a probability of 33% for `registered` to be a number', function() {
+      assert.equal(schema.fields.get('registered').types.get('Number').probability, (1 / 3));
+    });
+    it('should have a probability of 33% for `registered` to be a string', function() {
+      assert.equal(schema.fields.get('registered').types.get('String').probability, (1 / 3));
+    });
+  });
   describe('unique', function() {
     var docs = [
       {

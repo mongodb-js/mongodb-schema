@@ -133,13 +133,11 @@ describe('mongodb-schema', function() {
         schema = getSchema('probability', docs);
       });
     });
-
-    it('should have a field level probability of 50% for `registered`', function() {
-      assert.equal(schema.fields.get('registered').probability, 0.5);
+    it('should have a probability of 50% for `registered` to be a boolean', function() {
+      assert.equal(schema.fields.get('registered').types.get('Boolean').probability, 1 / 2);
     });
-    it('should have a probability of 100% for `registered` to be a boolean', function() {
-      assert.equal(schema.fields.get('registered').type, 'Boolean');
-      assert.equal(schema.fields.get('registered').types.get('Boolean').probability, 1);
+    it('should have a probability of 50% for `registered` to be undefined', function() {
+      assert.equal(schema.fields.get('registered').types.get('Undefined').probability, 1 / 2);
     });
   });
 
@@ -167,10 +165,6 @@ describe('mongodb-schema', function() {
       assert.doesNotThrow(function() {
         schema = getSchema('probability', docs, done);
       });
-    });
-
-    it('should have a field level probability of 100% for `registered`', function() {
-      assert.equal(schema.fields.get('registered').probability, 3 / 4);
     });
     it('should have 4 types for `registered`', function() {
       assert.equal(schema.fields.get('registered').types.length, 4);

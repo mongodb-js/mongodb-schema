@@ -156,6 +156,9 @@ describe('mongodb-schema', function() {
       {
         _id: 3,
         registered: true
+      },
+      {
+        _id: 4
       }
     ];
 
@@ -167,19 +170,22 @@ describe('mongodb-schema', function() {
     });
 
     it('should have a field level probability of 100% for `registered`', function() {
-      assert.equal(schema.fields.get('registered').probability, 1);
+      assert.equal(schema.fields.get('registered').probability, 3 / 4);
     });
-    it('should have 3 types for `registered`', function() {
-      assert.equal(schema.fields.get('registered').types.length, 3);
+    it('should have 4 types for `registered`', function() {
+      assert.equal(schema.fields.get('registered').types.length, 4);
     });
-    it('should have a probability of 33% for `registered` to be a boolean', function() {
-      assert.equal(schema.fields.get('registered').types.get('Boolean').probability, (1 / 3));
+    it('should have a probability of 25% for `registered` to be a boolean', function() {
+      assert.equal(schema.fields.get('registered').types.get('Boolean').probability, (1 / 4));
     });
-    it('should have a probability of 33% for `registered` to be a number', function() {
-      assert.equal(schema.fields.get('registered').types.get('Number').probability, (1 / 3));
+    it('should have a probability of 25% for `registered` to be a number', function() {
+      assert.equal(schema.fields.get('registered').types.get('Number').probability, (1 / 4));
     });
-    it('should have a probability of 33% for `registered` to be a string', function() {
-      assert.equal(schema.fields.get('registered').types.get('String').probability, (1 / 3));
+    it('should have a probability of 25% for `registered` to be a string', function() {
+      assert.equal(schema.fields.get('registered').types.get('String').probability, (1 / 4));
+    });
+    it('should have a probability of 25% for `registered` to be undefined', function() {
+      assert.equal(schema.fields.get('registered').types.get('Undefined').probability, (1 / 4));
     });
   });
   describe('unique', function() {

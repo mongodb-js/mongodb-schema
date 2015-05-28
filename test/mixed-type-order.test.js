@@ -5,10 +5,6 @@ var _ = require('lodash');
 describe('mixed type order', function() {
   var docs = [
     {
-      _id: 1,
-      registered: 1
-    },
-    {
       _id: 2
     },
     {
@@ -18,6 +14,10 @@ describe('mixed type order', function() {
     {
       _id: 4,
       registered: '1'
+    },
+    {
+      _id: 1,
+      registered: 1
     }
   ];
 
@@ -37,7 +37,8 @@ describe('mixed type order', function() {
   it('should have 3 types for `registered`', function() {
     assert.equal(schema.fields.get('registered').types.length, 3);
   });
-  it('should return the order of types as ["String", "Number", "Undefined"]', function() {
+  it('should return the order of types as ["String", "Number", "Undefined"]', function(done) {
     assert.deepEqual(schema.fields.get('registered').types.pluck('_id'), ['String', 'Number', 'Undefined']);
+    done();
   });
 });

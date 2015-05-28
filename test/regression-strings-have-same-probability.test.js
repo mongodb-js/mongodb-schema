@@ -28,7 +28,7 @@ describe('regression', function() {
 
 
     it('should not dedupe values but return all 3 of them', function() {
-      assert.equal(schema.fields.get('value').types.get('String').probability, 1);
+      assert.equal(schema.fields.get('value').types.get('String').values.length, 3);
     });
   });
 });

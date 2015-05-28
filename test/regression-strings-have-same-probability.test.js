@@ -4,8 +4,20 @@ var assert = require('assert');
 describe('regression', function() {
   describe('strings have same probability', function() {
     var docs = [
-    // Add some object literals here
+      {
+        _id: 1,
+        value: 'DUPE'
+      },
+      {
+        _id: 2,
+        value: 'DUPE'
+      },
+      {
+        _id: 3,
+        value: 'DUPE'
+      }
     ];
+
     var schema;
     before(function(done) {
       schema = getSchema('probability', docs, function(err) {
@@ -14,10 +26,9 @@ describe('regression', function() {
       });
     });
 
-    // Replace X, Y, and Z in `it`
-    it('should have a probability of `X%` for the field `Y` to be Z', function() {
-      // Replace X, Y, and Z below and uncomment it
-      // assert.equal(schema.fields.get('X').types.get('Y').probability, Z);
+
+    it('should not dedupe values but return all 3 of them', function() {
+      assert.equal(schema.fields.get('value').types.get('String').probability, 1);
     });
   });
 });

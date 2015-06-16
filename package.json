@@ -3,7 +3,7 @@
   "description": "Infer the probabilistic schema for a MongoDB collection.",
   "version": "2.1.1",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
-  "license": "MIT",
+  "license": "Apache2",
   "homepage": "http://github.com/mongodb-js/mongodb-schema",
   "repository": {
     "type": "git",

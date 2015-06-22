@@ -3,7 +3,7 @@
   "description": "Infer the probabilistic schema for a MongoDB collection.",
   "version": "2.1.1",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
-  "license": "Apache2",
+  "license": "Apache-2.0",
   "homepage": "http://github.com/mongodb-js/mongodb-schema",
   "repository": {
     "type": "git",
@@ -14,7 +14,8 @@
   },
   "scripts": {
     "start": "zuul --local 3001 --open -- test/*.test.js",
-    "test": "mocha"
+    "test": "mocha",
+    "ci": "./node_modules/istanbul/lib/cli.js cover _mocha -- -R spec ./test/*.test.js"
   },
   "keywords": [
     "mongodb",
@@ -31,6 +32,8 @@
     "raf": "^3.0.0"
   },
   "devDependencies": {
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.15",
     "mocha": "^2.0.1",
     "mongodb-extended-json": "^1.3.0",
     "zuul": "^3.0.0"

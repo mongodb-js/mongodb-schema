@@ -31,6 +31,7 @@ in a collection to derive the schema of:
   ```
 4. When we run the above with `node parse-schema.js`, we'll see something
   like the following:
+  
   ```json
   {
     "//": "The number of documents sampled",

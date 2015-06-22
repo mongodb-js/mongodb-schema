@@ -8,7 +8,25 @@ Infer a probabilistic schema for a MongoDB collection.
 ## Example
 
 ```javascript
+var schema = require('mongodb-schema')();
+var connect = require('mongodb');
 
+var parser = schema.stream()
+  .on('error', function(err){
+    console.error('Error parsing schema: ', err);
+  })
+  .on('data', function(doc){
+    console.log('schema updated for doc', doc);
+  })
+  .on('end', function(){
+    console.log('schema looks like:', schema);
+  });
+
+connect('mongodb://localhost:27017/test', function(err, db){
+  if(err) return console.error(err);
+
+  db.test.find().stream().pipe(parser);
+});
 ```
 
 ## Installation

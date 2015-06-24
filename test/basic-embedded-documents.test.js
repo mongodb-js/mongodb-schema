@@ -35,7 +35,7 @@ describe('basic embedded documents', function() {
   });
 
   it('should detect all fields', function() {
-    var field_ids = [
+    var field_names = [
       '_id',
       'created_at',
       'email',
@@ -45,7 +45,7 @@ describe('basic embedded documents', function() {
       'stats',
       'twitter'
     ];
-    assert.deepEqual(users.fields.pluck('_id'), field_ids);
+    assert.deepEqual(users.fields.pluck('name'), field_names);
   });
   it('should serialize correctly', function() {
     assert.doesNotThrow(function() {

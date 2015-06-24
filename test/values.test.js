@@ -6,7 +6,7 @@ describe('values', function() {
     var schema = new Schema();
     schema.fields.on('add', function(field) {
       assert.equal(field.getId(), '_id');
-      field.values.on('add', function(value, collection) {
+      field.values.on('add', function(value) {
         assert.equal(value.value, 1);
         done();
       });

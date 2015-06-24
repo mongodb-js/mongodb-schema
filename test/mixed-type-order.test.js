@@ -38,7 +38,7 @@ describe('mixed type order', function() {
     assert.equal(schema.fields.get('registered').types.length, 3);
   });
   it('should return the order of types as ["String", "Number", "Undefined"]', function(done) {
-    assert.deepEqual(schema.fields.get('registered').types.pluck('_id'), ['String', 'Number', 'Undefined']);
+    assert.deepEqual(schema.fields.get('registered').types.pluck('name'), ['String', 'Number', 'Undefined']);
     done();
   });
 });

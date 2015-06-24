@@ -8,12 +8,12 @@ Infer a probabilistic schema for a MongoDB collection.
 
 ## Example
 
-`mongodb-schema` doesn't do anything directly with `mongodb` so to try the examples so we'll install the node.js driver.  As well, we'll need some data
+`mongodb-schema` doesn't do anything directly with `mongodb` so to try the examples we'll install the node.js driver.  As well, we'll need some data
 in a collection to derive the schema of:
 
-1. `npm i mongodb mongodb-schema`.
+1. `npm install mongodb mongodb-schema`.
 2. `mongo --eval "db.test.insert([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
-3. Paste the below into `parse-schema.js`:
+3. Create a new file `parse-schema.js` and paste in the following code:
   ```javascript
   var parseSchema = require('mongodb-schema');
   var connect = require('mongodb');
@@ -31,57 +31,49 @@ in a collection to derive the schema of:
   ```
 4. When we run the above with `node parse-schema.js`, we'll see something
   like the following:
-  
-  ```json
+
+  ```javascript
   {
-    "//": "The number of documents sampled",
-    "count": 4,
-    "//": "A collection of Field objects",
-    "//": "@see lib/field.js",
-    "fields": [
+    ns: 'test.test',
+    count: 4, // The number of documents sampled
+    fields: [ // A collection of Field objects @see lib/field.js
       {
-        "_id": "_id",
-        "//": "Just as we expected, all 4 documents had `_id`",
-        "probability": 1,
-        "//": "All 4 values for `_id` were unique",
-        "unique": 4,
-        "//": "The only type seen was a Number",
-        "types": [
+        name: "_id",
+        probability: 1, // Just as we expected, all 4 documents had `_id`
+        unique: 4, // All 4 values for `_id` were unique
+        types: [
           {
-            "_id": "Number",
-            "probability": 1,
-            "unique": 4
+            name: "Number", // The only type seen was a Number
+            probability: 1,
+            unique: 4
           }
         ]
       },
       {
-        "_id": "a",
-        "//": "Unlike `_id`, `a` was present in only 3 of 4 documents",
-        "probability": 0.75,
-        "//": "Of the 3 values seen, all 3 were unique",
-        "unique": 3,
-        "//": "As expected, Boolean, String, and Number values were seen",
-        "//": "A handy instance of `Undefined` is also provided to represent missing data",
+        name: "a", // Unlike `_id`, `a` was present in only 3 of 4 documents
+        probability: 0.75,
+        unique: 3, // Of the 3 values seen, all 3 were unique
+        // As expected, Boolean, String, and Number values were seen.
+        // A handy instance of `Undefined` is also provided to represent missing data",
         "types": [
           {
-            "_id": "Boolean",
-            "probability": 0.25,
-            "unique": 1
+            name: "Boolean",
+            probability: 0.25,
+            unique: 1
           },
           {
-            "_id": "String",
-            "probability": 0.25,
-            "unique": 1
+            name: "String",
+            probability: 0.25,
+            unique: 1
           },
           {
-            "_id": "Number",
-            "probability": 0.25,
-            "unique": 1
+            name: "Number",
+            probability: 0.25,
+            unique: 1
           },
           {
-            "_id": "Undefined",
-            "probability": 0.25,
-            "unique": 0
+            name: "Undefined",
+            probability: 0.25
           }
         ]
       }
@@ -91,7 +83,7 @@ in a collection to derive the schema of:
 
 ### More Examples
 
-`mongodb-schema` is quite powerful and supports all [BSON types][bson-types].
+`mongodb-schema` supports all [BSON types][bson-types].
 Checkout [the tests][tests] for more usage examples.
 
 

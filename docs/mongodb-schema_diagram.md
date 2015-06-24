@@ -4,7 +4,7 @@
 
 [<package> mongodb-schema#field|
   [<abstract>Field|
-      _id: String;
+      name: String;
       count: Number;
       probability: Number;
       unique: Number;
@@ -21,14 +21,14 @@
   [Field]-->[Field#values]
   [BasicField] -:> [Field]
   [EmbeddedDocumentField]-:> [Field]
-  [EmbeddedArrayField|lengths: int;average_length: int]-:> [Field]
+  [EmbeddedArrayField|lengths: Array<int>;average_length: int]-:> [Field]
 
   [<package>Field#values|
-    [ValueCollection]+-> 1..*[Value|_id: String|value: *]
+    [ValueCollection]+-> 1..*[Value|id: String|value: *]
   ]
   [Field#values] o-> [Field#types]
   [<package>Field#types|
-    [Type|_id: String;count: Number;probability: Number;unique: Number|values: ValueCollection]
+    [Type|name: String;count: Number;probability: Number;unique: Number|values: ValueCollection]
     [TypeCollection]
     [TypeCollection]+-> 1..*[Type]
   ]

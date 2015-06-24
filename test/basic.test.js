@@ -28,7 +28,7 @@ describe('using only basic fields', function() {
   it('should detect all fields', function() {
     // assert.equal(users.fields.length, 11);
 
-    var field_ids = [
+    var field_names = [
       '_id',
       'android_push_token',
       'apple_push_token',
@@ -41,7 +41,7 @@ describe('using only basic fields', function() {
       'stats_friends',
       'twitter_username'
     ];
-    assert.deepEqual(users.fields.pluck('_id'), field_ids);
+    assert.deepEqual(users.fields.pluck('name'), field_names);
   });
 
   it('should detect the correct type for each field', function() {

@@ -1,7 +1,7 @@
 {
   "name": "mongodb-schema",
   "description": "Infer probabilistic schema of javascript objects or a MongoDB collection.",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
   "license": "MIT",
   "homepage": "http://github.com/mongodb-js/mongodb-schema",
@@ -20,8 +20,7 @@
     "mongodb",
     "schema"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "^2.0.1"
   }

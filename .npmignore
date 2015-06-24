@@ -1,0 +1,6 @@
+docs/
+fixtures/
+test/
+.travis.yml
+.jshintrc
+.jsfmtrc

@@ -19,7 +19,7 @@ describe('FieldCollection', function () {
 
   it('should pass down collection\'s parent to its values', function () {
     var doc = new Document();
-    doc.addValue({foo: 1, bar: 1});
+    doc.parse({foo: 1, bar: 1});
     assert.equal(doc.fields.get('foo').parent, doc);
   });
 });

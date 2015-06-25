@@ -1,4 +1,5 @@
 var TypeCollection = require('../lib/type-collection');
+var Field = require('../lib/field');
 var _ = require('lodash');
 var assert = require('assert');
 var debug = require('debug')('mongodb-schema:test:type-collection');
@@ -24,6 +25,12 @@ describe('TypeCollection', function () {
     assert.ok(types.get('Number'));
     assert.equal(types.get('Number').count, 2);
     assert.deepEqual(types.get('Number').values.serialize(), [2, 3]);
+  });
+
+  it('should pass collection\'s parent down to the values', function () {
+    var field = new Field({name: 'myfield'});
+    field.types.addToType('some string');
+    assert.equal(field.types.get('String').parent, field);
   });
 
   it('should work with any type of primitive value', function() {

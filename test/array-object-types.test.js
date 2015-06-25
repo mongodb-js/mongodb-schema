@@ -10,7 +10,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
     { x: { b: 1 } },
     { x: [ "bar", null, false ] },
     { x: [ {c: 1, d: 1}, {c: 2 } ] },
-    // { e: 1 }
+    { e: 1 }
   ];
 
   var schema;
@@ -32,10 +32,10 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
         x.types.pluck('probability')
       );
       assert.deepEqual(dist, {
-        'Array': 3/5,
-        'String': 1/5,
-        'Document': 1/5,
-        // 'Undefined': 1/6
+        'Array': 3/6,
+        'String': 1/6,
+        'Document': 1/6,
+        'Undefined': 1/6
       });
     });
 
@@ -56,8 +56,16 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
       arr = schema.fields.get('x').types.get('Array');
     });
 
-    it('should return the lengths of all encountered arrays', function () {
+    it('should return the lengths of all encountered arrays', function() {
       assert.deepEqual(arr.lengths, [3, 3, 2]);
+    });
+
+    it('should return the probability of x being an array', function(){
+      assert.equal(arr.probability, 3/6);
+    });
+
+    it('should return the total count of all containing values', function() {
+      assert.equal(arr.total_count, 8);
     });
 
     it('should return the type distribution inside an array', function () {
@@ -72,14 +80,6 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
         'Boolean': 1/8,
         'Document': 2/8
       });
-    });
-
-    it('should return the correct count inside the array', function () {
-      assert.equal(arr.count, 8);
-    });
-
-    it('should contain the basic values inside the array', function () {
-      assert.deepEqual(arr.values.serialize(), [1, 2, 3, 'foo', null, false]);
     });
 
     it('should have a `.fields` alias for convenience', function () {

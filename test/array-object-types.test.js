@@ -10,7 +10,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
     { x: { b: 1 } },
     { x: [ "bar", null, false ] },
     { x: [ {c: 1, d: 1}, {c: 2 } ] },
-    { e: 1 }
+    // { e: 1 }
   ];
 
   var schema;
@@ -32,10 +32,10 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
         x.types.pluck('probability')
       );
       assert.deepEqual(dist, {
-        'Array': 3/6,
-        'String': 1/6,
-        'Object': 1/6,
-        'Undefined': 1/6
+        'Array': 3/5,
+        'String': 1/5,
+        'Document': 1/5,
+        // 'Undefined': 1/6
       });
     });
 
@@ -44,7 +44,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
     });
 
     it('should have an `.fields` alias for convenience', function() {
-      assert.deepEqual(x.fields, x.types.get('Object').fields);
+      assert.deepEqual(x.fields, x.types.get('Document').fields);
     });
   });
 
@@ -70,7 +70,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
         'String': 1/8,
         'Null': 1/8,
         'Boolean': 1/8,
-        'Object': 2/8
+        'Document': 2/8
       });
     });
 
@@ -83,7 +83,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
     });
 
     it('should have a `.fields` alias for convenience', function () {
-      assert.deepEqual(arr.fields, arr.types.get('Object').fields);
+      assert.deepEqual(arr.fields, arr.types.get('Document').fields);
     });
 
   });

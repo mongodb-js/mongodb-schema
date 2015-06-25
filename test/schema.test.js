@@ -1,6 +1,8 @@
 var Schema = require('../lib/schema');
+var getSchema = require('../lib');
 var assert = require('assert');
 var debug = require('debug')('mongodb-schema:test:schema');
+var es = require('event-stream');
 
 
 describe('Schema', function () {
@@ -41,5 +43,15 @@ describe('Schema', function () {
     assert.equal(num.parent, arr);
     var val = num.values.at(0);
     assert.equal(val.parent, num);
+  });
+
+  it('should trigger an `end` event at the end of parsing a stream', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 1}];
+    var src = es.readArray(docs);
+    schema.on('end', function () {
+      done();
+    });
+
+    src.pipe(schema.stream());
   });
 });

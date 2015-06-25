@@ -59,7 +59,8 @@ describe('TypeCollection', function () {
   it('should add array values correctly', function () {
     types.addToType([1, 2, 3]);
     assert.ok(types.get('Array'));
-    assert.equal(types.get('Array').count, 3);
+    assert.equal(types.get('Array').count, 1);
+    assert.equal(types.get('Array').types.get('Number').count, 3);
     assert.deepEqual(types.get('Array').types.get('Number').values.serialize(), [1, 2, 3]);
   });
 
@@ -70,7 +71,8 @@ describe('TypeCollection', function () {
     types.addToType(5);
 
     assert.ok(types.get('Array'));
-    assert.equal(types.get('Array').count, 4);
+    assert.equal(types.get('Array').count, 2);
+    assert.equal(types.get('Array').types.get('Number').count, 4);
     assert.deepEqual(types.get('Array').types.get('Number').values.serialize(), [1, 2, 3, 4]);
     assert.deepEqual(types.get('Number').count, 1);
     assert.deepEqual(types.get('String').count, 1);

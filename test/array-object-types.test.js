@@ -20,10 +20,16 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
   });
 
   describe('Field', function () {
+    var x;
+
+    before(function () {
+      x = schema.fields.get('x');
+    });
+
     it('have the right type distribution of x', function() {
       var dist = _.zipObject(
-        schema.fields.get('x').types.pluck('name'),
-        schema.fields.get('x').types.pluck('probability')
+        x.types.pluck('name'),
+        x.types.pluck('probability')
       );
       assert.deepEqual(dist, {
         'Array': 3/6,
@@ -34,11 +40,11 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
     });
 
     it('should contain the basic values of x at Field level', function() {
-      assert.deepEqual(schema.fields.get('x').values.serialize(), ["foo"]);
+      assert.deepEqual(x.values.serialize(), ["foo"]);
     });
 
     it('should have an `.fields` alias for convenience', function() {
-      assert.deepEqual(schema.fields.get('x').fields, schema.fields.get('x').types.get('Object').fields);
+      assert.deepEqual(x.fields, x.types.get('Object').fields);
     });
   });
 

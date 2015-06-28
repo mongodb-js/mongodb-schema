@@ -1,10 +1,6 @@
-# mongodb-schema
+# mongodb-schema [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][coverage_img]][coverage_url] [![][gitter_img]][gitter_url]
 
-[![build status](https://secure.travis-ci.org/mongodb-js/mongodb-schema.png)](http://travis-ci.org/mongodb-js/mongodb-schema)
-[![Coverage Status](https://coveralls.io/repos/mongodb-js/mongodb-schema/badge.svg)](https://coveralls.io/r/mongodb-js/mongodb-schema)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mongodb-js/mongodb-js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-Infer a probabilistic schema for a MongoDB collection.
+> Infer a probabilistic schema for a MongoDB collection.
 
 ## Example
 
@@ -86,7 +82,6 @@ in a collection to derive the schema of:
 `mongodb-schema` supports all [BSON types][bson-types].
 Checkout [the tests][tests] for more usage examples.
 
-
 ## Installation
 
 ```
@@ -121,3 +116,12 @@ A high-level view of the class interactions is as follows:
 [schema]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/schema.js
 [field]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/field.js
 [type]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/type.js
+
+[travis_img]: https://secure.travis-ci.org/mongodb-js/mongodb-schema.svg?branch=master
+[travis_url]: https://travis-ci.org/mongodb-js/mongodb-schema
+[npm_img]: https://img.shields.io/npm/v/mongodb-schema.svg
+[npm_url]: https://www.npmjs.org/package/mongodb-schema
+[coverage_img]: https://coveralls.io/repos/mongodb-js/mongodb-schema/badge.svg
+[coverage_url]: https://coveralls.io/r/mongodb-js/mongodb-schema
+[gitter_img]: https://badges.gitter.im/Join%20Chat.svg
+[gitter_url]: https://gitter.im/mongodb-js/mongodb-js

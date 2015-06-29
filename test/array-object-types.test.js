@@ -39,10 +39,6 @@ describe('arrays and objects as type (INT-203 restructuring)', function () {
       });
     });
 
-    it('should contain the basic values of x at Field level', function() {
-      assert.deepEqual(x.values.serialize(), ["foo"]);
-    });
-
     it('should have an `.fields` alias for convenience', function() {
       assert.deepEqual(x.fields, x.types.get('Document').fields);
     });

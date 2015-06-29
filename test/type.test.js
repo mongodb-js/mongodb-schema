@@ -67,7 +67,6 @@ describe('Document', function () {
     doc.parse({foo: 3});
     doc.parse({foo: 'hello', bar: 'good bye'});
     assert.ok(doc.fields.get('foo'));
-    assert.deepEqual(doc.fields.get('foo').values.serialize(), [1, 2, 3, 'hello']);
     assert.deepEqual(doc.fields.get('foo').types.get('Number').values.serialize(), [1, 2, 3]);
     assert.deepEqual(doc.fields.get('foo').types.get('String').values.serialize(), ['hello']);
     assert.deepEqual(doc.fields.get('bar').types.get('String').values.serialize(), ['good bye']);

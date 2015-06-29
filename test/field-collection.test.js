@@ -1,4 +1,4 @@
-var Document = require('../lib/type').Document;
+var Document = require('../lib/types').Document;
 var FieldCollection = require('../lib/field-collection');
 var _ = require('lodash');
 var assert = require('assert');

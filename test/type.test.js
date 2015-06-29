@@ -1,11 +1,11 @@
-var type = require('../lib/type');
+var types = require('../lib/types');
 var assert = require('assert');
 var debug = require('debug')('mongodb-schema:test:type');
 
 describe('Array', function () {
   var arr;
   beforeEach(function () {
-    arr = new type.Array();
+    arr = new types.Array();
   });
   it('should be constructable', function () {
     assert.ok(arr);
@@ -42,7 +42,7 @@ describe('Array', function () {
 describe('Document', function () {
   var doc;
   beforeEach(function () {
-    doc = new type.Document();
+    doc = new types.Document();
   });
   it('should be constructable', function () {
     assert.ok(doc);

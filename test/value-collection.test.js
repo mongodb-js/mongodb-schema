@@ -1,5 +1,5 @@
 var ValueCollection = require('../lib/value-collection');
-var NumberType = require('../lib/type').Number;
+var NumberType = require('../lib/types').Number;
 var _ = require('lodash');
 var assert = require('assert');
 var debug = require('debug')('mongodb-schema:test:value-collection');

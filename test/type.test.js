@@ -11,6 +11,10 @@ describe('Array', function () {
     assert.ok(arr);
   });
 
+  it('should return Array as its namespace', function () {
+    assert.equal(arr.getNamespace(), 'Array');
+  });
+
   it('should add values of a single type to the correct type', function () {
     arr.parse([5, 2, 5, 5, 0]);
     assert.deepEqual(arr.types.get('Number').values.serialize(), [5, 2, 5, 5, 0]);
@@ -20,6 +24,11 @@ describe('Array', function () {
     assert.throws(function() {
       arr.parse(5);
     });
+  });
+
+  it('should return null for Type#fields if it does not have a Document type', function() {
+    arr.parse([1, 2, 3, "string",  false]);
+    assert.equal(arr.fields, null);
   });
 
   it('should add values of a mixed types to the correct types', function () {
@@ -45,6 +54,13 @@ describe('Document', function () {
     });
   });
 
+  it('should return null for Type#fields if it does not have a Document type', function() {
+    doc.parse({foo: 1});
+    doc.parse({foo: 2});
+    doc.parse({foo: 3});
+    assert.equal(doc.fields.get('foo').fields, null);
+  });
+
   it('should add fields recursively', function () {
     doc.parse({foo: 1});
     doc.parse({foo: 2});
@@ -57,4 +73,3 @@ describe('Document', function () {
     assert.deepEqual(doc.fields.get('bar').types.get('String').values.serialize(), ['good bye']);
   });
 });
-

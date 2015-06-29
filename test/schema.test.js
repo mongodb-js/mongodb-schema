@@ -1,5 +1,5 @@
 var Schema = require('../lib/schema');
-var getSchema = require('../lib');
+var schemaHelper = require('../lib');
 var assert = require('assert');
 var debug = require('debug')('mongodb-schema:test:schema');
 var es = require('event-stream');
@@ -53,5 +53,40 @@ describe('Schema', function () {
     });
 
     src.pipe(schema.stream());
+  });
+});
+
+describe('Schema Helper', function() {
+  it('should be able to handle an array as input', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 2}];
+    var src = es.readArray(docs);
+    var schema;
+    schema = schemaHelper('with.stream', src, function () {
+      assert.ok(schema.fields.get('foo'));
+      assert.ok(schema.fields.get('bar'));
+      done();
+    });
+  });
+
+  it('should be able to handle a stream as input', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 2}];
+    var schema;
+    schema = schemaHelper('with.stream', docs, function () {
+      assert.ok(schema.fields.get('foo'));
+      assert.ok(schema.fields.get('bar'));
+      done();
+    });
+  });
+
+  it('should be able to handle an object as input that exposes a .stream() method', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 2}];
+    var src = es.readArray(docs);
+    var obj = {name: 'Container Object', stream: function () { return src; }};
+    var schema;
+    schema = schemaHelper('with.stream', obj, function () {
+      assert.ok(schema.fields.get('foo'));
+      assert.ok(schema.fields.get('bar'));
+      done();
+    });
   });
 });

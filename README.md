@@ -1,13 +1,19 @@
 # mongodb-schema [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][coverage_img]][coverage_url] [![][gitter_img]][gitter_url]
 
-> Infer a probabilistic schema for a MongoDB collection.
+Infer a probabilistic schema for a MongoDB collection.
+
+A high-level view of the class interactions is as follows:
+
+![](./docs/mongodb-schema_diagram.png)
 
 ## Example
 
-`mongodb-schema` doesn't do anything directly with `mongodb` so to try the examples we'll install the node.js driver.  As well, we'll need some data
-in a collection to derive the schema of:
+`mongodb-schema` doesn't do anything directly with `mongodb` so to try the examples we'll install the node.js driver.  
+As well, we'll need some data in a collection to derive the schema of.
 
-1. `npm install mongodb mongodb-schema`.
+Make sure you have a `mongod` running on localhost on port 27017 (or change the example accordingly). Then, do:
+
+1. `npm install mongodb mongodb-schema`
 2. `mongo --eval "db.test.insert([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
 3. Create a new file `parse-schema.js` and paste in the following code:
   ```javascript
@@ -26,56 +32,86 @@ in a collection to derive the schema of:
   });
   ```
 4. When we run the above with `node parse-schema.js`, we'll see something
-  like the following:
+  like the following (some fields not present here for clarity):
 
   ```javascript
   {
-    ns: 'test.test',
-    count: 4, // The number of documents sampled
-    fields: [ // A collection of Field objects @see lib/field.js
+    "count": 4,                   // parsed 4 documents
+    "ns": "test.test",            // namespace
+    "fields": [                   // an array of Field objects, @see `./lib/field.js`
       {
-        name: "_id",
-        probability: 1, // Just as we expected, all 4 documents had `_id`
-        unique: 4, // All 4 values for `_id` were unique
-        types: [
+        "name": "_id",
+        "count": 4,               // 4 documents counted with _id
+        "type": "Number",         // the type of _id is `Number`
+        "probability": 1,         // all documents had an _id field
+        "unique": 4,              // 4 unique values found
+        "has_duplicates": false,  // therefore no duplicates
+        "types": [                // an array of Type objects, @see `./lib/types/`
           {
-            name: "Number", // The only type seen was a Number
-            probability: 1,
-            unique: 4
+            "name": "Number",     // name of the type
+            "count": 4,           // 4 numbers counted
+            "probability": 1,
+            "unique": 4,
+            "values": [           // array of encountered values
+              1,
+              2,
+              3,
+              4
+            ]
           }
         ]
       },
       {
-        name: "a", // Unlike `_id`, `a` was present in only 3 of 4 documents
-        probability: 0.75,
-        unique: 3, // Of the 3 values seen, all 3 were unique
-        // As expected, Boolean, String, and Number values were seen.
-        // A handy instance of `Undefined` is also provided to represent missing data",
+        "name": "a",
+        "count": 3,               // only 3 documents with field `a` counted
+        "probability": 0.75,      // hence probability 0.75
+        "type": [                 // found these types
+          "Boolean",
+          "String",
+          "Number",
+          "Undefined"             // for convenience, we treat Undefined as its own type
+        ],
+        "unique": 3,
+        "has_duplicates": false,   // there were no duplicate values
         "types": [
           {
-            name: "Boolean",
-            probability: 0.25,
-            unique: 1
+            "name": "Boolean",
+            "count": 1,
+            "probability": 0.25,  // probabilities for types are calculated factoring in Undefined
+            "unique": 1,
+            "values": [
+              true
+            ]
           },
           {
-            name: "String",
-            probability: 0.25,
-            unique: 1
+            "name": "String",
+            "count": 1,
+            "probability": 0.25,
+            "unique": 1,
+            "values": [
+              "true"
+            ]
           },
           {
-            name: "Number",
-            probability: 0.25,
-            unique: 1
+            "name": "Number",
+            "count": 1,
+            "probability": 0.25,
+            "unique": 1,
+            "values": [
+              1
+            ]
           },
           {
-            name: "Undefined",
-            probability: 0.25
+            "name": "Undefined",
+            "count": 1,
+            "probability": 0.25,
+            "unique": 0
           }
         ]
       }
     ]
   }
-  ```
+```
 
 ### More Examples
 
@@ -103,9 +139,6 @@ Apache 2.0
 Under the hood, `mongodb-schema` uses [ampersand-state][ampersand-state] and
 [ampersand-collection][ampersand-collection] for modeling [Schema][schema], [Field][field]'s, and [Type][type]'s.
 
-A high-level view of the class interactions is as follows:
-
-![](./docs/mongodb-schema_diagram.png)
 
 
 

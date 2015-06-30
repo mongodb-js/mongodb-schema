@@ -5,12 +5,14 @@ describe('unique', function() {
   var docs = [
     {
       _id: 1,
-      registered: true
+      registered: true,
+      b: false
     },
     {
       _id: 2,
       registered: true,
-      code: null
+      code: null,
+      b: 'false'
     },
     {
       _id: 3,
@@ -50,12 +52,20 @@ describe('unique', function() {
     assert.equal(schema.fields.get('registered').types.get('Boolean').unique, 1);
   });
 
-  it('should have unique of 2 for `registered` overall', function() {
-    assert.equal(schema.fields.get('registered').unique, 2);
+  it('should have unique of 1 for `registered` overall', function() {
+    assert.equal(schema.fields.get('registered').unique, 1);
+  });
+
+  it('should return unique of 0 for Undefined type', function () {
+    assert.equal(schema.fields.get('registered').types.get('Undefined').unique, 0);
   });
 
   it('should have unique of 1 for `code`', function() {
     assert.equal(schema.fields.get('code').types.get('Null').unique, 1);
+  });
+
+  it('should not have duplicate values for b', function() {
+    assert.equal(schema.fields.get('b').has_duplicates, false);
   });
 
   it('should have duplicates for `registered`', function() {

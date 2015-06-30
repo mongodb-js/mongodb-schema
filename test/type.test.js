@@ -11,8 +11,8 @@ describe('Array', function () {
     assert.ok(arr);
   });
 
-  it('should return Array as its namespace', function () {
-    assert.equal(arr.getNamespace(), 'Array');
+  it('should return Array as its modelType', function () {
+    assert.equal(arr.getType(), 'Array');
   });
 
   it('should add values of a single type to the correct type', function () {

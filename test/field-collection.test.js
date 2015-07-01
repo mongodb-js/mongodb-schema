@@ -1,8 +1,6 @@
-var Document = require('../lib/types').Document;
+var DocumentType = require('../lib/types').Document;
 var FieldCollection = require('../lib/field-collection');
-var _ = require('lodash');
 var assert = require('assert');
-var debug = require('debug')('mongodb-schema:test:field-collection');
 
 describe('FieldCollection', function () {
   var collection;
@@ -18,8 +16,24 @@ describe('FieldCollection', function () {
   });
 
   it('should pass down collection\'s parent to its values', function () {
-    var doc = new Document();
+    var doc = new DocumentType();
     doc.parse({foo: 1, bar: 1});
     assert.equal(doc.fields.get('foo').parent, doc);
   });
+
+  it('should trigger change:probability events in unaffected children', function (done) {
+    collection.addToField('field', 16);
+    collection.addToField('field', 5);
+    collection.addToField('field', 'foo');
+    collection.addToField('field', 'bar');
+    var field = collection.get('field');
+    assert.deepEqual(field.types.pluck('probability'), [0.5, 0.5]);
+
+    field.types.get('Number').on('change:probability', function () {
+      assert.deepEqual(field.types.pluck('probability'), [0.4, 0.6]);
+      done();
+    });
+    collection.addToField('field', 'baz');
+  });
+
 });

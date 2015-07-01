@@ -58,5 +58,4 @@ describe('Field', function () {
     assert.equal(field.arrayFields, field.types.get('Array').fields);
     assert.ok(field.arrayFields.get('foo'));
   });
-
 });

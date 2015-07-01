@@ -31,7 +31,15 @@ describe('Field', function () {
     assert.equal(field.type, undefined);
   });
 
-  it('should trigger types.length events when adding a new type', function () {
+  it('should trigger change:types.length events when adding a new type', function (done) {
+    field.on('change:types.length', function () {
+      assert.equal(field.types.length, 1);
+      done();
+    });
+    field.types.addToType(15);
+  });
+
+  it('should update Field#type when adding more values', function () {
     field.types.addToType(15);
     assert.equal(field.type, 'Number');
     field.types.addToType("sfo");
@@ -43,4 +51,12 @@ describe('Field', function () {
     field.types.addToType({foo: 1});
     assert.equal(field.fields, field.types.get('Document').fields);
   });
+
+  it('should update .arrayFields alias correctly', function () {
+    assert.equal(field.arrayFields, null);
+    field.types.addToType([{foo: 1}]);
+    assert.equal(field.arrayFields, field.types.get('Array').fields);
+    assert.ok(field.arrayFields.get('foo'));
+  });
+
 });

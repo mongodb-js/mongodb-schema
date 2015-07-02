@@ -54,6 +54,22 @@ describe('Schema', function () {
       done();
     });
   });
+
+  it('should trigger `data` events for each doc', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 2}];
+    var src = es.readArray(docs);
+    var count = 0;
+    src.pipe(schema.stream())
+      .on('data', function (doc) {
+        debug('doc', doc);
+        count ++;
+      })
+      .on('end', function () {
+        assert.equal(count, 2);
+        done();
+      });
+  });
+
 });
 
 describe('Schema Helper', function() {
@@ -90,19 +106,35 @@ describe('Schema Helper', function() {
     });
   });
 
-  it('should trigger data events for each doc', function (done) {
+  it('schema object should also trigger `end` event when done parsing', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 2}];
+    var src = es.readArray(docs);
+    var schema;
+    schema = schemaHelper('with.stream', src, function () {
+      assert.ok(schema.fields.get('foo'));
+      assert.ok(schema.fields.get('bar'));
+    }).on('end', function(schema) {
+      assert.equal(schema.count, 2);
+      done();
+    });
+  });
+
+  it('schema object should also trigger `data` events for each doc', function (done) {
     var docs = [{foo: 1}, {bar: 1, foo: 2}];
     var src = es.readArray(docs);
     var count = 0;
-    var schema = new Schema();
-    src
-      .on('data', function (doc) {
-        debug('doc', doc);
-        count ++;
-      })
-      .on('end', function () {
-        assert.equal(count, 2);
-        done();
-      });
+    var schema;
+    schema = schemaHelper('with.stream', src, function () {
+      assert.ok(schema.fields.get('foo'));
+      assert.ok(schema.fields.get('bar'));
+    }).on('data', function(doc, innerSchema) {
+      count ++;
+      assert.ok(doc);
+      assert.equal(schema, innerSchema);
+    }).on('end', function () {
+      assert.equal(count, 2);
+      done();
+    });
   });
+
 });

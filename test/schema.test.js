@@ -48,11 +48,11 @@ describe('Schema', function () {
   it('should trigger an `end` event at the end of parsing a stream', function (done) {
     var docs = [{foo: 1}, {bar: 1, foo: 1}];
     var src = es.readArray(docs);
-    schema.on('end', function () {
+    var stream = src.pipe(schema.stream());
+    stream.on('end', function () {
+      assert.equal(schema.count, 2);
       done();
     });
-
-    src.pipe(schema.stream());
   });
 });
 

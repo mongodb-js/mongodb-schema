@@ -89,4 +89,20 @@ describe('Schema Helper', function() {
       done();
     });
   });
+
+  it('should trigger data events for each doc', function (done) {
+    var docs = [{foo: 1}, {bar: 1, foo: 2}];
+    var src = es.readArray(docs);
+    var count = 0;
+    var schema = new Schema();
+    src
+      .on('data', function (doc) {
+        debug('doc', doc);
+        count ++;
+      })
+      .on('end', function () {
+        assert.equal(count, 2);
+        done();
+      });
+  });
 });

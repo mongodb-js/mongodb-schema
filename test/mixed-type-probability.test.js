@@ -1,5 +1,6 @@
 var getSchema = require('../');
 var assert = require('assert');
+var debug = require('debug')('mongodb-schema:test');
 
 describe('mixed type probability', function() {
   var docs = [
@@ -16,7 +17,8 @@ describe('mixed type probability', function() {
       registered: true
     },
     {
-      _id: 4
+      _id: 4,
+      assigned: true
     }
   ];
 
@@ -47,5 +49,9 @@ describe('mixed type probability', function() {
   });
   it('should have a probability of 25% for `registered` to be undefined', function() {
     assert.equal(schema.fields.get('registered').types.get('Undefined').probability, (1 / 4));
+  });
+  it('should compensate for missed Undefined values', function() {
+    assert.equal(schema.fields.get('assigned').probability, 0.25);
+    assert.equal(schema.fields.get('assigned').types.get('Boolean').probability, 0.25);
   });
 });

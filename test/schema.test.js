@@ -61,7 +61,6 @@ describe('Schema', function () {
     var count = 0;
     src.pipe(schema.stream())
       .on('data', function (doc) {
-        debug('doc', doc);
         count ++;
       })
       .on('end', function () {

@@ -23,16 +23,16 @@ describe('basic embedded array', function() {
 
   before(function(done) {
     following = getSchema('following', docs, function() {
-      following_ids = following.fields.get('following_ids').fields.get('__basic__');
+      following_ids = following.fields.get('following_ids').types.get('Array');
       done();
     });
   });
   it('should have 2 lengths for following_ids', function() {
-    assert.deepEqual(following.fields.get('following_ids').lengths, [1, 2]);
+    assert.deepEqual(following_ids.lengths, [1, 2]);
   });
 
   it('should have an average length of 1.5 for following_ids', function() {
-    assert.equal(following.fields.get('following_ids').average_length, 1.5);
+    assert.equal(following_ids.average_length, 1.5);
   });
 
   it('should have a sum of probability for following_ids of 1', function() {
@@ -52,5 +52,4 @@ describe('basic embedded array', function() {
       following.toJSON();
     });
   });
-  // @todo: write more tests when not so tired...
 });

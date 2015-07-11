@@ -3,6 +3,7 @@ var assert = require('assert');
 var BSON = require('bson');
 var _ = require('lodash');
 
+/*eslint new-cap: 0, quote-props: 0*/
 describe('basic embedded array', function() {
   var following;
   var following_ids;
@@ -17,8 +18,7 @@ describe('basic embedded array', function() {
         BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
         '55581e0a9bf712d0c2b48d71'
       ]
-    },
-
+    }
   ];
 
   before(function(done) {

@@ -37,10 +37,12 @@ describe('mixed type order', function() {
   it('should have 3 types for `registered`', function() {
     assert.equal(schema.fields.get('registered').types.length, 3);
   });
-  it('should return the order of types as ["String", "Number", "Undefined"] when sorted', function(done) {
-    assert.deepEqual(schema.fields.get('registered').types.sort().pluck('name'), ['String', 'Number', 'Undefined']);
-    done();
-  });
+  it('should return the order of types as ["String", "Number", "Undefined"] '
+    + 'when sorted', function(done) {
+      assert.deepEqual(schema.fields.get('registered').types.sort().pluck('name'),
+        ['String', 'Number', 'Undefined']);
+      done();
+    });
   it('should sort automatically when serialized', function() {
     var types = schema.fields.get('registered').types;
     assert.deepEqual(_.pluck(types.serialize(), 'name'), ['String', 'Number', 'Undefined']);

@@ -2,18 +2,16 @@ var TypeCollection = require('../lib/type-collection');
 var Field = require('../lib/field');
 var _ = require('lodash');
 var assert = require('assert');
-var debug = require('debug')('mongodb-schema:test:type-collection');
 var bson = require('bson');
 
-
-describe('TypeCollection', function () {
+describe('TypeCollection', function() {
   var types;
-  beforeEach(function () {
+  beforeEach(function() {
     types = new TypeCollection();
   });
 
   it('should create types automatically with .addToType', function() {
-    types.addToType("i'm a string");
+    types.addToType('i\'m a string');
     assert.ok(types.get('String'));
     assert.equal(types.get('String').count, 1);
   });
@@ -27,15 +25,17 @@ describe('TypeCollection', function () {
     assert.deepEqual(types.get('Number').values.serialize(), [2, 3]);
   });
 
-  it('should pass collection\'s parent down to the values', function () {
-    var field = new Field({name: 'myfield'});
+  it('should pass collection\'s parent down to the values', function() {
+    var field = new Field({
+      name: 'myfield'
+    });
     field.types.addToType('some string');
     assert.equal(field.types.get('String').parent, field);
   });
 
   it('should work with any type of primitive value', function() {
     types.addToType(1);
-    types.addToType("str");
+    types.addToType('str');
     types.addToType(true);
     types.addToType(null);
     types.addToType(undefined);
@@ -56,7 +56,7 @@ describe('TypeCollection', function () {
     assert.equal(_.unique(types.pluck('name')).length, 17);
   });
 
-  it('should add array values correctly', function () {
+  it('should add array values correctly', function() {
     types.addToType([1, 2, 3]);
     assert.ok(types.get('Array'));
     assert.equal(types.get('Array').count, 1);
@@ -64,9 +64,9 @@ describe('TypeCollection', function () {
     assert.deepEqual(types.get('Array').types.get('Number').values.serialize(), [1, 2, 3]);
   });
 
-  it('should count array values correctly', function () {
+  it('should count array values correctly', function() {
     types.addToType([1, 2, 3]);
-    types.addToType("foo");
+    types.addToType('foo');
     types.addToType([4]);
     types.addToType(5);
 

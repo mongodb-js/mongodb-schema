@@ -56,7 +56,7 @@ describe('unique', function() {
     assert.equal(schema.fields.get('registered').unique, 1);
   });
 
-  it('should return unique of 0 for Undefined type', function () {
+  it('should return unique of 0 for Undefined type', function() {
     assert.equal(schema.fields.get('registered').types.get('Undefined').unique, 0);
   });
 

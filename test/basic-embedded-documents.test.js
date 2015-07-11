@@ -2,6 +2,7 @@ var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
 
+/*eslint new-cap: 0, quote-props: 0*/
 describe('basic embedded documents', function() {
   var users;
   var docs = [

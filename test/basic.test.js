@@ -1,7 +1,9 @@
 var getSchema = require('../');
+var TypeCollection = getSchema.TypeCollection;
 var assert = require('assert');
 var BSON = require('bson');
 
+/*eslint new-cap: 0, quote-props: 0, no-new: 0*/
 describe('using only basic fields', function() {
   var docs = [
     {
@@ -26,8 +28,6 @@ describe('using only basic fields', function() {
     });
   });
   it('should detect all fields', function() {
-    // assert.equal(users.fields.length, 11);
-
     var field_names = [
       '_id',
       'android_push_token',
@@ -46,7 +46,6 @@ describe('using only basic fields', function() {
 
   it('should detect the correct type for each field', function() {
     assert.equal(users.fields.get('_id').type, 'ObjectID');
-    //assert.equal(users.fields.get('android_push_token').type, 'Undefined');
     assert.equal(users.fields.get('apple_push_token').type, 'String');
     assert.equal(users.fields.get('created_at').type, 'Date');
     assert.equal(users.fields.get('email').type, 'String');
@@ -65,7 +64,7 @@ describe('using only basic fields', function() {
   });
   it('should raise a TypeError for unknown types', function() {
     assert.throws(function() {
-      new getSchema.TypeCollection({
+      new TypeCollection({
         model: 'Image'
       });
     });

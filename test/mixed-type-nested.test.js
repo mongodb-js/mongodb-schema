@@ -30,7 +30,7 @@ describe('mixed types nested', function() {
       address: {
         valid: true
       }
-    },
+    }
   ];
 
   var schema;
@@ -63,15 +63,18 @@ describe('mixed types nested', function() {
     assert.equal(schema.fields.get('address').fields.get('valid').get('types').length, 4);
   });
   it('should see `Number` was used in 20% of documents', function() {
-    assert.equal(schema.fields.get('address').fields.get('valid').get('types').get('Number').probability, 0.2);
+    assert.equal(schema.fields.get('address').fields.get('valid')
+      .get('types').get('Number').probability, 0.2);
   });
   it('should see `Boolean` was used in 40% of documents', function() {
-    assert.equal(schema.fields.get('address').fields.get('valid').get('types').get('Boolean').probability, 0.4);
+    assert.equal(schema.fields.get('address').fields.get('valid')
+      .get('types').get('Boolean').probability, 0.4);
   });
   it('should see `Undefined` was used in 20% of documents', function() {
     assert.equal(valid.get('types').get('Undefined').probability, 0.2);
   });
   it('should see `String` was used in 20% of documents', function() {
-    assert.equal(schema.fields.get('address').fields.get('valid').get('types').get('String').probability, 0.2);
+    assert.equal(schema.fields.get('address').fields.get('valid')
+      .get('types').get('String').probability, 0.2);
   });
 });

@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var debug = require('debug')('mongodb-schema:test');
 
 describe('mixed type probability', function() {
   var docs = [
@@ -39,16 +38,16 @@ describe('mixed type probability', function() {
     assert.equal(schema.fields.get('registered').types.length, 4);
   });
   it('should have a probability of 25% for `registered` to be a boolean', function() {
-    assert.equal(schema.fields.get('registered').types.get('Boolean').probability, (1 / 4));
+    assert.equal(schema.fields.get('registered').types.get('Boolean').probability, 1 / 4);
   });
   it('should have a probability of 25% for `registered` to be a number', function() {
-    assert.equal(schema.fields.get('registered').types.get('Number').probability, (1 / 4));
+    assert.equal(schema.fields.get('registered').types.get('Number').probability, 1 / 4);
   });
   it('should have a probability of 25% for `registered` to be a string', function() {
-    assert.equal(schema.fields.get('registered').types.get('String').probability, (1 / 4));
+    assert.equal(schema.fields.get('registered').types.get('String').probability, 1 / 4);
   });
   it('should have a probability of 25% for `registered` to be undefined', function() {
-    assert.equal(schema.fields.get('registered').types.get('Undefined').probability, (1 / 4));
+    assert.equal(schema.fields.get('registered').types.get('Undefined').probability, 1 / 4);
   });
   it('should compensate for missed Undefined values', function() {
     assert.equal(schema.fields.get('assigned').probability, 0.25);

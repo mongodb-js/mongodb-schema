@@ -24,18 +24,20 @@ describe('FieldCollection', function() {
     assert.equal(doc.fields.get('foo').parent, doc);
   });
 
-  it('should trigger change:probability events in unaffected children', function(done) {
+  it('should NOT trigger change:probability events in unaffected children', function() {
     collection.addToField('field', 16);
     collection.addToField('field', 5);
     collection.addToField('field', 'foo');
     collection.addToField('field', 'bar');
+
     var field = collection.get('field');
     assert.deepEqual(field.types.pluck('probability'), [0.5, 0.5]);
 
     field.types.get('Number').on('change:probability', function() {
-      assert.deepEqual(field.types.pluck('probability'), [0.4, 0.6]);
-      done();
+      assert.fail('Ick! Extraneous `change` triggered on a Type instance');
     });
+
     collection.addToField('field', 'baz');
+    assert.deepEqual(field.types.pluck('probability'), [0.4, 0.6]);
   });
 });

@@ -17,7 +17,7 @@ describe('order of fields', function() {
       done();
     });
   });
-  it('should sort in case-insensitive manner', function(done) {
+  it('should sort keys in case-insensitive manner', function(done) {
     var docs = [{
       cb: 1,
       Ca: 1,

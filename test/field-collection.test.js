@@ -34,17 +34,20 @@ describe('FieldCollection', function() {
     var friendCountField = collection.get('friend_count');
     assert.deepEqual(friendCountField.types.pluck('probability'), [0.5, 0.5]);
 
-    var changesSeen = 0;
+    // Because `Number` was added to `friendCountField.types` first,
+    // it's the first `Type` instance to respond to any changes to
+    // `probability` in it's siblings.
     friendCountField.types.get('Number').on('change:probability', function(model, newVal) {
-      changesSeen++;
       debug('Number changed probability to', newVal);
+      assert.equal(newVal, 0.4);
     });
+
+    // `String` will respond last and because we're adding a string,
+    // we'll go from 50% String -> 60% String.
     friendCountField.types.get('String').on('change:probability', function(model, newVal) {
-      changesSeen++;
       debug('String changed probability to', newVal);
-      if (changesSeen === 3) {
-        done();
-      }
+      assert.equal(newVal, 0.6);
+      done();
     });
 
     collection.addToField('friend_count', '10');

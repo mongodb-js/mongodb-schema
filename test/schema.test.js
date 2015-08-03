@@ -169,4 +169,57 @@ describe('Schema Helper', function() {
         done();
       }));
   });
+
+  it('should not cause a `RangeError` when used as a child', function(done) {
+    /**
+     * `Uncaught RangeError: Maximum call stack size exceeded`
+     *
+     * Because `ampersand-state#_initChildren` automatically passes
+     * `parent: this` when calling constructors, mongodb-schema's use
+     * of `parent` internally will cause an infinite recursion as it
+     * tries to create all of the event handlers involved.
+     *
+     * The solution was to make `mongodb-schema.Schema` not inhert
+     * directly from `mongodb-schema.DocumentType` and instead use
+     * `mongodb-schema.DocumentType.prototype.parse` as a mixin.
+     *
+     * This way `mongodb-schema.types.*` can properly declare `parent: 'state'`
+     * as a session property which in turn allows the derived
+     * `mongodb-schema.Type#probability` property to handle it's dependency
+     * on `parent.count` and `parent.total_count`.
+     */
+    var State = require('ampersand-state');
+    var ParentState = State.extend({
+      props: {
+        count: {
+          type: 'number',
+          default: 0
+        },
+        ns: {
+          type: 'string'
+        }
+      },
+      children: {
+        schema: Schema
+      }
+    });
+    var docs = [{
+      foo: 1
+    }];
+    var parent = new ParentState({
+      ns: 'from.parent'
+    });
+
+    es.readArray(docs)
+      .pipe(parent.schema.stream())
+      .pipe(es.map(function(doc, cb) {
+        parent.count++;
+        assert.ok(parent.schema.fields.get('foo'));
+        cb(null, doc);
+      }))
+      .pipe(es.wait(function() {
+        assert.equal(parent.count, 1);
+        done();
+      }));
+  });
 });

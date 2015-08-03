@@ -1,6 +1,7 @@
 var DocumentType = require('../lib/types').Document;
 var FieldCollection = require('../lib/field-collection');
 var assert = require('assert');
+var debug = require('debug')('mongodb-schema:test:field-collection');
 
 describe('FieldCollection', function() {
   var collection;
@@ -24,20 +25,29 @@ describe('FieldCollection', function() {
     assert.equal(doc.fields.get('foo').parent, doc);
   });
 
-  it('should NOT trigger change:probability events in unaffected children', function() {
-    collection.addToField('field', 16);
-    collection.addToField('field', 5);
-    collection.addToField('field', 'foo');
-    collection.addToField('field', 'bar');
+  it('should trigger change:probability events in affected children', function(done) {
+    collection.addToField('friend_count', 16);
+    collection.addToField('friend_count', 5);
+    collection.addToField('friend_count', '16');
+    collection.addToField('friend_count', '5');
 
-    var field = collection.get('field');
-    assert.deepEqual(field.types.pluck('probability'), [0.5, 0.5]);
+    var friendCountField = collection.get('friend_count');
+    assert.deepEqual(friendCountField.types.pluck('probability'), [0.5, 0.5]);
 
-    field.types.get('Number').on('change:probability', function() {
-      assert.fail('Ick! Extraneous `change` triggered on a Type instance');
+    var changesSeen = 0;
+    friendCountField.types.get('Number').on('change:probability', function(model, newVal) {
+      changesSeen++;
+      debug('Number changed probability to', newVal);
+    });
+    friendCountField.types.get('String').on('change:probability', function(model, newVal) {
+      changesSeen++;
+      debug('String changed probability to', newVal);
+      if (changesSeen === 3) {
+        done();
+      }
     });
 
-    collection.addToField('field', 'baz');
-    assert.deepEqual(field.types.pluck('probability'), [0.4, 0.6]);
+    collection.addToField('friend_count', '10');
+    assert.deepEqual(friendCountField.types.pluck('probability'), [0.4, 0.6]);
   });
 });

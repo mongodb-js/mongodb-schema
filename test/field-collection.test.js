@@ -1,6 +1,7 @@
 var DocumentType = require('../lib/types').Document;
 var FieldCollection = require('../lib/field-collection');
 var assert = require('assert');
+var debug = require('debug')('mongodb-schema:test:field-collection');
 
 describe('FieldCollection', function() {
   var collection;
@@ -24,18 +25,32 @@ describe('FieldCollection', function() {
     assert.equal(doc.fields.get('foo').parent, doc);
   });
 
-  it('should trigger change:probability events in unaffected children', function(done) {
-    collection.addToField('field', 16);
-    collection.addToField('field', 5);
-    collection.addToField('field', 'foo');
-    collection.addToField('field', 'bar');
-    var field = collection.get('field');
-    assert.deepEqual(field.types.pluck('probability'), [0.5, 0.5]);
+  it('should trigger change:probability events in affected children', function(done) {
+    collection.addToField('friend_count', 16);
+    collection.addToField('friend_count', 5);
+    collection.addToField('friend_count', '16');
+    collection.addToField('friend_count', '5');
 
-    field.types.get('Number').on('change:probability', function() {
-      assert.deepEqual(field.types.pluck('probability'), [0.4, 0.6]);
+    var friendCountField = collection.get('friend_count');
+    assert.deepEqual(friendCountField.types.pluck('probability'), [0.5, 0.5]);
+
+    // Because `Number` was added to `friendCountField.types` first,
+    // it's the first `Type` instance to respond to any changes to
+    // `probability` in it's siblings.
+    friendCountField.types.get('Number').on('change:probability', function(model, newVal) {
+      debug('Number changed probability to', newVal);
+      assert.equal(newVal, 0.4);
+    });
+
+    // `String` will respond last and because we're adding a string,
+    // we'll go from 50% String -> 60% String.
+    friendCountField.types.get('String').on('change:probability', function(model, newVal) {
+      debug('String changed probability to', newVal);
+      assert.equal(newVal, 0.6);
       done();
     });
-    collection.addToField('field', 'baz');
+
+    collection.addToField('friend_count', '10');
+    assert.deepEqual(friendCountField.types.pluck('probability'), [0.4, 0.6]);
   });
 });

@@ -35,7 +35,7 @@ describe('basic embedded documents', function() {
     users = getSchema('users', docs, done);
   });
 
-  it('should detect all fields', function() {
+  it('should detect all fields names and nested paths', function() {
     var field_names = [
       '_id',
       'created_at',
@@ -46,7 +46,14 @@ describe('basic embedded documents', function() {
       'stats',
       'twitter'
     ];
+
+    var nested_path_names = [
+      'push_token.android',
+      'push_token.apple'
+    ];
+
     assert.deepEqual(users.fields.pluck('name'), field_names);
+    assert.deepEqual(users.fields.get('push_token').fields.pluck('path'), nested_path_names);
   });
   it('should serialize correctly', function() {
     assert.doesNotThrow(function() {

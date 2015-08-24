@@ -25,5 +25,9 @@ describe('basic embedded document array', function() {
       following.toJSON();
     });
   });
+
+  it('should pass path down through array type', function() {
+    assert.equal(following.fields.get('following').arrayFields.at(0).path, 'following._id');
+  });
   // @todo: write more tests when not so tired...
 });

@@ -1,7 +1,7 @@
 var getSchema = require('../');
 var assert = require('assert');
 
-/*eslint new-cap: 0, quote-props: 0*/
+/* eslint new-cap: 0, quote-props: 0 */
 describe('nested document path', function() {
   var schema;
   var docs = [

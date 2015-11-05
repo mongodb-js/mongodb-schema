@@ -3,7 +3,7 @@ var TypeCollection = getSchema.TypeCollection;
 var assert = require('assert');
 var BSON = require('bson');
 
-/*eslint new-cap: 0, quote-props: 0, no-new: 0*/
+/* eslint new-cap: 0, quote-props: 0, no-new: 0 */
 describe('using only basic fields', function() {
   var docs = [
     {

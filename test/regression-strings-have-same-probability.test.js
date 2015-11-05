@@ -21,7 +21,9 @@ describe('regression', function() {
     var schema;
     before(function(done) {
       schema = getSchema('probability', docs, function(err) {
-        if (err) return done(err);
+        if (err) {
+          return done(err);
+        }
         done();
       });
     });

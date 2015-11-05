@@ -15,7 +15,9 @@ describe('simple probability', function() {
   var schema;
   before(function(done) {
     schema = getSchema('probability', docs, function(err) {
-      if (err) return done(err);
+      if (err) {
+        return done(err);
+      }
       if (!schema.fields.get('registered')) {
         return done(new Error('Did not pick up `registered` field'));
       }

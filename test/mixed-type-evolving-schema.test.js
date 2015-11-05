@@ -2,7 +2,7 @@ var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
 
-/*eslint quote-props: 0, new-cap: 0*/
+/* eslint quote-props: 0, new-cap: 0 */
 describe('evolving schema', function() {
   // The hardest case and really why this module exists at all: proper
   // handling for polymorphic schemas.  Consider the followi;ng scenario:

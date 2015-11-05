@@ -23,7 +23,9 @@ describe('unique', function() {
   var schema;
   before(function(done) {
     schema = getSchema('unique', docs, function(err) {
-      if (err) return done(err);
+      if (err) {
+        return done(err);
+      }
       if (!schema.fields.get('_id')) {
         return done(new Error('Did not pick up `_id` field'));
       }

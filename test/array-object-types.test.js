@@ -2,7 +2,7 @@ var getSchema = require('../');
 var assert = require('assert');
 var _ = require('lodash');
 
-/*eslint quote-props: 0*/
+/* eslint quote-props: 0 */
 describe('arrays and objects as type (INT-203 restructuring)', function() {
   var docs = [
     {

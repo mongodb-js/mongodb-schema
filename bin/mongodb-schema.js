@@ -1,17 +1,5 @@
 #!/usr/bin/env node
 
-var path = require('path');
-var fs = require('fs');
-/*eslint no-sync:0*/
-var usage = fs.readFileSync(path.resolve(__dirname, '../usage.txt')).toString();
-var args = require('minimist')(process.argv.slice(2), {
-  boolean: ['debug']
-});
-
-if (args.debug) {
-  process.env.DEBUG = '*';
-}
-
 var es = require('event-stream');
 var Schema = require('../').Schema;
 var mongodb = require('mongodb');
@@ -23,17 +11,38 @@ var pkg = require('../package.json');
 var Table = require('cli-table');
 var numeral = require('numeral');
 
-args.uri = args._[0];
-args.ns = args._[1];
-args.size = parseInt(args.size || 100, 10);
-args.format = args.format || 'json';
+var argv = require('yargs')
+  .usage('Usage: $0 <uri> <ns> [--format=<json|yaml|table> --sample=<n>]')
+  .demand(2)
+  .option('n', {
+    alias: 'sample',
+    default: 100,
+    describe: 'The number of documents to sample.'
+  })
+  .option('f', {
+    alias: 'format',
+    default: 'json',
+    describe: 'The output format.',
+    choices: ['json', 'yaml', 'table']
+  })
+  .describe('debug', 'Enable debug messages.')
+  .describe('version', 'Show version.')
+  .alias('h', 'help')
+  .describe('h', 'Show this screen.')
+  .help('h')
+  .argv;
 
-if (args.help || args.h || !args.uri || !args.ns) {
-  console.error(usage);
-  process.exit(1);
+if (argv.debug) {
+  process.env.DEBUG = '*';
 }
 
-if (args.version) {
+var uri = argv._[0];
+if (!uri.startsWith('mongodb://')) {
+  uri = 'mongodb://' + uri;
+}
+var sampleSize = parseInt(argv.sample, 10);
+
+if (argv.version) {
   console.error(pkg.version);
   process.exit(1);
 }
@@ -63,21 +72,21 @@ function getTable(schema) {
   return table;
 }
 
-mongodb.connect(args.uri, function(err, conn) {
+mongodb.connect(uri, function(err, conn) {
   if (err) {
     console.error('Failed to connect to MongoDB: ', err);
     process.exit(1);
   }
 
-  var ns = toNS(args.ns);
+  var ns = toNS(argv._[1]);
   var db = conn.db(ns.database);
 
   var schema = new Schema({
-    ns: args.ns
+    ns: argv._[1]
   });
 
   var options = {
-    size: args.size,
+    size: sampleSize,
     query: {}
   };
 
@@ -90,9 +99,9 @@ mongodb.connect(args.uri, function(err, conn) {
       }
 
       var output = '';
-      if (args.format === 'yaml') {
+      if (argv.format === 'yaml') {
         output = yaml.dump(schema.serialize());
-      } else if (args.format === 'table') {
+      } else if (argv.format === 'table') {
         output = getTable(schema).toString();
       } else {
         output = EJSON.stringify(schema.serialize(), null, 2);

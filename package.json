@@ -33,12 +33,20 @@
     "mongodb",
     "schema"
   ],
+  "dependency-check": {
+    "ignore": [
+      "stream-reduce",
+      "mongodb"
+    ]
+  },
   "dependencies": {
     "ampersand-collection": "^1.4.5",
     "ampersand-collection-lodash-mixin": "^2.0.1",
     "ampersand-state": "^4.8.0",
     "event-stream": "^3.3.0",
-    "lodash": "^3.8.0"
+    "lodash": "^3.8.0",
+    "mongodb": "^2.1.4",
+    "stream-reduce": "^1.0.3"
   },
   "devDependencies": {
     "benchmark": "^2.0.0",

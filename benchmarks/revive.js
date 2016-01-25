@@ -3,17 +3,17 @@ var es = require('event-stream');
 var parseSchema = require('../lib/parse');
 var connect = require('mongodb');
 
-// var debug = require('debug')('gold-standard');
+var Schema = require('../lib/schema');
 
-var ts = new Date();
+// var debug = require('debug')('mongodb-schema:revive');
 
-var output = es.wait(function(err, res) {
-  if (err) {
-    throw err;
-  }
-  var dur = new Date() - ts;
-  console.log(res);
-  console.log('took ' + dur + 'ms.');
+var output = es.through(function write(data) {
+  // console.log(JSON.stringify(data));
+  var schema = new Schema(data, {
+    parse: true
+  });
+  console.log(JSON.stringify(schema.serialize()));
+  this.emit('data', schema);
 });
 
 if (process.argv.length < 3) {
@@ -28,7 +28,6 @@ if (process.argv.length < 3) {
     .pipe(es.parse());
 
   parseSchema(inputStream)
-    .pipe(es.stringify()) // stringify result
     .pipe(output);
 } else if (process.argv.length > 3) {
   connect('mongodb://localhost:27017/test', function(err, db) {
@@ -42,7 +41,6 @@ if (process.argv.length < 3) {
       .stream();
 
     parseSchema(inputStream)
-      .pipe(es.stringify()) // stringify result
       .pipe(output)
       .on('end', function() {
         db.close();

@@ -14,7 +14,7 @@ describe('Schema', function() {
   });
 
   it('should parse a simple document', function() {
-    schema.parse({
+    schema.analyze({
       foo: 1
     });
     assert.ok(schema.fields.get('foo'));
@@ -22,7 +22,7 @@ describe('Schema', function() {
   });
 
   it('should parse a nested document', function() {
-    schema.parse({
+    schema.analyze({
       foo: {
         bar: 1
       }
@@ -34,7 +34,7 @@ describe('Schema', function() {
   });
 
   it('should set up the parent tree all the way down', function() {
-    schema.parse({
+    schema.analyze({
       foo: {
         bar: [1, 2, 3]
       }

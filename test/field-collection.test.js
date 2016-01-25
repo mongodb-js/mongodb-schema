@@ -18,7 +18,7 @@ describe('FieldCollection', function() {
 
   it('should pass down collection\'s parent to its values', function() {
     var doc = new DocumentType();
-    doc.parse({
+    doc.analyze({
       foo: 1,
       bar: 1
     });

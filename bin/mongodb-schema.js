@@ -2,16 +2,20 @@
 
 var es = require('event-stream');
 var Schema = require('../').Schema;
+var parseFast = require('../lib/parse');
 var mongodb = require('mongodb');
 var sample = require('mongodb-collection-sample');
 var toNS = require('mongodb-ns');
-var EJSON = require('mongodb-extended-json');
 var yaml = require('js-yaml');
 var pkg = require('../package.json');
 var Table = require('cli-table');
 var numeral = require('numeral');
+var EJSON = require('mongodb-extended-json');
+
+// var debug = require('debug')('mongodb-schema:bin');
 
 var argv = require('yargs')
+  .strict()
   .usage('Usage: $0 <uri> <ns> [--format=<json|yaml|table> --sample=<n>]')
   .demand(2)
   .option('n', {
@@ -25,6 +29,15 @@ var argv = require('yargs')
     describe: 'The output format.',
     choices: ['json', 'yaml', 'table']
   })
+  .option('o', {
+    alias: 'output',
+    type: 'boolean',
+    default: true
+  })
+  .describe('fast', 'use fast analysis algorithm.')
+  .boolean('fast')
+  .describe('stats', 'print schema statistics to stdout')
+  .boolean('stats')
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
@@ -59,6 +72,12 @@ function addTableRow(table, field) {
       addTableRow(table, child);
     });
   }
+
+  if (field.arrayFields) {
+    field.arrayFields.map(function(child) {
+      addTableRow(table, child);
+    });
+  }
 }
 
 function getTable(schema) {
@@ -80,34 +99,55 @@ mongodb.connect(uri, function(err, conn) {
 
   var ns = toNS(argv._[1]);
   var db = conn.db(ns.database);
-
-  var schema = new Schema({
-    ns: argv._[1]
-  });
+  var ts = new Date();
+  var schema;
+  var inputStream;
 
   var options = {
     size: sampleSize,
     query: {}
   };
 
-  sample(db, ns.collection, options)
-    .pipe(schema.stream())
+  if (argv.fast) {
+    inputStream = parseFast(sample(db, ns.collection, options))
+      .pipe(es.map(function(res, cb) {
+        schema = new Schema(res, {
+          parse: true
+        });
+        cb();
+      }));
+  } else {
+    schema = new Schema();
+    inputStream = sample(db, ns.collection, options)
+      .pipe(schema.stream());
+  }
+  inputStream
     .pipe(es.wait(function(err) {
       if (err) {
         console.error('Error generating schema:', err);
         process.exit(1);
       }
-
-      var output = '';
-      if (argv.format === 'yaml') {
-        output = yaml.dump(schema.serialize());
-      } else if (argv.format === 'table') {
-        output = getTable(schema).toString();
-      } else {
-        output = EJSON.stringify(schema.serialize(), null, 2);
+      var dur = new Date() - ts;
+      if (argv.output) {
+        var output = '';
+        if (argv.format === 'yaml') {
+          output = yaml.dump(schema.serialize());
+        } else if (argv.format === 'table') {
+          output = getTable(schema).toString();
+        } else {
+          output = EJSON.stringify(schema.serialize(), null, 2);
+        }
+        console.log(output);
       }
 
-      console.log(output);
+      if (argv.stats) {
+        console.error('time: ' + dur + 'ms');
+        console.error('toplevel fields:', schema.fields.length);
+        console.error('branching factors: %j', schema.branchingFactors);
+        console.error('schema width: ' + schema.width);
+        console.error('schema depth: ' + schema.depth);
+      }
+
       process.exit(0);
     }));
 });

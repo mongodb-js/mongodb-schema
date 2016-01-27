@@ -101,7 +101,7 @@ mongodb.connect(uri, function(err, conn) {
 
   var ns = toNS(argv._[1]);
   var db = conn.db(ns.database);
-  var ts = new Date();
+  var ts;
   var schema;
   var inputStream;
 
@@ -111,7 +111,12 @@ mongodb.connect(uri, function(err, conn) {
   };
 
   if (argv.fast) {
-    inputStream = parseFast(sample(db, ns.collection, options))
+    inputStream = parseFast(
+      sample(db, ns.collection, options)
+        .once('data', function() {
+          ts = new Date();
+        })
+    )
       .pipe(es.map(function(res, cb) {
         schema = new Schema(res, {
           parse: true
@@ -121,6 +126,9 @@ mongodb.connect(uri, function(err, conn) {
   } else {
     schema = new Schema();
     inputStream = sample(db, ns.collection, options)
+      .once('data', function() {
+        ts = new Date();
+      })
       .pipe(schema.stream());
   }
   inputStream

@@ -1,6 +1,11 @@
+.lone/
 docs/
-fixtures/
+dist/
+benchmark/
+examples/
 test/
+.coveralls.yml
 .travis.yml
 .jshintrc
 .jsfmtrc
+.zuul.yml

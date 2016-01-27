@@ -32,6 +32,7 @@ var argv = require('yargs')
   .option('o', {
     alias: 'output',
     type: 'boolean',
+    describe: 'Print the computed schema to stdout.',
     default: true
   })
   .describe('fast', 'use fast analysis algorithm.')
@@ -43,6 +44,7 @@ var argv = require('yargs')
   .alias('h', 'help')
   .describe('h', 'Show this screen.')
   .help('h')
+  .wrap(100)
   .argv;
 
 if (argv.debug) {

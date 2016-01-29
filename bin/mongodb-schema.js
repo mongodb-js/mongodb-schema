@@ -111,12 +111,11 @@ mongodb.connect(uri, function(err, conn) {
   };
 
   if (argv.fast) {
-    inputStream = parseFast(
-      sample(db, ns.collection, options)
-        .once('data', function() {
-          ts = new Date();
-        })
-    )
+    inputStream = sample(db, ns.collection, options)
+      .once('data', function() {
+        ts = new Date();
+      })
+      .pipe(parseFast())
       .pipe(es.map(function(res, cb) {
         schema = new Schema(res, {
           parse: true

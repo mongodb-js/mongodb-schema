@@ -37,10 +37,29 @@ describe('Reviving a Schema', function() {
   before(function(done) {
     schema = getSchema('mixed.mess', docs, done);
   });
-  it('should serialize and revive', function() {
+  it('should return identical results with fast parsing algorithm', function() {
+    var oldSerialized = schema.serialize();
+
+    var newSchema = getSchema('mixed.mess', docs, function(done) {
+      var newSerialized = newSchema.serialize();
+      assert.equal(JSON.stringify(oldSerialized), JSON.stringify(newSerialized));
+      done();
+    }, true);
+  });
+  it('should serialize and revive on construction', function() {
     var oldSerialized = schema.serialize();
     var copy = JSON.parse(JSON.stringify(oldSerialized));
     var newSchema = new Schema(copy, {
+      parse: true
+    });
+    var newSerialized = newSchema.serialize();
+    assert.equal(JSON.stringify(oldSerialized), JSON.stringify(newSerialized));
+  });
+  it('should serialize and revive through `model.set()`', function() {
+    var oldSerialized = schema.serialize();
+    var copy = JSON.parse(JSON.stringify(oldSerialized));
+    var newSchema = new Schema();
+    newSchema.set(copy, {
       parse: true
     });
     var newSerialized = newSchema.serialize();

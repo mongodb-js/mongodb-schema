@@ -2,7 +2,6 @@
 
 var es = require('event-stream');
 var Schema = require('../').Schema;
-var parseFast = require('../lib/parse');
 var mongodb = require('mongodb');
 var sample = require('mongodb-collection-sample');
 var toNS = require('mongodb-ns');
@@ -101,36 +100,19 @@ mongodb.connect(uri, function(err, conn) {
 
   var ns = toNS(argv._[1]);
   var db = conn.db(ns.database);
+  var schema = new Schema();
   var ts;
-  var schema;
-  var inputStream;
 
   var options = {
     size: sampleSize,
     query: {}
   };
 
-  if (argv.fast) {
-    inputStream = sample(db, ns.collection, options)
-      .once('data', function() {
-        ts = new Date();
-      })
-      .pipe(parseFast())
-      .pipe(es.map(function(res, cb) {
-        schema = new Schema(res, {
-          parse: true
-        });
-        cb();
-      }));
-  } else {
-    schema = new Schema();
-    inputStream = sample(db, ns.collection, options)
-      .once('data', function() {
-        ts = new Date();
-      })
-      .pipe(schema.stream());
-  }
-  inputStream
+  sample(db, ns.collection, options)
+    .once('data', function() {
+      ts = new Date();
+    })
+    .pipe(schema.stream(argv.fast))
     .pipe(es.wait(function(err) {
       if (err) {
         console.error('Error generating schema:', err);

@@ -2,13 +2,17 @@ var getSchema = require('../');
 var Schema = require('../lib/schema');
 var assert = require('assert');
 
-// var debug = require('debug')('mongodb-schema:test:revive');
+var debug = require('debug')('mongodb-schema:test:revive');
+
+var clone = function(obj) {
+  return JSON.parse(JSON.stringify(obj));
+};
 
 /* eslint quote-props: 0 */
 describe('Reviving a Schema', function() {
   var docs = [
     {
-      x: [1, 2, 3]
+      x: [1]
     },
     {
       x: 'foo'
@@ -19,7 +23,7 @@ describe('Reviving a Schema', function() {
       }
     },
     {
-      x: ['bar', null, false]
+      x: [1, 2]
     },
     {
       x: [{
@@ -37,12 +41,13 @@ describe('Reviving a Schema', function() {
   before(function(done) {
     schema = getSchema('mixed.mess', docs, done);
   });
-  it('should return identical results with fast parsing algorithm', function() {
+  it('should return identical results with fast parsing algorithm', function(done) {
     var oldSerialized = schema.serialize();
-
-    var newSchema = getSchema('mixed.mess', docs, function(done) {
+    var newSchema = getSchema('mixed.mess', docs, function() {
       var newSerialized = newSchema.serialize();
-      assert.equal(JSON.stringify(oldSerialized), JSON.stringify(newSerialized));
+      debug('old: %j', oldSerialized);
+      debug('new: %j', newSerialized);
+      assert.deepEqual(clone(oldSerialized), clone(newSerialized));
       done();
     }, true);
   });

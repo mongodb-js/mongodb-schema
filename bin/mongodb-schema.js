@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-var es = require('event-stream');
 var Schema = require('../').Schema;
 var mongodb = require('mongodb');
 var sample = require('mongodb-collection-sample');
@@ -113,11 +112,7 @@ mongodb.connect(uri, function(err, conn) {
       ts = new Date();
     })
     .pipe(schema.stream(argv.fast))
-    .pipe(es.wait(function(err) {
-      if (err) {
-        console.error('Error generating schema:', err);
-        process.exit(1);
-      }
+    .on('end', function() {
       var dur = new Date() - ts;
       if (argv.output) {
         var output = '';
@@ -130,7 +125,6 @@ mongodb.connect(uri, function(err, conn) {
         }
         console.log(output);
       }
-
       if (argv.stats) {
         console.error('time: ' + dur + 'ms');
         console.error('toplevel fields:', schema.fields.length);
@@ -138,7 +132,6 @@ mongodb.connect(uri, function(err, conn) {
         console.error('schema width: ' + schema.width);
         console.error('schema depth: ' + schema.depth);
       }
-
       process.exit(0);
-    }));
+    });
 });

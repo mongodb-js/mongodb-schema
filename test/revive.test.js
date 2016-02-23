@@ -23,7 +23,7 @@ describe('Reviving a Schema', function() {
       }
     },
     {
-      x: [1, 2]
+      x: [null, false, 'test']
     },
     {
       x: [{

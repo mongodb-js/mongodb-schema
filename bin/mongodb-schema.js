@@ -9,6 +9,7 @@ var pkg = require('../package.json');
 var Table = require('cli-table');
 var numeral = require('numeral');
 var EJSON = require('mongodb-extended-json');
+var ProgressBar = require('progress');
 
 // var debug = require('debug')('mongodb-schema:bin');
 
@@ -91,6 +92,14 @@ function getTable(schema) {
   return table;
 }
 
+var bar = new ProgressBar('analyzing [:bar] :current docs :etas ', {
+  total: argv.sample,
+  width: 60,
+  complete: '=',
+  incomplete: ' ',
+  clear: true
+});
+
 mongodb.connect(uri, function(err, conn) {
   if (err) {
     console.error('Failed to connect to MongoDB: ', err);
@@ -112,6 +121,9 @@ mongodb.connect(uri, function(err, conn) {
       ts = new Date();
     })
     .pipe(schema.stream(argv.fast))
+    .on('progress', function() {
+      bar.tick();
+    })
     .on('end', function() {
       var dur = new Date() - ts;
       if (argv.output) {

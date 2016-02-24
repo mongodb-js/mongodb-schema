@@ -10,6 +10,8 @@ var Table = require('cli-table');
 var numeral = require('numeral');
 var EJSON = require('mongodb-extended-json');
 var ProgressBar = require('progress');
+var async = require('async');
+var stats = require('stats-lite');
 
 // var debug = require('debug')('mongodb-schema:bin');
 
@@ -34,16 +36,32 @@ var argv = require('yargs')
     describe: 'Print the computed schema to stdout.',
     default: true
   })
+  .option('r', {
+    alias: 'repeat',
+    type: 'number',
+    describe: 'Repeat experiment n times.',
+    default: 1
+  })
+  .option('s', {
+    alias: 'stats',
+    type: 'boolean',
+    descibe: 'print schema statistics to stderr'
+  })
+  .implies('repeat', 'stats')
   .describe('fast', 'use fast analysis algorithm.')
   .boolean('fast')
-  .describe('stats', 'print schema statistics to stdout')
-  .boolean('stats')
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
   .describe('h', 'Show this screen.')
   .help('h')
   .wrap(100)
+  .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats --no-output --fast',
+    'analyze 1000 docs from the mongodb.fanclub collection with the fast parser, repeat 5 times '
+    + 'and only show statistics.')
+  .example('$0 localhost:27017 test.foo --format table --fast',
+    'analyze 100 docs from the test.foo collection and print '
+    + 'the schema in table form.')
   .argv;
 
 if (argv.debug) {
@@ -92,8 +110,8 @@ function getTable(schema) {
   return table;
 }
 
-var bar = new ProgressBar('analyzing [:bar] :current docs :etas ', {
-  total: argv.sample,
+var bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
+  total: argv.sample * argv.repeat,
   width: 60,
   complete: '=',
   incomplete: ' ',
@@ -116,34 +134,45 @@ mongodb.connect(uri, function(err, conn) {
     query: {}
   };
 
-  sample(db, ns.collection, options)
-    .once('data', function() {
-      ts = new Date();
-    })
-    .pipe(schema.stream(argv.fast))
-    .on('progress', function() {
-      bar.tick();
-    })
-    .on('end', function() {
-      var dur = new Date() - ts;
-      if (argv.output) {
-        var output = '';
-        if (argv.format === 'yaml') {
-          output = yaml.dump(schema.serialize());
-        } else if (argv.format === 'table') {
-          output = getTable(schema).toString();
-        } else {
-          output = EJSON.stringify(schema.serialize(), null, 2);
-        }
-        console.log(output);
+  async.timesSeries(argv.repeat, function(arr, cb) {
+    sample(db, ns.collection, options)
+      .once('data', function() {
+        ts = new Date();
+      })
+      .pipe(schema.stream(argv.fast))
+      .on('progress', function() {
+        bar.tick();
+      })
+      .on('end', function() {
+        var dur = new Date() - ts;
+        cb(null, dur);
+      });
+  }, function(err, res) {
+    if (err) {
+      console.error('error:', err.message);
+      process.exit(1);
+    }
+    if (argv.output) {
+      var output = '';
+      if (argv.format === 'yaml') {
+        output = yaml.dump(schema.serialize());
+      } else if (argv.format === 'table') {
+        output = getTable(schema).toString();
+      } else {
+        output = EJSON.stringify(schema.serialize(), null, 2);
       }
-      if (argv.stats) {
-        console.error('time: ' + dur + 'ms');
-        console.error('toplevel fields:', schema.fields.length);
-        console.error('branching factors: %j', schema.branchingFactors);
-        console.error('schema width: ' + schema.width);
-        console.error('schema depth: ' + schema.depth);
-      }
-      process.exit(0);
-    });
+      console.log(output);
+    }
+    if (argv.stats) {
+      console.error('mean time: ' + numeral(stats.mean(res))
+          .format('0.00') + 'ms (individual results: %s)', res.toString());
+      console.error('stdev time: ' + numeral(stats.stdev(res)).format('0.00') + 'ms');
+      console.error('toplevel fields:', schema.fields.length);
+      console.error('branching factors: %j', schema.branchingFactors);
+      console.error('schema width: ' + schema.width);
+      console.error('schema depth: ' + schema.depth);
+    }
+    conn.close();
+    process.exit(0);
+  });
 });

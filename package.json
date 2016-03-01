@@ -1,7 +1,7 @@
 {
   "name": "mongodb-schema",
   "description": "Infer the probabilistic schema for a MongoDB collection.",
-  "version": "3.4.0",
+  "version": "3.3.1",
   "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
   "license": "Apache-2.0",
   "homepage": "http://github.com/mongodb-js/mongodb-schema",
@@ -34,9 +34,8 @@
     "schema"
   ],
   "dependency-check": {
-    "ignore": [
-      "stream-reduce",
-      "mongodb"
+    "entries": [
+      "bin/mongodb-schema.js", "index.js"
     ]
   },
   "dependencies": {
@@ -46,10 +45,8 @@
     "async": "^1.5.2",
     "event-stream": "^3.3.0",
     "lodash": "^3.8.0",
-    "mongodb": "^2.1.4",
     "progress": "^1.1.8",
-    "reservoir": "^0.1.2",
-    "stream-reduce": "^1.0.3"
+    "reservoir": "^0.1.2"
   },
   "devDependencies": {
     "benchmark": "^2.0.0",

@@ -47,19 +47,18 @@ var argv = require('yargs')
     type: 'boolean',
     descibe: 'print schema statistics to stderr'
   })
-  .implies('repeat', 'stats')
-  .describe('fast', 'use fast analysis algorithm.')
-  .boolean('fast')
+  .describe('native', 'use native analysis algorithm.')
+  .boolean('native')
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
   .describe('h', 'Show this screen.')
   .help('h')
   .wrap(100)
-  .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats --no-output --fast',
-    'analyze 1000 docs from the mongodb.fanclub collection with the fast parser, repeat 5 times '
+  .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats --no-output --native',
+    'analyze 1000 docs from the mongodb.fanclub collection with the native parser, repeat 5 times '
     + 'and only show statistics.')
-  .example('$0 localhost:27017 test.foo --format table --fast',
+  .example('$0 localhost:27017 test.foo --format table',
     'analyze 100 docs from the test.foo collection and print '
     + 'the schema in table form.')
   .argv;
@@ -139,7 +138,7 @@ mongodb.connect(uri, function(err, conn) {
       .once('data', function() {
         ts = new Date();
       })
-      .pipe(schema.stream(argv.fast))
+      .pipe(schema.stream(argv.native))
       .on('progress', function() {
         bar.tick();
       })
@@ -164,6 +163,7 @@ mongodb.connect(uri, function(err, conn) {
       console.log(output);
     }
     if (argv.stats) {
+      console.error('execution count: ' + argv.repeat);
       console.error('mean time: ' + numeral(stats.mean(res))
           .format('0.00') + 'ms (individual results: %s)', res.toString());
       console.error('stdev time: ' + numeral(stats.stdev(res)).format('0.00') + 'ms');

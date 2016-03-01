@@ -118,6 +118,109 @@ Make sure you have a `mongod` running on localhost on port 27017 (or change the 
 `mongodb-schema` supports all [BSON types][bson-types].
 Checkout [the tests][tests] for more usage examples.
 
+
+## Schema Statistics
+
+To compare schemas quantitatively we introduce the following measurable metrics on a schema:
+
+### Schema Depth
+The schema depth is defined as the maximum number of nested levels of keys in the schema. It does not matter if the subdocuments are nested directly or as elements of an array. An empty document has a depth of 0, whereas a document with some top-level keys but no nested subdocuments has a depth of 1.
+
+### Schema Width
+The schema width is defined as the number of individual keys, added up over all nesting levels of the schema. Array values do not count towards the schema width.
+
+### Examples
+
+```js
+{}
+```
+
+Statistic    | Value
+:----------- | :---:
+Schema Depth | 0
+Schema Width | 0
+
+
+```js
+{
+  one: 1
+}
+```
+
+Statistic    | Value
+:----------- | :---:
+Schema Depth | 1
+Schema Width | 1
+
+
+```js
+{
+  one: [
+    "foo",
+    "bar",
+    {
+      two: {
+        three: 3
+      }
+    },
+    "baz"
+  ],
+  foo: "bar"
+}
+```
+
+Statistic    | Value
+:----------- | :---:
+Schema Depth | 3
+Schema Width | 4
+
+```js
+{
+  a: 1,
+  b: false,
+  one: {
+    c: null,
+    two: {
+      three: {
+        four: 4,
+        e: "deepest nesting level"
+      }
+    }
+  },
+  f: {
+    g: "not the deepest level"
+  }
+}
+```
+
+Statistic    | Value
+:----------- | :---:
+Schema Depth | 4
+Schema Width | 10
+
+
+```js
+// first document
+{
+  foo: [
+    {
+      bar: [1, 2, 3]
+    }
+  ]
+},
+// second document
+{
+  foo: 0
+}
+```
+
+Statistic    | Value
+:----------- | :---:
+Schema Depth | 2
+Schema Width | 2
+
+
+
 ## Installation
 
 ```
@@ -130,15 +233,18 @@ npm install --save mongodb-schema
 npm test
 ```
 
-## License
-
-Apache 2.0
-
-## Contributing
+## Dependencies
 
 Under the hood, `mongodb-schema` uses [ampersand-state][ampersand-state] and
 [ampersand-collection][ampersand-collection] for modeling [Schema][schema], [Field][field]'s, and [Type][type]'s.
 
+**Note:** Currently we are pinning [ampersand-state][ampersand-state] to version 4.8.2 due
+to a backwards-breaking change introduced in version 4.9.x. For more details, see [ampersand-state issue #226](https://github.com/AmpersandJS/ampersand-state/issues/226).
+
+
+## License
+
+Apache 2.0
 
 
 

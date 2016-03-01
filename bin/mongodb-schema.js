@@ -55,9 +55,9 @@ var argv = require('yargs')
   .describe('h', 'Show this screen.')
   .help('h')
   .wrap(100)
-  .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats --no-output --native',
-    'analyze 1000 docs from the mongodb.fanclub collection with the native parser, repeat 5 times '
-    + 'and only show statistics.')
+  .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats '
+    + '--no-output --native', 'analyze 1000 docs from the mongodb.fanclub '
+    + 'collection with the native parser, repeat 5 times and only show statistics.')
   .example('$0 localhost:27017 test.foo --format table',
     'analyze 100 docs from the test.foo collection and print '
     + 'the schema in table form.')

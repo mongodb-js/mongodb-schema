@@ -14,7 +14,7 @@ describe('Schema', function() {
   });
 
   it('should parse a simple document', function() {
-    schema.parse({
+    schema.analyze({
       foo: 1
     });
     assert.ok(schema.fields.get('foo'));
@@ -22,7 +22,7 @@ describe('Schema', function() {
   });
 
   it('should parse a nested document', function() {
-    schema.parse({
+    schema.analyze({
       foo: {
         bar: 1
       }
@@ -34,7 +34,7 @@ describe('Schema', function() {
   });
 
   it('should set up the parent tree all the way down', function() {
-    schema.parse({
+    schema.analyze({
       foo: {
         bar: [1, 2, 3]
       }
@@ -68,7 +68,7 @@ describe('Schema', function() {
       }));
   });
 
-  it('should trigger `data` events for each doc', function(done) {
+  it('should trigger one `data` events at the end for the schema', function(done) {
     var docs = [{
       foo: 1
     }, {
@@ -78,12 +78,14 @@ describe('Schema', function() {
     var src = es.readArray(docs);
     var count = 0;
     src.pipe(schema.stream())
-      .pipe(es.map(function(doc, cb) {
+      .pipe(es.map(function(schema, cb) {
         count++;
-        cb(null, doc);
+        assert.ok(schema.fields.get('foo'));
+        assert.ok(schema.fields.get('bar'));
+        cb(null, schema);
       }))
       .pipe(es.wait(function() {
-        assert.equal(count, 2);
+        assert.equal(count, 1);
         done();
       }));
   });
@@ -140,7 +142,7 @@ describe('Schema Helper', function() {
     });
   });
 
-  it('schema object should also trigger `data` events for each doc', function(done) {
+  it('schema object should also trigger one `data` event for the schema', function(done) {
     var docs = [{
       foo: 1
     }, {
@@ -154,18 +156,14 @@ describe('Schema Helper', function() {
     });
     es.readArray(docs)
       .pipe(schema.stream())
-      .pipe(es.map(function(doc, cb) {
+      .pipe(es.map(function(data, cb) {
         count++;
-        assert.ok(schema.fields.get('foo'));
-        if (count === 2) {
-          assert.ok(schema.fields.get('bar'));
-        } else {
-          assert.equal(schema.fields.get('bar'), undefined);
-        }
-        cb(null, doc);
+        assert.ok(data.fields.get('foo'));
+        assert.ok(data.fields.get('bar'));
+        cb(null, data);
       }))
       .pipe(es.wait(function() {
-        assert.equal(count, 2);
+        assert.equal(count, 1);
         done();
       }));
   });

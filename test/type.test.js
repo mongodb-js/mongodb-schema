@@ -15,23 +15,23 @@ describe('Array', function() {
   });
 
   it('should add values of a single type to the correct type', function() {
-    arr.parse([5, 2, 5, 5, 0]);
+    arr.analyze([5, 2, 5, 5, 0]);
     assert.deepEqual(arr.types.get('Number').values.serialize(), [5, 2, 5, 5, 0]);
   });
 
   it('should throw if the value is not an array', function() {
     assert.throws(function() {
-      arr.parse(5);
+      arr.analyze(5);
     });
   });
 
   it('should return null for Type#fields if it does not have a Document type', function() {
-    arr.parse([1, 2, 3, 'string', false]);
+    arr.analyze([1, 2, 3, 'string', false]);
     assert.equal(arr.fields, null);
   });
 
   it('should add values of a mixed types to the correct types', function() {
-    arr.parse([false, 'foo', true, 'bar']);
+    arr.analyze([false, 'foo', true, 'bar']);
     assert.deepEqual(arr.types.get('Boolean').values.serialize(), [false, true]);
     assert.deepEqual(arr.types.get('String').values.serialize(), ['foo', 'bar']);
   });
@@ -49,34 +49,34 @@ describe('Document', function() {
 
   it('should throw if the value is not an object', function() {
     assert.throws(function() {
-      doc.parse([1, 2, 3]);
+      doc.analyze([1, 2, 3]);
     });
   });
 
   it('should return null for Type#fields if it does not have a Document type', function() {
-    doc.parse({
+    doc.analyze({
       foo: 1
     });
-    doc.parse({
+    doc.analyze({
       foo: 2
     });
-    doc.parse({
+    doc.analyze({
       foo: 3
     });
     assert.equal(doc.fields.get('foo').fields, null);
   });
 
   it('should add fields recursively', function() {
-    doc.parse({
+    doc.analyze({
       foo: 1
     });
-    doc.parse({
+    doc.analyze({
       foo: 2
     });
-    doc.parse({
+    doc.analyze({
       foo: 3
     });
-    doc.parse({
+    doc.analyze({
       foo: 'hello',
       bar: 'good bye'
     });

@@ -14,7 +14,7 @@ describe('values', function() {
         });
       });
     });
-    schema.parse({
+    schema.analyze({
       _id: 1
     });
   });

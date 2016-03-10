@@ -1,8 +1,9 @@
 var getSchema = require('../');
 var Schema = require('../lib/schema');
 var assert = require('assert');
+var es = require('event-stream');
 
-var debug = require('debug')('mongodb-schema:test:revive');
+// var debug = require('debug')('mongodb-schema:test:revive');
 
 var clone = function(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -42,14 +43,16 @@ describe('Reviving a Schema', function() {
     schema = getSchema('mixed.mess', docs, done);
   });
   it('should return identical results with fast parsing algorithm', function(done) {
-    var oldSerialized = schema.serialize();
-    var newSchema = getSchema('mixed.mess', docs, function() {
-      var newSerialized = newSchema.serialize();
-      debug('old: %j', oldSerialized);
-      debug('new: %j', newSerialized);
-      assert.deepEqual(clone(oldSerialized), clone(newSerialized));
-      done();
-    }, true);
+    var legacyParser = new Schema();
+    var src = es.readArray(docs);
+    src.pipe(legacyParser.stream(false)).pipe(es.wait(function() {
+      var nativeParser = new Schema();
+      src = es.readArray(docs);
+      src.pipe(nativeParser.stream(true)).pipe(es.wait(function() {
+        assert.deepEqual(clone(legacyParser.serialize()), clone(nativeParser.serialize()));
+        done();
+      }));
+    }));
   });
   it('should serialize and revive on construction', function() {
     var oldSerialized = schema.serialize();

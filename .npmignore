@@ -9,3 +9,6 @@ test/
 .jshintrc
 .jsfmtrc
 .zuul.yml
+*.log
+coverage/
+.eslintrc

@@ -1,5 +1,37 @@
 var getSchema = require('../');
 var assert = require('assert');
+var _ = require('lodash');
+
+describe('has_duplicates', function() {
+  var docs = _.map(_.range(11111), function(val) {
+    return {
+      num: val,
+      str: String(val)
+    };
+  });
+
+  var schema;
+  before(function(done) {
+    schema = getSchema('has_duplicates', docs, function(err) {
+      if (err) {
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('should not have duplicates', function() {
+    assert.equal(schema.fields.get('num').has_duplicates, false);
+  });
+
+  it('should have 100 number values for the `num` field', function() {
+    assert.equal(schema.fields.get('num').types.get('Number').values.length, 100);
+  });
+
+  it('should have 100 string values for the `str` field', function() {
+    assert.equal(schema.fields.get('str').types.get('String').values.length, 100);
+  });
+});
 
 describe('unique', function() {
   var docs = [

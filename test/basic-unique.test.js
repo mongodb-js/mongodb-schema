@@ -24,8 +24,8 @@ describe('has_duplicates', function() {
     assert.equal(schema.fields.get('num').has_duplicates, false);
   });
 
-  it('should have 100 number values for the `num` field', function() {
-    assert.equal(schema.fields.get('num').types.get('Number').values.length, 100);
+  it('should have 10000 number values for the `num` field', function() {
+    assert.equal(schema.fields.get('num').types.get('Number').values.length, 10000);
   });
 
   it('should have 100 string values for the `str` field', function() {

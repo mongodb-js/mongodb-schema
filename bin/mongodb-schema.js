@@ -173,6 +173,5 @@ mongodb.connect(uri, function(err, conn) {
       console.error('schema depth: ' + schema.depth);
     }
     conn.close();
-    process.exit(0);
   });
 });

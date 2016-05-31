@@ -45,10 +45,13 @@ var argv = require('yargs')
   .option('s', {
     alias: 'stats',
     type: 'boolean',
-    descibe: 'print schema statistics to stderr'
+    describe: 'print schema statistics to stderr'
   })
-  .describe('native', 'use native analysis algorithm.')
-  .boolean('native')
+  .option('native', {
+    type: 'boolean',
+    describe: 'use native (fast) analysis algorithm',
+    default: true
+  })
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
@@ -56,8 +59,8 @@ var argv = require('yargs')
   .help('h')
   .wrap(100)
   .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats '
-    + '--no-output --native', 'analyze 1000 docs from the mongodb.fanclub '
-    + 'collection with the native parser, repeat 5 times and only show statistics.')
+    + '--no-output --no-native', 'analyze 1000 docs from the mongodb.fanclub '
+    + 'collection with the old ampersand parser, repeat 5 times and only show statistics.')
   .example('$0 localhost:27017 test.foo --format table',
     'analyze 100 docs from the test.foo collection and print '
     + 'the schema in table form.')

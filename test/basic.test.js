@@ -17,7 +17,8 @@ describe('using only basic fields', function() {
       'android_push_token': undefined,
       'last_address_latitude': null,
       'last_address_longitude': null,
-      'created_at': new Date()
+      'created_at': new Date(),
+      'length': 29
     }
   ];
 
@@ -37,6 +38,7 @@ describe('using only basic fields', function() {
       'is_verified',
       'last_address_latitude',
       'last_address_longitude',
+      'length',
       'name',
       'stats_friends',
       'twitter_username'
@@ -50,6 +52,7 @@ describe('using only basic fields', function() {
     assert.equal(users.fields.get('created_at').type, 'Date');
     assert.equal(users.fields.get('email').type, 'String');
     assert.equal(users.fields.get('is_verified').type, 'Boolean');
+    assert.equal(users.fields.get('length').type, 'Number');
     assert.equal(users.fields.get('last_address_latitude').type, 'Null');
     assert.equal(users.fields.get('last_address_longitude').type, 'Null');
     assert.equal(users.fields.get('name').type, 'String');

@@ -5,28 +5,34 @@ var _ = require('lodash');
 /* eslint quote-props: 0 */
 describe('arrays and objects as type (INT-203 restructuring)', function() {
   var docs = [
+    // {
+    //   x: 1
+    // },
+    // {
+    //   y: 1
+    // }
     {
-      x: 'foo' // [1, 2, 3]
+      x: [1, 2, 3]
     },
-    // {
-    //   x: 'foo'
-    // },
-    // {
-    //   x: {
-    //     b: 1
-    //   }
-    // },
-    // {
-    //   x: ['bar', null, false]
-    // },
-    // {
-    //   x: [{
-    //     c: 1,
-    //     d: 1
-    //   }, {
-    //     c: 2
-    //   }]
-    // },
+    {
+      x: 'foo'
+    },
+    {
+      x: {
+        b: 1
+      }
+    },
+    {
+      x: ['bar', null, false]
+    },
+    {
+      x: [{
+        c: 1,
+        d: 1
+      }, {
+        c: 2
+      }]
+    },
     {
       e: 1
     }

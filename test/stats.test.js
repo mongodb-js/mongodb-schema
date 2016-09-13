@@ -1,5 +1,8 @@
 var getSchema = require('../');
+var stats = require('../lib/stats');
+
 var assert = require('assert');
+// var debug = require('debug')('mongodb-schema:test:stats');
 
 /* eslint quote-props: 0 */
 describe('schema statistics', function() {
@@ -9,13 +12,18 @@ describe('schema statistics', function() {
     ];
     var schema;
     before(function(done) {
-      schema = getSchema('mixed.mess', docs, done);
+      getSchema(docs, function(err, res) {
+        assert.ifError(err);
+        schema = res;
+        done();
+      });
     });
+
     it('should have the correct schema width', function() {
-      assert.equal(schema.width, 0);
+      assert.equal(stats.width(schema), 0);
     });
     it('should have the correct schema depth', function() {
-      assert.equal(schema.depth, 0);
+      assert.equal(stats.depth(schema), 0);
     });
   });
   describe('doc with one key', function() {
@@ -26,13 +34,18 @@ describe('schema statistics', function() {
     ];
     var schema;
     before(function(done) {
-      schema = getSchema('mixed.mess', docs, done);
+      getSchema(docs, function(err, res) {
+        assert.ifError(err);
+        schema = res;
+        done();
+      });
     });
+
     it('should have the correct schema width', function() {
-      assert.equal(schema.width, 1);
+      assert.equal(stats.width(schema), 1);
     });
     it('should have the correct schema depth', function() {
-      assert.equal(schema.depth, 1);
+      assert.equal(stats.depth(schema), 1);
     });
   });
   describe('example 1', function() {
@@ -53,13 +66,18 @@ describe('schema statistics', function() {
     ];
     var schema;
     before(function(done) {
-      schema = getSchema('mixed.mess', docs, done);
+      getSchema(docs, function(err, res) {
+        assert.ifError(err);
+        schema = res;
+        done();
+      });
     });
+
     it('should have the correct schema width', function() {
-      assert.equal(schema.width, 4);
+      assert.equal(stats.width(schema), 4);
     });
     it('should have the correct schema depth', function() {
-      assert.equal(schema.depth, 3);
+      assert.equal(stats.depth(schema), 3);
     });
   });
   describe('example 2', function() {
@@ -92,13 +110,18 @@ describe('schema statistics', function() {
     ];
     var schema;
     before(function(done) {
-      schema = getSchema('mixed.mess', docs, done);
+      getSchema(docs, function(err, res) {
+        assert.ifError(err);
+        schema = res;
+        done();
+      });
     });
+
     it('should have the correct schema width', function() {
-      assert.equal(schema.width, 5);
+      assert.equal(stats.width(schema), 5);
     });
     it('should have the correct schema depth', function() {
-      assert.equal(schema.depth, 2);
+      assert.equal(stats.depth(schema), 2);
     });
   });
   describe('example 3', function() {
@@ -122,13 +145,18 @@ describe('schema statistics', function() {
     ];
     var schema;
     before(function(done) {
-      schema = getSchema('mixed.mess', docs, done);
+      getSchema(docs, function(err, res) {
+        assert.ifError(err);
+        schema = res;
+        done();
+      });
     });
+
     it('should have the correct schema width', function() {
-      assert.equal(schema.width, 10);
+      assert.equal(stats.width(schema), 10);
     });
     it('should have the correct schema depth', function() {
-      assert.equal(schema.depth, 4);
+      assert.equal(stats.depth(schema), 4);
     });
   });
   describe('example 4', function() {
@@ -151,13 +179,18 @@ describe('schema statistics', function() {
     ];
     var schema;
     before(function(done) {
-      schema = getSchema('mixed.mess', docs, done);
+      getSchema(docs, function(err, res) {
+        assert.ifError(err);
+        schema = res;
+        done();
+      });
     });
+
     it('should have the correct schema width', function() {
-      assert.equal(schema.width, 7);
+      assert.equal(stats.width(schema), 7);
     });
     it('should have the correct schema depth', function() {
-      assert.equal(schema.depth, 7);
+      assert.equal(stats.depth(schema), 7);
     });
   });
 });

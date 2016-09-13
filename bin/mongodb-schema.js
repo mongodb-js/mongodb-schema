@@ -15,7 +15,7 @@ var ProgressBar = require('progress');
 var async = require('async');
 var stats = require('stats-lite');
 
-var debug = require('debug')('mongodb-schema:bin');
+// var debug = require('debug')('mongodb-schema:bin');
 
 var argv = require('yargs')
   .strict()
@@ -144,7 +144,6 @@ mongodb.connect(uri, function(err, conn) {
         bar.tick();
       })
       .on('data', function(data) {
-        debug('schema', JSON.stringify(data, null, ' '));
         schema = data;
       })
       .on('end', function() {

@@ -1,4 +1,4 @@
-var nativeParser = require('../lib/parse-native');
+var nativeParser = require('../lib/stream');
 var ampersandParser = require('../lib');
 var es = require('event-stream');
 var assert = require('assert');

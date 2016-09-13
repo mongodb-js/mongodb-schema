@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-var Schema = require('../').Schema;
+var schemaStream = require('../lib/stream');
+var schemaStats = require('../lib/stats');
+
 var mongodb = require('mongodb');
 var sample = require('mongodb-collection-sample');
 var toNS = require('mongodb-ns');
@@ -13,7 +15,7 @@ var ProgressBar = require('progress');
 var async = require('async');
 var stats = require('stats-lite');
 
-// var debug = require('debug')('mongodb-schema:bin');
+var debug = require('debug')('mongodb-schema:bin');
 
 var argv = require('yargs')
   .strict()
@@ -47,11 +49,6 @@ var argv = require('yargs')
     type: 'boolean',
     describe: 'print schema statistics to stderr'
   })
-  .option('native', {
-    type: 'boolean',
-    describe: 'use native (fast) analysis algorithm',
-    default: true
-  })
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
@@ -59,7 +56,7 @@ var argv = require('yargs')
   .help('h')
   .wrap(100)
   .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats '
-    + '--no-output --no-native', 'analyze 1000 docs from the mongodb.fanclub '
+    + '--no-output', 'analyze 1000 docs from the mongodb.fanclub '
     + 'collection with the old ampersand parser, repeat 5 times and only show statistics.')
   .example('$0 localhost:27017 test.foo --format table',
     'analyze 100 docs from the test.foo collection and print '
@@ -128,7 +125,6 @@ mongodb.connect(uri, function(err, conn) {
 
   var ns = toNS(argv._[1]);
   var db = conn.db(ns.database);
-  var schema = new Schema();
   var ts;
 
   var options = {
@@ -136,14 +132,20 @@ mongodb.connect(uri, function(err, conn) {
     query: {}
   };
 
+  var schema;
+
   async.timesSeries(argv.repeat, function(arr, cb) {
     sample(db, ns.collection, options)
       .once('data', function() {
         ts = new Date();
       })
-      .pipe(schema.stream(argv.native))
+      .pipe(schemaStream())
       .on('progress', function() {
         bar.tick();
+      })
+      .on('data', function(data) {
+        debug('schema', JSON.stringify(data, null, ' '));
+        schema = data;
       })
       .on('end', function() {
         var dur = new Date() - ts;
@@ -157,11 +159,11 @@ mongodb.connect(uri, function(err, conn) {
     if (argv.output) {
       var output = '';
       if (argv.format === 'yaml') {
-        output = yaml.dump(schema.serialize());
+        output = yaml.dump(schema);
       } else if (argv.format === 'table') {
         output = getTable(schema).toString();
       } else {
-        output = EJSON.stringify(schema.serialize(), null, 2);
+        output = EJSON.stringify(schema, null, 2);
       }
       console.log(output);
     }
@@ -171,9 +173,9 @@ mongodb.connect(uri, function(err, conn) {
           .format('0.00') + 'ms (individual results: %s)', res.toString());
       console.error('stdev time: ' + numeral(stats.stdev(res)).format('0.00') + 'ms');
       console.error('toplevel fields:', schema.fields.length);
-      console.error('branching factors: %j', schema.branchingFactors);
-      console.error('schema width: ' + schema.width);
-      console.error('schema depth: ' + schema.depth);
+      console.error('branching factors: %j', schemaStats.branch(schema));
+      console.error('schema width: ' + schemaStats.width(schema));
+      console.error('schema depth: ' + schemaStats.depth(schema));
     }
     conn.close();
   });

@@ -5,7 +5,6 @@ var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0 */
 describe('basic embedded array', function() {
-  var following;
   var following_ids;
   var docs = [
     {
@@ -22,11 +21,13 @@ describe('basic embedded array', function() {
   ];
 
   before(function(done) {
-    following = getSchema('following', docs, function() {
-      following_ids = following.fields.get('following_ids').types.get('Array');
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      following_ids = _.find(_.find(res.fields, 'name', 'following_ids').types, 'name', 'Array');
       done();
     });
   });
+
   it('should have 2 lengths for following_ids', function() {
     assert.deepEqual(following_ids.lengths, [1, 2]);
   });
@@ -36,20 +37,14 @@ describe('basic embedded array', function() {
   });
 
   it('should have a sum of probability for following_ids of 1', function() {
-    assert.equal(_.sum(following_ids.types.pluck('probability')), 1);
+    assert.equal(_.sum(_.pluck(following_ids.types, 'probability')), 1);
   });
 
   it('should have 33% String for following_ids', function() {
-    assert.equal(following_ids.types.get('String').probability, 1 / 3);
+    assert.equal(_.find(following_ids.types, 'name', 'String').probability, 1 / 3);
   });
 
   it('should have 66% ObjectID for following_ids', function() {
-    assert.equal(following_ids.types.get('ObjectID').probability, 2 / 3);
-  });
-
-  it('should serialize correctly', function() {
-    assert.doesNotThrow(function() {
-      following.toJSON();
-    });
+    assert.equal(_.find(following_ids.types, 'name', 'ObjectID').probability, 2 / 3);
   });
 });

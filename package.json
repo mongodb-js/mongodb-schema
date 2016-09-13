@@ -13,7 +13,7 @@
     "url": "https://github.com/mongodb-js/mongodb-schema/issues"
   },
   "bin": {
-    "mongodb-schema": "bin/mongodb-schema.js"
+    "mongodb-schema": "bin/mongodb-schema"
   },
   "scripts": {
     "start": "zuul --local 3001 --open -- test/*.test.js",
@@ -35,7 +35,7 @@
   ],
   "dependency-check": {
     "entries": [
-      "bin/mongodb-schema.js",
+      "bin/mongodb-schema",
       "index.js"
     ]
   },

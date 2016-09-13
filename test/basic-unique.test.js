@@ -2,6 +2,8 @@ var getSchema = require('../');
 var assert = require('assert');
 var _ = require('lodash');
 
+// var debug = require('debug')('mongodb-schema:test:unique');
+
 describe('has_duplicates', function() {
   var docs = _.map(_.range(11111), function(val) {
     return {
@@ -12,24 +14,25 @@ describe('has_duplicates', function() {
 
   var schema;
   before(function(done) {
-    schema = getSchema('has_duplicates', docs, function(err) {
-      if (err) {
-        return done(err);
-      }
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      schema = res;
       done();
     });
   });
 
   it('should not have duplicates', function() {
-    assert.equal(schema.fields.get('num').has_duplicates, false);
+    assert.equal(_.find(schema.fields, 'name', 'num').has_duplicates, false);
   });
 
   it('should have 10000 number values for the `num` field', function() {
-    assert.equal(schema.fields.get('num').types.get('Number').values.length, 10000);
+    assert.equal(_.find(_.find(schema.fields, 'name', 'num').types,
+      'name', 'Number').values.length, 10000);
   });
 
   it('should have 100 string values for the `str` field', function() {
-    assert.equal(schema.fields.get('str').types.get('String').values.length, 100);
+    assert.equal(_.find(_.find(schema.fields, 'name', 'str').types,
+      'name', 'String').values.length, 100);
   });
 });
 
@@ -54,24 +57,21 @@ describe('unique', function() {
 
   var schema;
   before(function(done) {
-    schema = getSchema('unique', docs, function(err) {
-      if (err) {
-        return done(err);
-      }
-      if (!schema.fields.get('_id')) {
-        return done(new Error('Did not pick up `_id` field'));
-      }
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      schema = res;
       done();
     });
   });
 
   it('should have count of 3 for `_id`', function() {
-    assert.equal(schema.fields.get('_id').count, 3);
+    assert.equal(_.find(schema.fields, 'name', '_id').count, 3);
   });
 
   it('should have unique of 3 for `_id`', function() {
-    assert.equal(schema.fields.get('_id').unique, 3);
-    assert.equal(schema.fields.get('_id').types.get('Number').unique, 3);
+    assert.equal(_.find(schema.fields, 'name', '_id').unique, 3);
+    assert.equal(_.find(_.find(schema.fields, 'name', '_id').types,
+      'name', 'Number').unique, 3);
   });
 
   it('should not have duplicates for `_id`', function() {
@@ -79,7 +79,7 @@ describe('unique', function() {
   });
 
   it('should have count of 2 for `registered`', function() {
-    assert.equal(schema.fields.get('registered').count, 2);
+    assert.equal(_.find(schema.fields, 'name', 'registered').count, 2);
   });
 
   it('should have unique of 1 for `registered` type Boolean', function() {

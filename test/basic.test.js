@@ -1,7 +1,7 @@
 var getSchema = require('../');
-var TypeCollection = getSchema.TypeCollection;
 var assert = require('assert');
 var BSON = require('bson');
+var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0, no-new: 0 */
 describe('using only basic fields', function() {
@@ -23,11 +23,6 @@ describe('using only basic fields', function() {
   ];
 
   var users;
-  it('should work', function(done) {
-    assert.doesNotThrow(function() {
-      users = getSchema('users', docs, done);
-    });
-  });
   it('should detect all fields', function() {
     var field_names = [
       '_id',
@@ -43,33 +38,28 @@ describe('using only basic fields', function() {
       'stats_friends',
       'twitter_username'
     ];
-    assert.deepEqual(users.fields.pluck('name'), field_names);
+    assert.deepEqual(_.pluck(users.fields, 'name').sort(), field_names.sort());
+  });
+
+  before(function(done) {
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      users = res;
+      done();
+    });
   });
 
   it('should detect the correct type for each field', function() {
-    assert.equal(users.fields.get('_id').type, 'ObjectID');
-    assert.equal(users.fields.get('apple_push_token').type, 'String');
-    assert.equal(users.fields.get('created_at').type, 'Date');
-    assert.equal(users.fields.get('email').type, 'String');
-    assert.equal(users.fields.get('is_verified').type, 'Boolean');
-    assert.equal(users.fields.get('length').type, 'Number');
-    assert.equal(users.fields.get('last_address_latitude').type, 'Null');
-    assert.equal(users.fields.get('last_address_longitude').type, 'Null');
-    assert.equal(users.fields.get('name').type, 'String');
-    assert.equal(users.fields.get('stats_friends').type, 'Number');
-    assert.equal(users.fields.get('twitter_username').type, 'String');
-  });
-
-  it('should serialize correctly', function() {
-    assert.doesNotThrow(function() {
-      users.toJSON();
-    });
-  });
-  it('should raise a TypeError for unknown types', function() {
-    assert.throws(function() {
-      new TypeCollection({
-        model: 'Image'
-      });
-    });
+    assert.equal(_.find(users.fields, 'name', '_id').type, 'ObjectID');
+    assert.equal(_.find(users.fields, 'name', 'apple_push_token').type, 'String');
+    assert.equal(_.find(users.fields, 'name', 'created_at').type, 'Date');
+    assert.equal(_.find(users.fields, 'name', 'email').type, 'String');
+    assert.equal(_.find(users.fields, 'name', 'is_verified').type, 'Boolean');
+    assert.equal(_.find(users.fields, 'name', 'length').type, 'Number');
+    assert.equal(_.find(users.fields, 'name', 'last_address_latitude').type, 'Null');
+    assert.equal(_.find(users.fields, 'name', 'last_address_longitude').type, 'Null');
+    assert.equal(_.find(users.fields, 'name', 'name').type, 'String');
+    assert.equal(_.find(users.fields, 'name', 'stats_friends').type, 'Number');
+    assert.equal(_.find(users.fields, 'name', 'twitter_username').type, 'String');
   });
 });

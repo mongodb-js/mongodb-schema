@@ -5,12 +5,6 @@ var _ = require('lodash');
 /* eslint quote-props: 0 */
 describe('arrays and objects as type (INT-203 restructuring)', function() {
   var docs = [
-    // {
-    //   x: 1
-    // },
-    // {
-    //   y: 1
-    // }
     {
       x: [1, 2, 3]
     },
@@ -64,41 +58,37 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
     });
   });
 
-  // describe('Nested Array', function() {
-  //   var arr;
-  //
-  //   before(function() {
-  //     arr = schema.fields.get('x').types.get('Array');
-  //   });
-  //
-  //   it('should return the lengths of all encountered arrays', function() {
-  //     assert.deepEqual(arr.lengths, [3, 3, 2]);
-  //   });
-  //
-  //   it('should return the probability of x being an array', function() {
-  //     assert.equal(arr.probability, 3 / 6);
-  //   });
-  //
-  //   it('should return the total count of all containing values', function() {
-  //     assert.equal(arr.total_count, 8);
-  //   });
-  //
-  //   it('should return the type distribution inside an array', function() {
-  //     var arrDist = _.zipObject(
-  //       arr.types.pluck('name'),
-  //       arr.types.pluck('probability')
-  //     );
-  //     assert.deepEqual(arrDist, {
-  //       'Number': 3 / 8,
-  //       'String': 1 / 8,
-  //       'Null': 1 / 8,
-  //       'Boolean': 1 / 8,
-  //       'Document': 2 / 8
-  //     });
-  //   });
-  //
-  //   it('should have a `.fields` alias for convenience', function() {
-  //     assert.deepEqual(arr.fields, arr.types.get('Document').fields);
-  //   });
-  // });
+  describe('Nested Array', function() {
+    var arr;
+
+    before(function() {
+      arr = _.find(_.find(schema.fields, 'name', 'x').types, 'name', 'Array');
+    });
+
+    it('should return the lengths of all encountered arrays', function() {
+      assert.deepEqual(arr.lengths, [3, 3, 2]);
+    });
+
+    it('should return the probability of x being an array', function() {
+      assert.equal(arr.probability, 3 / 6);
+    });
+
+    it('should return the total count of all containing values', function() {
+      assert.equal(arr.total_count, 8);
+    });
+
+    it('should return the type distribution inside an array', function() {
+      var arrDist = _.zipObject(
+        _.pluck(arr.types, 'name'),
+        _.pluck(arr.types, 'probability')
+      );
+      assert.deepEqual(arrDist, {
+        'Number': 3 / 8,
+        'String': 1 / 8,
+        'Null': 1 / 8,
+        'Boolean': 1 / 8,
+        'Document': 2 / 8
+      });
+    });
+  });
 });

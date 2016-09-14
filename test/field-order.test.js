@@ -2,7 +2,7 @@ var getSchema = require('../');
 var assert = require('assert');
 var _ = require('lodash');
 
-var debug = require('debug')('mongodb-schema:test:field-order');
+// var debug = require('debug')('mongodb-schema:test:field-order');
 
 describe('order of fields', function() {
   it('should have _id fields always at top, even with uppercase fields', function(done) {
@@ -28,7 +28,6 @@ describe('order of fields', function() {
     }];
     getSchema(docs, function(err, schema) {
       assert.ifError(err);
-      debug('schema.fields', schema.fields);
       assert.deepEqual(_.pluck(schema.fields, 'name'), ['a', 'b', 'Ca', 'cb', 'cC']);
       done();
     });

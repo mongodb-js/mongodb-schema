@@ -6,7 +6,7 @@ Infer a probabilistic schema for a MongoDB collection.
 
 `mongodb-schema` can be used as a command line tool or programmatically in your application as a node module.
 
-#### Command line
+### Command line
 
 To install mongodb-schema for command line use, run `npm install -g mongodb-schema`. This will add a new
 shell script which you can run directly from the command line.

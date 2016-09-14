@@ -1,12 +1,12 @@
 var parseSchema = require('../');
 var connect = require('mongodb');
 
-connect('mongodb://localhost:27017/test', function(err, db) {
+connect('mongodb://localhost:27017/mongodb', function(err, db) {
   if (err) {
     return console.error(err);
   }
 
-  parseSchema('test.test', db.collection('test').find(), function(err, schema) {
+  parseSchema(db.collection('fanclub').find().limit(100), function(err, schema) {
     if (err) {
       return console.error(err);
     }

@@ -33,17 +33,21 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
   ];
   var schema;
   before(function(done) {
-    schema = getSchema('mixed.mess', docs, done);
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      schema = res;
+      done();
+    });
   });
   describe('Field', function() {
     var x;
     before(function() {
-      x = schema.fields.get('x');
+      x = _.find(schema.fields, 'name', 'x');
     });
     it('have the right type distribution of x', function() {
       var dist = _.zipObject(
-        x.types.pluck('name'),
-        x.types.pluck('probability')
+        _.pluck(x.types, 'name'),
+        _.pluck(x.types, 'probability')
       );
       assert.deepEqual(dist, {
         'Array': 3 / 6,
@@ -52,16 +56,13 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
         'Undefined': 1 / 6
       });
     });
-    it('should have an `.fields` alias for convenience', function() {
-      assert.deepEqual(x.fields, x.types.get('Document').fields);
-    });
   });
 
   describe('Nested Array', function() {
     var arr;
 
     before(function() {
-      arr = schema.fields.get('x').types.get('Array');
+      arr = _.find(_.find(schema.fields, 'name', 'x').types, 'name', 'Array');
     });
 
     it('should return the lengths of all encountered arrays', function() {
@@ -78,8 +79,8 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
 
     it('should return the type distribution inside an array', function() {
       var arrDist = _.zipObject(
-        arr.types.pluck('name'),
-        arr.types.pluck('probability')
+        _.pluck(arr.types, 'name'),
+        _.pluck(arr.types, 'probability')
       );
       assert.deepEqual(arrDist, {
         'Number': 3 / 8,
@@ -88,10 +89,6 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
         'Boolean': 1 / 8,
         'Document': 2 / 8
       });
-    });
-
-    it('should have a `.fields` alias for convenience', function() {
-      assert.deepEqual(arr.fields, arr.types.get('Document').fields);
     });
   });
 });

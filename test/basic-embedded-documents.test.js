@@ -1,10 +1,10 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
+var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0 */
 describe('basic embedded documents', function() {
-  var users;
   var docs = [
     {
       '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
@@ -31,8 +31,13 @@ describe('basic embedded documents', function() {
     }
   ];
 
+  var schema;
   before(function(done) {
-    users = getSchema('users', docs, done);
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      schema = res;
+      done();
+    });
   });
 
   it('should detect all fields names and nested paths', function() {
@@ -52,12 +57,9 @@ describe('basic embedded documents', function() {
       'push_token.apple'
     ];
 
-    assert.deepEqual(users.fields.pluck('name'), field_names);
-    assert.deepEqual(users.fields.get('push_token').fields.pluck('path'), nested_path_names);
-  });
-  it('should serialize correctly', function() {
-    assert.doesNotThrow(function() {
-      users.toJSON();
-    });
+    assert.deepEqual(_.pluck(schema.fields, 'name').sort(), field_names.sort());
+    var push_tokens = _.find(_.find(schema.fields, 'name', 'push_token').types,
+      'name', 'Document').fields;
+    assert.deepEqual(_.pluck(push_tokens, 'path').sort(), nested_path_names.sort());
   });
 });

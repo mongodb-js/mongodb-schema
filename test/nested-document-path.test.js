@@ -1,5 +1,6 @@
 var getSchema = require('../');
 var assert = require('assert');
+var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0 */
 describe('nested document path', function() {
@@ -15,10 +16,20 @@ describe('nested document path', function() {
   ];
 
   before(function(done) {
-    schema = getSchema('nested.documents', docs, done);
+    getSchema(docs, function(err, res) {
+      assert.ifError(err);
+      schema = res;
+      done();
+    });
   });
 
   it('should assemble the path correctly with dot-notation', function() {
-    assert.equal(schema.fields.get('foo').fields.get('bar').fields.get('baz').path, 'foo.bar.baz');
+    var foo = _.find(schema.fields, 'name', 'foo');
+    var bar = _.find(_.find(foo.types, 'name', 'Document').fields, 'name', 'bar');
+    var baz = _.find(_.find(bar.types, 'name', 'Document').fields, 'name', 'baz');
+    assert.ok(foo);
+    assert.ok(bar);
+    assert.ok(baz);
+    assert.equal(baz.path, 'foo.bar.baz');
   });
 });

@@ -1,50 +1,88 @@
-# mongodb-schema [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][coverage_img]][coverage_url] [![][gitter_img]][gitter_url]
+# mongodb-schema [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][coverage_img]][coverage_url]
 
 Infer a probabilistic schema for a MongoDB collection.
 
-A high-level view of the class interactions is as follows:
+## Usage
 
-![](./docs/mongodb-schema_diagram.png)
+`mongodb-schema` can be used as a command line tool or programmatically in your application as a node module.
 
-## Example
+### Command line
 
-`mongodb-schema` doesn't do anything directly with `mongodb` so to try the examples we'll install the node.js driver.  
-As well, we'll need some data in a collection to derive the schema of.
+To install mongodb-schema for command line use, run `npm install -g mongodb-schema`. This will add a new
+shell script which you can run directly from the command line.
 
-Make sure you have a `mongod` running on localhost on port 27017 (or change the example accordingly). Then, do:
+The command line tool expects a MongoDB connection URI and a namespace in the form `<database>.<collection>`.
+Without further arguments, it will sample 100 random documents from the collection and print a schema of
+the collection in JSON format to stdout.
 
-1. `npm install mongodb mongodb-schema`
-2. `mongo --eval "db.test.insert([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
+```
+mongodb-schema mongodb://localhost:27017 mongodb.fanclub
+```            
+
+Additional arguments change the number of samples (`--sample`), print additional statistics about the
+schema analysis (`--stats`), switch to a different output format (`--format`), or let you suppress the
+schema output altogether (`--no-output`) if you are only interested in the schema statistics.
+
+For more information, run
+
+```
+mongodb-schema --help
+```    
+
+### API
+
+The following example demonstrates how `mongodb-schema` can be used programmatically from
+your node application. You need to additionally install the MongoDB node driver to follow
+along with this example.
+
+Make sure you have a `mongod` running on localhost on port 27017 (or change the example
+below accordingly).
+
+1. From your application folder, install the driver and `mongodb-schema` locally:
+
+   ```
+   npm install mongodb mongodb-schema
+   ```
+
+2. (optional) If you don't have any data in your MongoDB instance yet, you can create a
+`test.data` collection with this command:
+
+    ```
+    mongo --eval "db.data.insert([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
+    ```
+
 3. Create a new file `parse-schema.js` and paste in the following code:
-  ```javascript
-  var parseSchema = require('mongodb-schema');
-  var connect = require('mongodb');
 
-  connect('mongodb://localhost:27017/test', function(err, db){
-    if(err) return console.error(err);
+    ```javascript
+    var parseSchema = require('mongodb-schema');
+    var connect = require('mongodb');
 
-    parseSchema('test.test', db.collection('test').find(), function(err, schema){
-      if(err) return console.error(err);
+    connect('mongodb://localhost:27017/test', function(err, db) {
+      if (err) return console.error(err);
 
-      console.log(JSON.stringify(schema, null, 2));
-      db.close();
+      // here we are passing in a cursor as the first argument. You can
+      // also pass in a stream or an array of documents directly.
+      parseSchema(db.collection('data').find(), function(err, schema) {
+        if (err) return console.error(err);
+
+        console.log(JSON.stringify(schema, null, 2));
+        db.close();
+      });
     });
-  });
-  ```
-4. When we run the above with `node parse-schema.js`, we'll see something
-  like the following (some fields not present here for clarity):
+    ```
+
+4. When we run the above with `node ./parse-schema.js`, we'll see output
+  similar to this (some fields not present here for clarity):
 
   ```javascript
   {
     "count": 4,                   // parsed 4 documents
-    "ns": "test.test",            // namespace
     "fields": [                   // an array of Field objects, @see `./lib/field.js`
       {
         "name": "_id",
         "count": 4,               // 4 documents counted with _id
         "type": "Number",         // the type of _id is `Number`
         "probability": 1,         // all documents had an _id field
-        "unique": 4,              // 4 unique values found
         "has_duplicates": false,  // therefore no duplicates
         "types": [                // an array of Type objects, @see `./lib/types/`
           {
@@ -71,7 +109,6 @@ Make sure you have a `mongod` running on localhost on port 27017 (or change the 
           "Number",
           "Undefined"             // for convenience, we treat Undefined as its own type
         ],
-        "unique": 3,
         "has_duplicates": false,   // there were no duplicate values
         "types": [
           {
@@ -113,7 +150,12 @@ Make sure you have a `mongod` running on localhost on port 27017 (or change the 
   }
 ```
 
-### More Examples
+A high-level view of the schema tree structure is as follows:
+
+![](./docs/mongodb-schema_diagram.png)
+
+
+## BSON Types
 
 `mongodb-schema` supports all [BSON types][bson-types].
 Checkout [the tests][tests] for more usage examples.
@@ -123,13 +165,13 @@ Checkout [the tests][tests] for more usage examples.
 
 To compare schemas quantitatively we introduce the following measurable metrics on a schema:
 
-### Schema Depth
+#### Schema Depth
 The schema depth is defined as the maximum number of nested levels of keys in the schema. It does not matter if the subdocuments are nested directly or as elements of an array. An empty document has a depth of 0, whereas a document with some top-level keys but no nested subdocuments has a depth of 1.
 
-### Schema Width
+#### Schema Width
 The schema width is defined as the number of individual keys, added up over all nesting levels of the schema. Array values do not count towards the schema width.
 
-### Examples
+#### Examples
 
 ```js
 {}
@@ -220,27 +262,11 @@ Schema Depth | 2
 Schema Width | 2
 
 
-
-## Installation
-
-```
-npm install --save mongodb-schema
-```
-
 ## Testing
 
 ```
 npm test
 ```
-
-## Dependencies
-
-Under the hood, `mongodb-schema` uses [ampersand-state][ampersand-state] and
-[ampersand-collection][ampersand-collection] for modeling [Schema][schema], [Field][field]'s, and [Type][type]'s.
-
-**Note:** Currently we are pinning [ampersand-state][ampersand-state] to version 4.8.2 due
-to a backwards-breaking change introduced in version 4.9.x. For more details, see [ampersand-state issue #226](https://github.com/AmpersandJS/ampersand-state/issues/226).
-
 
 ## License
 

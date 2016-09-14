@@ -1,16 +1,16 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
+var _ = require('lodash');
 
 /* eslint quote-props: 0, new-cap: 0 */
 describe('evolving schema', function() {
   // The hardest case and really why this module exists at all: proper
-  // handling for polymorphic schemas.  Consider the followi;ng scenario:
+  // handling for polymorphic schemas.  Consider the following scenario:
   //
   // 1. started out with schema in `only basic fields`.
   // 2. then read a blog post about how awesome; embedded documents are.
   // 3. then realized what a pain embedded documents are.
-  var users;
   var apple_push_token;
   var docs = [
     {
@@ -52,11 +52,14 @@ describe('evolving schema', function() {
   ];
 
   before(function(done) {
-    users = getSchema('users', docs, done);
+    getSchema(docs, function(err, users) {
+      assert.ifError(err);
+      apple_push_token = _.find(users.fields, 'name', 'apple_push_token');
+      done();
+    });
   });
   it('should have the `apple_push_token` field', function() {
-    apple_push_token = users.fields.get('apple_push_token');
-    assert(apple_push_token);
+    assert.ok(apple_push_token);
   });
   it('should have seen `apple_push_token` 1 time', function() {
     assert.equal(apple_push_token.count, 1);
@@ -65,9 +68,9 @@ describe('evolving schema', function() {
     assert.equal(apple_push_token.probability, 0.5);
   });
   it('should have seen `apple_push_token` 1 time as a string', function() {
-    assert.equal(apple_push_token.types.get('String').count, 1);
+    assert.equal(_.find(apple_push_token.types, 'name', 'String').count, 1);
   });
   it('should have seen 1 unique string value for `apple_push_token`', function() {
-    assert.equal(apple_push_token.types.get('String').unique, 1);
+    assert.equal(_.find(apple_push_token.types, 'name', 'String').unique, 1);
   });
 });

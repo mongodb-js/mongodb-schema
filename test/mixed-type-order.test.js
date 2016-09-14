@@ -21,31 +21,27 @@ describe('mixed type order', function() {
     }
   ];
 
-  var schema;
+  var registered;
   before(function(done) {
-    schema = getSchema('type.order', docs, function(err) {
-      if (err) {
-        return done(err);
-      }
-      if (!schema.fields.get('registered')) {
+    getSchema(docs, function(err, schema) {
+      assert.ifError(err);
+      registered = _.find(schema.fields, 'name', 'registered');
+
+      if (!registered) {
         return done(new Error('Did not pick up `registered` field'));
       }
-      if (!schema.fields.get('registered').types.get('Undefined')) {
+      if (!_.find(registered.types, 'name', 'Undefined')) {
         return done(new Error('Missing Undefined type on `registered`'));
       }
       done();
     });
   });
   it('should have 3 types for `registered`', function() {
-    assert.equal(schema.fields.get('registered').types.length, 3);
+    assert.equal(registered.types.length, 3);
   });
   it('should return the order of types as ["String", "Number", "Undefined"]', function(done) {
-    assert.deepEqual(schema.fields.get('registered').types.pluck('name'),
+    assert.deepEqual(_.pluck(registered.types, 'name'),
       ['String', 'Number', 'Undefined']);
     done();
-  });
-  it('should be sorted when serialized', function() {
-    var types = schema.fields.get('registered').types;
-    assert.deepEqual(_.pluck(types.serialize(), 'name'), ['String', 'Number', 'Undefined']);
   });
 });

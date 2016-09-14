@@ -6,7 +6,7 @@ Infer a probabilistic schema for a MongoDB collection.
 
 `mongodb-schema` can be used as a command line tool or programmatically in your application as a node module.
 
-#### Command line
+### Command line
 
 To install mongodb-schema for command line use, run `npm install -g mongodb-schema`. This will add a new
 shell script which you can run directly from the command line.
@@ -165,13 +165,13 @@ Checkout [the tests][tests] for more usage examples.
 
 To compare schemas quantitatively we introduce the following measurable metrics on a schema:
 
-### Schema Depth
+#### Schema Depth
 The schema depth is defined as the maximum number of nested levels of keys in the schema. It does not matter if the subdocuments are nested directly or as elements of an array. An empty document has a depth of 0, whereas a document with some top-level keys but no nested subdocuments has a depth of 1.
 
-### Schema Width
+#### Schema Width
 The schema width is defined as the number of individual keys, added up over all nesting levels of the schema. Array values do not count towards the schema width.
 
-### Examples
+#### Examples
 
 ```js
 {}
@@ -267,15 +267,6 @@ Schema Width | 2
 ```
 npm test
 ```
-
-## Dependencies
-
-Under the hood, `mongodb-schema` uses [ampersand-state][ampersand-state] and
-[ampersand-collection][ampersand-collection] for modeling [Schema][schema], [Field][field]'s, and [Type][type]'s.
-
-**Note:** Currently we are pinning [ampersand-state][ampersand-state] to version 4.8.2 due
-to a backwards-breaking change introduced in version 4.9.x. For more details, see [ampersand-state issue #226](https://github.com/AmpersandJS/ampersand-state/issues/226).
-
 
 ## License
 

@@ -69,13 +69,12 @@ describe('unique', function() {
   });
 
   it('should have unique of 3 for `_id`', function() {
-    assert.equal(_.find(schema.fields, 'name', '_id').unique, 3);
     assert.equal(_.find(_.find(schema.fields, 'name', '_id').types,
       'name', 'Number').unique, 3);
   });
 
   it('should not have duplicates for `_id`', function() {
-    assert.equal(schema.fields.get('_id').has_duplicates, false);
+    assert.equal(_.find(schema.fields, 'name', '_id').has_duplicates, false);
   });
 
   it('should have count of 2 for `registered`', function() {
@@ -83,26 +82,20 @@ describe('unique', function() {
   });
 
   it('should have unique of 1 for `registered` type Boolean', function() {
-    assert.equal(schema.fields.get('registered').types.get('Boolean').unique, 1);
-  });
-
-  it('should have unique of 1 for `registered` overall', function() {
-    assert.equal(schema.fields.get('registered').unique, 1);
-  });
-
-  it('should return unique of 0 for Undefined type', function() {
-    assert.equal(schema.fields.get('registered').types.get('Undefined').unique, 0);
+    assert.equal(_.find(_.find(schema.fields, 'name', 'registered').types,
+      'name', 'Boolean').unique, 1);
   });
 
   it('should have unique of 1 for `code`', function() {
-    assert.equal(schema.fields.get('code').types.get('Null').unique, 1);
+    assert.equal(_.find(_.find(schema.fields, 'name', 'code').types,
+      'name', 'Null').unique, 1);
   });
 
   it('should not have duplicate values for b', function() {
-    assert.equal(schema.fields.get('b').has_duplicates, false);
+    assert.equal(_.find(schema.fields, 'name', 'b').has_duplicates, false);
   });
 
   it('should have duplicates for `registered`', function() {
-    assert.equal(schema.fields.get('registered').has_duplicates, true);
+    assert.equal(_.find(schema.fields, 'name', 'registered').has_duplicates, true);
   });
 });

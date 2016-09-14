@@ -6,7 +6,7 @@ Infer a probabilistic schema for a MongoDB collection.
 
 `mongodb-schema` can be used as a command line tool or programmatically in your application as a node module.
 
-### Command line
+#### Command line
 
 To install mongodb-schema for command line use, run `npm install -g mongodb-schema`. This will add a new
 shell script which you can run directly from the command line.
@@ -268,15 +268,34 @@ Schema Width | 2
 npm test
 ```
 
+## Dependencies
+
+Under the hood, `mongodb-schema` uses [ampersand-state][ampersand-state] and
+[ampersand-collection][ampersand-collection] for modeling [Schema][schema], [Field][field]'s, and [Type][type]'s.
+
+**Note:** Currently we are pinning [ampersand-state][ampersand-state] to version 4.8.2 due
+to a backwards-breaking change introduced in version 4.9.x. For more details, see [ampersand-state issue #226](https://github.com/AmpersandJS/ampersand-state/issues/226).
+
+
 ## License
 
 Apache 2.0
 
 
+
 [bson-types]: http://docs.mongodb.org/manual/reference/bson-types/
+[ampersand-state]: http://ampersandjs.com/docs#ampersand-state
+[ampersand-collection]: http://ampersandjs.com/docs#ampersand-collection
+[tests]: https://github.com/mongodb-js/mongodb-schema/tree/master/test
+[schema]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/schema.js
+[field]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/field.js
+[type]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/type.js
+
 [travis_img]: https://secure.travis-ci.org/mongodb-js/mongodb-schema.svg?branch=master
 [travis_url]: https://travis-ci.org/mongodb-js/mongodb-schema
 [npm_img]: https://img.shields.io/npm/v/mongodb-schema.svg
 [npm_url]: https://www.npmjs.org/package/mongodb-schema
 [coverage_img]: https://coveralls.io/repos/mongodb-js/mongodb-schema/badge.svg
 [coverage_url]: https://coveralls.io/r/mongodb-js/mongodb-schema
+[gitter_img]: https://badges.gitter.im/Join%20Chat.svg
+[gitter_url]: https://gitter.im/mongodb-js/mongodb-js

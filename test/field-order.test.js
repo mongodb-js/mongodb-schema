@@ -1,5 +1,8 @@
 var getSchema = require('../');
 var assert = require('assert');
+var _ = require('lodash');
+
+var debug = require('debug')('mongodb-schema:test:field-order');
 
 describe('order of fields', function() {
   it('should have _id fields always at top, even with uppercase fields', function(done) {
@@ -9,11 +12,9 @@ describe('order of fields', function() {
       BAR: 1,
       zoo: 1
     }];
-    getSchema('field.order', docs, function(err, schema) {
+    getSchema(docs, function(err, schema) {
       assert.ifError(err);
-      assert.deepEqual(schema.fields.map(function(field) {
-        return field.getId();
-      }), ['_id', 'BAR', 'FOO', 'zoo']);
+      assert.deepEqual(_.pluck(schema.fields, 'name'), ['_id', 'BAR', 'FOO', 'zoo']);
       done();
     });
   });
@@ -25,11 +26,10 @@ describe('order of fields', function() {
       a: 1,
       b: 1
     }];
-    getSchema('field.order', docs, function(err, schema) {
+    getSchema(docs, function(err, schema) {
       assert.ifError(err);
-      assert.deepEqual(schema.fields.map(function(field) {
-        return field.getId();
-      }), ['a', 'b', 'Ca', 'cb', 'cC']);
+      debug('schema.fields', schema.fields);
+      assert.deepEqual(_.pluck(schema.fields, 'name'), ['a', 'b', 'Ca', 'cb', 'cC']);
       done();
     });
   });

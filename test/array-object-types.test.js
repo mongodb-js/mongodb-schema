@@ -46,8 +46,8 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
     });
     it('have the right type distribution of x', function() {
       var dist = _.zipObject(
-        _.pluck(x.types, 'name'),
-        _.pluck(x.types, 'probability')
+        _.map(x.types, 'name'),
+        _.map(x.types, 'probability')
       );
       assert.deepEqual(dist, {
         'Array': 3 / 6,
@@ -79,8 +79,8 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
 
     it('should return the type distribution inside an array', function() {
       var arrDist = _.zipObject(
-        _.pluck(arr.types, 'name'),
-        _.pluck(arr.types, 'probability')
+        _.map(arr.types, 'name'),
+        _.map(arr.types, 'probability')
       );
       assert.deepEqual(arrDist, {
         'Number': 3 / 8,

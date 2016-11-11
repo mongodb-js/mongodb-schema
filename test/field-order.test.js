@@ -14,7 +14,7 @@ describe('order of fields', function() {
     }];
     getSchema(docs, function(err, schema) {
       assert.ifError(err);
-      assert.deepEqual(_.pluck(schema.fields, 'name'), ['_id', 'BAR', 'FOO', 'zoo']);
+      assert.deepEqual(_.map(schema.fields, 'name'), ['_id', 'BAR', 'FOO', 'zoo']);
       done();
     });
   });
@@ -28,7 +28,7 @@ describe('order of fields', function() {
     }];
     getSchema(docs, function(err, schema) {
       assert.ifError(err);
-      assert.deepEqual(_.pluck(schema.fields, 'name'), ['a', 'b', 'Ca', 'cb', 'cC']);
+      assert.deepEqual(_.map(schema.fields, 'name'), ['a', 'b', 'Ca', 'cb', 'cC']);
       done();
     });
   });

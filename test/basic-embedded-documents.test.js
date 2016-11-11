@@ -57,9 +57,9 @@ describe('basic embedded documents', function() {
       'push_token.apple'
     ];
 
-    assert.deepEqual(_.pluck(schema.fields, 'name').sort(), field_names.sort());
+    assert.deepEqual(_.map(schema.fields, 'name').sort(), field_names.sort());
     var push_tokens = _.find(_.find(schema.fields, 'name', 'push_token').types,
       'name', 'Document').fields;
-    assert.deepEqual(_.pluck(push_tokens, 'path').sort(), nested_path_names.sort());
+    assert.deepEqual(_.map(push_tokens, 'path').sort(), nested_path_names.sort());
   });
 });

@@ -64,7 +64,7 @@
     "stats-lite": "^2.0.0",
     "cli-table": "^0.3.1",
     "js-yaml": "^3.5.2",
-    "mongodb": "^2.1.9",
+    "mongodb": "^2.2.11",
     "mongodb-collection-sample": "^1.1.2",
     "mongodb-extended-json": "^1.6.2",
     "mongodb-ns": "^1.0.3",

@@ -1,12 +1,9 @@
+sudo: false
 language: node_js
 node_js:
-- '0.12'
-notifications:
-  webhooks:
-    urls:
-      - 'https://webhooks.gitter.im/e/aae9117008dad1557aac'
-    on_success: change
-    on_failure: always
-    on_start: false
+- 6
 script: "npm run-script ci"
 after_script: "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+cache:
+  directories:
+    - node_modules

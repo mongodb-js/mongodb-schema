@@ -22,9 +22,9 @@ var argv = require('yargs')
   .usage('Usage: $0 <uri> <ns> [--format=<json|yaml|table> --sample=<n>]')
   .demand(2)
   .option('n', {
-    alias: 'sample',
+    alias: 'number',
     default: 100,
-    describe: 'The number of documents to sample.'
+    describe: 'The number of documents to return.'
   })
   .option('f', {
     alias: 'format',
@@ -49,6 +49,17 @@ var argv = require('yargs')
     type: 'boolean',
     describe: 'print schema statistics to stderr'
   })
+  .option('p', {
+    alias: 'promote',
+    type: 'boolean',
+    default: true,
+    describe: 'promote values to Javascript numbers.'
+  })
+  .option('sampling', {
+    type: 'boolean',
+    default: true,
+    describe: 'use random sampling on the collection.'
+  })
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
@@ -71,7 +82,7 @@ var uri = argv._[0];
 if (!uri.startsWith('mongodb://')) {
   uri = 'mongodb://' + uri;
 }
-var sampleSize = parseInt(argv.sample, 10);
+var sampleSize = parseInt(argv.number, 10);
 
 if (argv.version) {
   console.error(pkg.version);
@@ -110,7 +121,7 @@ function getTable(schema) {
 }
 
 var bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
-  total: argv.sample * argv.repeat,
+  total: argv.number * argv.repeat,
   width: 60,
   complete: '=',
   incomplete: ' ',
@@ -129,13 +140,20 @@ mongodb.connect(uri, function(err, conn) {
 
   var options = {
     size: sampleSize,
-    query: {}
+    query: {},
+    promoteValues: argv.promote
   };
 
   var schema;
 
   async.timesSeries(argv.repeat, function(arr, cb) {
-    sample(db, ns.collection, options)
+    var source = argv.sampling ?
+      sample(db, ns.collection, options) :
+      db.collection(ns.collection).find(options.query, {}, {
+        promoteValues: options.promoteValues
+      }).limit(options.size);
+
+    source
       .once('data', function() {
         ts = new Date();
       })
@@ -167,12 +185,21 @@ mongodb.connect(uri, function(err, conn) {
       console.log(output);
     }
     if (argv.stats) {
+      var branchOutput = '[';
+      var branchingFactors = schemaStats.branch(schema);
+      if (branchingFactors.length > 20) {
+        branchOutput += branchingFactors.slice(0, 20).join(',')
+          + ',...] (top 20 shown)';
+      } else {
+        branchOutput += branchingFactors.join(',') + ']';
+      }
+
       console.error('execution count: ' + argv.repeat);
       console.error('mean time: ' + numeral(stats.mean(res))
           .format('0.00') + 'ms (individual results: %s)', res.toString());
       console.error('stdev time: ' + numeral(stats.stdev(res)).format('0.00') + 'ms');
       console.error('toplevel fields:', schema.fields.length);
-      console.error('branching factors: %j', schemaStats.branch(schema));
+      console.error('branching factors:', branchOutput);
       console.error('schema width: ' + schemaStats.width(schema));
       console.error('schema depth: ' + schemaStats.depth(schema));
     }

@@ -3,7 +3,7 @@ var assert = require('assert');
 var BSON = require('bson');
 var _ = require('lodash');
 
-/* eslint quote-props: 0, new-cap: 0 */
+/* eslint quote-props: 0, new-cap: 0, camelcase: 0 */
 describe('evolving schema', function() {
   // The hardest case and really why this module exists at all: proper
   // handling for polymorphic schemas.  Consider the following scenario:

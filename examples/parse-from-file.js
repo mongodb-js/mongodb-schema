@@ -1,3 +1,5 @@
+/* eslint no-console: 0 */
+
 var stream = require('../lib/stream');
 var fs = require('fs');
 var es = require('event-stream');

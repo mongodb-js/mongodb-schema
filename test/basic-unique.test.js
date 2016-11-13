@@ -1,6 +1,8 @@
+/* eslint new-cap: 0 */
 var getSchema = require('../');
 var assert = require('assert');
 var _ = require('lodash');
+var bson = require('bson');
 
 // var debug = require('debug')('mongodb-schema:test:unique');
 
@@ -41,17 +43,23 @@ describe('unique', function() {
     {
       _id: 1,
       registered: true,
-      b: false
+      b: false,
+      int32: bson.Int32(5),
+      date: new Date('2016-01-01')
     },
     {
       _id: 2,
       registered: true,
       code: null,
-      b: 'false'
+      b: 'false',
+      int32: bson.Int32(5),
+      date: new Date('2016-01-01')
     },
     {
       _id: 3,
-      code: null
+      code: null,
+      int32: bson.Int32(9),
+      date: new Date('2011-11-11')
     }
   ];
 
@@ -89,6 +97,16 @@ describe('unique', function() {
   it('should have unique of 1 for `code`', function() {
     assert.equal(_.find(_.find(schema.fields, 'name', 'code').types,
       'name', 'Null').unique, 1);
+  });
+
+  it('should have unique of 2 for `int32`', function() {
+    assert.equal(_.find(_.find(schema.fields, 'name', 'int32').types,
+      'name', 'Int32').unique, 2);
+  });
+
+  it('should have unique of 2 for `date`', function() {
+    assert.equal(_.find(_.find(schema.fields, 'name', 'date').types,
+      'name', 'Date').unique, 2);
   });
 
   it('should not have duplicate values for b', function() {

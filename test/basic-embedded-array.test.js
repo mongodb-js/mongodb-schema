@@ -3,7 +3,7 @@ var assert = require('assert');
 var BSON = require('bson');
 var _ = require('lodash');
 
-/* eslint new-cap: 0, quote-props: 0 */
+/* eslint new-cap: 0, quote-props: 0, camelcase: 0 */
 describe('basic embedded array', function() {
   var following_ids;
   var docs = [

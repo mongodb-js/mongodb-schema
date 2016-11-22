@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+/* eslint no-console: 0 */
 var schemaStream = require('../lib/stream');
 var schemaStats = require('../lib/stats');
 
@@ -59,6 +60,12 @@ var argv = require('yargs')
     type: 'boolean',
     default: true,
     describe: 'use random sampling on the collection.'
+  })
+  .option('m', {
+    alias: 'memoryLimit',
+    type: 'number',
+    default: null,
+    describe: 'stop schema analysis when memory limit is reached'
   })
   .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
@@ -144,6 +151,11 @@ mongodb.connect(uri, function(err, conn) {
     promoteValues: argv.promote
   };
 
+  var schemaOptions = {};
+  if (argv.memoryLimit) {
+    schemaOptions.memoryLimit = argv.memoryLimit;
+  }
+
   var schema;
 
   async.timesSeries(argv.repeat, function(arr, cb) {
@@ -157,7 +169,7 @@ mongodb.connect(uri, function(err, conn) {
       .once('data', function() {
         ts = new Date();
       })
-      .pipe(schemaStream())
+      .pipe(schemaStream(schemaOptions))
       .on('progress', function() {
         bar.tick();
       })
@@ -168,9 +180,9 @@ mongodb.connect(uri, function(err, conn) {
         var dur = new Date() - ts;
         cb(null, dur);
       });
-  }, function(err, res) {
-    if (err) {
-      console.error('error:', err.message);
+  }, function(err2, res) {
+    if (err2) {
+      console.error('error:', err2.message);
       process.exit(1);
     }
     if (argv.output) {

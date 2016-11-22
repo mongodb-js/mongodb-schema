@@ -32,9 +32,9 @@ describe('has_duplicates', function() {
       'name', 'Number').values.length, 10000);
   });
 
-  it('should have 100 string values for the `str` field', function() {
+  it('should have 1000 string values for the `str` field', function() {
     assert.equal(_.find(_.find(schema.fields, 'name', 'str').types,
-      'name', 'String').values.length, 100);
+      'name', 'String').values.length, 1000);
   });
 });
 

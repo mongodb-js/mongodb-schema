@@ -42,6 +42,7 @@
   "dependencies": {
     "async": "^1.5.2",
     "event-stream": "^3.3.0",
+    "geojson-validation": "^0.1.6",
     "lodash": "^3.8.0",
     "progress": "^1.1.8",
     "reservoir": "^0.1.2"

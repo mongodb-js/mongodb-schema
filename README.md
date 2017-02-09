@@ -21,7 +21,8 @@ mongodb-schema mongodb://localhost:27017 mongodb.fanclub
 
 Additional arguments change the number of samples (`--sample`), print additional statistics about the
 schema analysis (`--stats`), switch to a different output format (`--format`), or let you suppress the
-schema output altogether (`--no-output`) if you are only interested in the schema statistics.
+schema output altogether (`--no-output`) if you are only interested in the schema statistics, semantic
+type discovery (`--semantic-types`), and the ability to disable value collection (`--no-values`).
 
 For more information, run
 
@@ -160,6 +161,25 @@ A high-level view of the schema tree structure is as follows:
 `mongodb-schema` supports all [BSON types][bson-types].
 Checkout [the tests][tests] for more usage examples.
 
+## Semantic Types
+
+As of version 6.1.0, mongodb-schema has a new feature called "Semantic Type Detection". It allows to override the type identification of a value. The only built-in detector is GeoJSON currently, which traditionally would just be detected as "Document" type. With the new option `semanticTypes` enabled, these sub-documents are now considered atomic values with a type "GeoJSON". The original BSON type name is still available under the `bsonType` field.
+
+To enable this mode, use the `-t` or `--semantic-types` flag at the command line. When using the API, pass an option object as the second parameter with the `semanticTypes` flag set to `true`:
+
+```javascript
+parseSchema(db.collection('data').find(), {semanticTypes: true}, function(err, schema) {
+  ...
+});
+```
+
+This mode is disabled by default.
+
+## Value Sampling
+
+As of version 6.1.0, mongodb-schema supports analysing only the structure of the documents, without collection data samples. To enable this mode, use the `--no-values` flag at the command line. When using the API, pass an option object as the second parameter with the `storeValues` flag set to `false`.
+
+This mode is enabled by default.
 
 ## Schema Statistics
 

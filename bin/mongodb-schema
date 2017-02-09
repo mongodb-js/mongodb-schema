@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint no-console: 0 */
+
 var schemaStream = require('../lib/stream');
 var schemaStats = require('../lib/stats');
 
@@ -54,6 +56,17 @@ var argv = require('yargs')
     type: 'boolean',
     default: true,
     describe: 'promote values to Javascript numbers.'
+  })
+  .options('t', {
+    alias: 'semantic-types',
+    type: 'boolean',
+    default: false,
+    describe: 'semantic type detection, currently supported are emails and geojson'
+  })
+  .option('values', {
+    type: 'boolean',
+    default: true,
+    describe: 'enables the collection of sample values'
   })
   .option('sampling', {
     type: 'boolean',
@@ -145,6 +158,10 @@ mongodb.connect(uri, function(err, conn) {
   };
 
   var schema;
+  var schemaOptions = {
+    storeValues: argv.values,
+    semanticTypes: argv.semanticTypes
+  };
 
   async.timesSeries(argv.repeat, function(arr, cb) {
     var source = argv.sampling ?
@@ -157,7 +174,7 @@ mongodb.connect(uri, function(err, conn) {
       .once('data', function() {
         ts = new Date();
       })
-      .pipe(schemaStream())
+      .pipe(schemaStream(schemaOptions))
       .on('progress', function() {
         bar.tick();
       })
@@ -168,9 +185,9 @@ mongodb.connect(uri, function(err, conn) {
         var dur = new Date() - ts;
         cb(null, dur);
       });
-  }, function(err, res) {
-    if (err) {
-      console.error('error:', err.message);
+  }, function(err2, res) {
+    if (err2) {
+      console.error('error:', err2.message);
       process.exit(1);
     }
     if (argv.output) {

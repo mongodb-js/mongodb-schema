@@ -18,7 +18,8 @@ describe('using only basic fields', function() {
       'last_address_latitude': null,
       'last_address_longitude': null,
       'created_at': new Date(),
-      'length': 29
+      'length': 29,
+      'name[]': 'Annabeth Frankie'
     }
   ];
 
@@ -36,7 +37,8 @@ describe('using only basic fields', function() {
       'length',
       'name',
       'stats_friends',
-      'twitter_username'
+      'twitter_username',
+      'name[]'
     ];
     assert.deepEqual(_.pluck(users.fields, 'name').sort(), field_names.sort());
   });

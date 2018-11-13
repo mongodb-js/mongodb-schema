@@ -1,12 +1,13 @@
 /* eslint no-console: 0 */
 
 var stream = require('../lib/stream');
-var fs = require('fs');
 var es = require('event-stream');
+var path = require('path');
+var fs = require('fs');
 
 var ts = new Date();
 
-fs.createReadStream('./fanclub.json', {
+fs.createReadStream(path.join(__dirname, './fanclub.json'), {
   flags: 'r'
 })
   .pipe(es.split()) // split file into individual json docs (one per line)

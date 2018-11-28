@@ -66,7 +66,7 @@
     "cli-table": "^0.3.1",
     "js-yaml": "^3.5.2",
     "mongodb": "^3.1.4",
-    "mongodb-collection-sample": "^4.1.0",
+    "mongodb-collection-sample": "^4.3.0",
     "mongodb-extended-json": "^1.6.2",
     "mongodb-ns": "^2.0.0",
     "numeral": "^1.5.3",

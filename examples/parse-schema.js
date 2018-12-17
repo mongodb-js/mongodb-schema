@@ -1,12 +1,15 @@
 /* eslint no-console: 0 */
 
-var parseSchema = require('../');
-var connect = require('mongodb');
+const parseSchema = require('../');
+const MongoClient = require('mongodb').MongoClient;
+const dbName = 'mongodb';
 
-connect('mongodb://localhost:27017/mongodb', function(err, db) {
+MongoClient.connect(`mongodb://localhost:27017/${dbName}`, function(err, client) {
   if (err) {
     return console.error(err);
   }
+
+  const db = client.db(dbName);
 
   parseSchema(db.collection('fanclub').find().limit(100), function(err2, schema) {
     if (err2) {
@@ -14,6 +17,6 @@ connect('mongodb://localhost:27017/mongodb', function(err, db) {
     }
 
     console.log(JSON.stringify(schema, null, 2));
-    db.close();
+    client.close();
   });
 });

@@ -17,7 +17,7 @@ the collection in JSON format to stdout.
 
 ```
 mongodb-schema mongodb://localhost:27017 mongodb.fanclub
-```            
+```
 
 Additional arguments change the number of samples (`--sample`), print additional statistics about the
 schema analysis (`--stats`), switch to a different output format (`--format`), or let you suppress the
@@ -28,7 +28,7 @@ For more information, run
 
 ```
 mongodb-schema --help
-```    
+```
 
 ### API
 
@@ -55,11 +55,14 @@ below accordingly).
 3. Create a new file `parse-schema.js` and paste in the following code:
 
     ```javascript
-    var parseSchema = require('mongodb-schema');
-    var connect = require('mongodb');
+    const parseSchema = require('mongodb-schema');
+    const MongoClient = require('mongodb').MongoClient;
+    const dbName = 'test';
 
-    connect('mongodb://localhost:27017/test', function(err, db) {
+    MongoClient.connect(`mongodb://localhost:27017/${dbName}`, { useNewUrlParser: true }, function(err, client) {
       if (err) return console.error(err);
+
+      const db = client.db(dbName);
 
       // here we are passing in a cursor as the first argument. You can
       // also pass in a stream or an array of documents directly.
@@ -67,7 +70,7 @@ below accordingly).
         if (err) return console.error(err);
 
         console.log(JSON.stringify(schema, null, 2));
-        db.close();
+        client.close();
       });
     });
     ```
@@ -195,7 +198,7 @@ function emailDetector(value, path) {
   return emailRegex.test(value);
 };
 
-parseSchema(db.collection('data').find(), {EmailAddress: emailDetector}, function(err, schema) {
+parseSchema(db.collection('data').find(), { semanticTypes: { EmailAddress: emailDetector } }, function(err, schema) {
   ...
 });
 ```

@@ -83,12 +83,6 @@ describe('options', function() {
     it('calls semantic type detection', function() {
       assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
       assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-      assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'GeoJSON');
-      assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
-    });
-    it('stores whole GeoJSON objects as values', function() {
-      assert.ok(_.find(schema.fields, 'name', 'shape').types[0].values[0].type);
-      assert.ok(_.find(schema.fields, 'name', 'shape').types[0].values[0].coordinates);
     });
   });
   context('when `semanticTypes` is an object', function() {
@@ -103,13 +97,11 @@ describe('options', function() {
       it('only uses the enabled type detectors', function() {
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'Document');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
       });
     });
     context('and values are mixed upper/lower case', function() {
       beforeEach(function(done) {
-        getSchema(docs, {semanticTypes: {geoJSOn: true, eMaIl: true}}, function(err, res) {
+        getSchema(docs, {semanticTypes: {eMaIl: true}}, function(err, res) {
           assert.ifError(err);
           schema = res;
           done();
@@ -118,8 +110,6 @@ describe('options', function() {
       it('uses the enabled type detectors', function() {
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'GeoJSON');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
       });
     });
 
@@ -138,8 +128,6 @@ describe('options', function() {
         assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].bsonType, 'Boolean');
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'String');
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'Document');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
       });
     });
 
@@ -158,8 +146,6 @@ describe('options', function() {
         assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].bsonType, 'Boolean');
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
         assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'Document');
-        assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
       });
     });
   });

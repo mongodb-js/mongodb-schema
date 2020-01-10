@@ -40,7 +40,7 @@ describe('mixed type order', function() {
     assert.equal(registered.types.length, 3);
   });
   it('should return the order of types as ["String", "Number", "Undefined"]', function(done) {
-    assert.deepEqual(_.pluck(registered.types, 'name'),
+    assert.deepEqual(_.map(registered.types, 'name'),
       ['String', 'Number', 'Undefined']);
     done();
   });

@@ -9,31 +9,41 @@ var _ = require('lodash');
 describe('options', function() {
   var docs = [
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
-      'email': 'tick@duck.org',
-      'shape': {
+      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      email: 'tick@duck.org',
+      shape: {
         type: 'Point',
         coordinates: [20.0, 30.0]
       },
-      'is_verified': false
+      is_verified: false
     },
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d72'),
-      'email': 'trick@duck.org',
-      'shape': {
+      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d72'),
+      email: 'trick@duck.org',
+      shape: {
         type: 'LineString',
-        coordinates: [[20.0, 30.0], [30.0, 40.0]]
+        coordinates: [
+          [20.0, 30.0],
+          [30.0, 40.0]
+        ]
       },
-      'is_verified': false
+      is_verified: false
     },
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d73'),
-      'email': 'track@duck.org',
-      'shape': {
-        'type': 'Polygon',
-        'coordinates': [[[20.0, 30.0], [30.0, 40.0], [15.0, 50.0], [20.0, 30.0]]]
+      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d73'),
+      email: 'track@duck.org',
+      shape: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [20.0, 30.0],
+            [30.0, 40.0],
+            [15.0, 50.0],
+            [20.0, 30.0]
+          ]
+        ]
       },
-      'is_verified': true
+      is_verified: true
     }
   ];
 
@@ -52,16 +62,28 @@ describe('options', function() {
     });
 
     it('does not use semantic type detection', function() {
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'String');
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-      assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'Document');
-      assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
+      assert.equal(
+        _.find(schema.fields, 'name', 'email').types[0].name,
+        'String'
+      );
+      assert.equal(
+        _.find(schema.fields, 'name', 'email').types[0].bsonType,
+        'String'
+      );
+      assert.equal(
+        _.find(schema.fields, 'name', 'shape').types[0].name,
+        'Document'
+      );
+      assert.equal(
+        _.find(schema.fields, 'name', 'shape').types[0].bsonType,
+        'Document'
+      );
     });
   });
 
   context('when `storeValues` is false', function() {
     beforeEach(function(done) {
-      getSchema(docs, {storeValues: false}, function(err, res) {
+      getSchema(docs, { storeValues: false }, function(err, res) {
         assert.ifError(err);
         schema = res;
         done();
@@ -74,79 +96,141 @@ describe('options', function() {
 
   context('when `semanticTypes` is true', function() {
     beforeEach(function(done) {
-      getSchema(docs, {semanticTypes: true}, function(err, res) {
+      getSchema(docs, { semanticTypes: true }, function(err, res) {
         assert.ifError(err);
         schema = res;
         done();
       });
     });
     it('calls semantic type detection', function() {
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+      assert.equal(
+        _.find(schema.fields, 'name', 'email').types[0].name,
+        'Email'
+      );
+      assert.equal(
+        _.find(schema.fields, 'name', 'email').types[0].bsonType,
+        'String'
+      );
     });
   });
   context('when `semanticTypes` is an object', function() {
     context('and all values are boolean', function() {
       beforeEach(function(done) {
-        getSchema(docs, {semanticTypes: {email: true}}, function(err, res) {
+        getSchema(docs, { semanticTypes: { email: true } }, function(err, res) {
           assert.ifError(err);
           schema = res;
           done();
         });
       });
       it('only uses the enabled type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(
+          _.find(schema.fields, 'name', 'email').types[0].name,
+          'Email'
+        );
+        assert.equal(
+          _.find(schema.fields, 'name', 'email').types[0].bsonType,
+          'String'
+        );
       });
     });
     context('and values are mixed upper/lower case', function() {
       beforeEach(function(done) {
-        getSchema(docs, {semanticTypes: {eMaIl: true}}, function(err, res) {
+        getSchema(docs, { semanticTypes: { eMaIl: true } }, function(err, res) {
           assert.ifError(err);
           schema = res;
           done();
         });
       });
       it('uses the enabled type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(
+          _.find(schema.fields, 'name', 'email').types[0].name,
+          'Email'
+        );
+        assert.equal(
+          _.find(schema.fields, 'name', 'email').types[0].bsonType,
+          'String'
+        );
       });
     });
 
     context('and all values are custom detector functions', function() {
       beforeEach(function(done) {
-        getSchema(docs, {semanticTypes: {Verification: function(value, key) {
-          return key.match(/verified/);
-        }}}, function(err, res) {
-          assert.ifError(err);
-          schema = res;
-          done();
-        });
+        getSchema(
+          docs,
+          {
+            semanticTypes: {
+              Verification: function(value, key) {
+                return key.match(/verified/);
+              }
+            }
+          },
+          function(err, res) {
+            assert.ifError(err);
+            schema = res;
+            done();
+          }
+        );
       });
       it('uses the custom type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].name, 'Verification');
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].bsonType, 'Boolean');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'String');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(
+          _.find(schema.fields, 'name', 'is_verified').types[0].name,
+          'Verification'
+        );
+        assert.equal(
+          _.find(schema.fields, 'name', 'is_verified').types[0].bsonType,
+          'Boolean'
+        );
+        assert.equal(
+          _.find(schema.fields, 'name', 'email').types[0].name,
+          'String'
+        );
+        assert.equal(
+          _.find(schema.fields, 'name', 'email').types[0].bsonType,
+          'String'
+        );
       });
     });
 
-    context('and values are mixed booleans and custom detector functions', function() {
-      beforeEach(function(done) {
-        getSchema(docs, {semanticTypes: {email: true, Verification: function(value, key) {
-          return key.match(/verified/);
-        }}}, function(err, res) {
-          assert.ifError(err);
-          schema = res;
-          done();
+    context(
+      'and values are mixed booleans and custom detector functions',
+      function() {
+        beforeEach(function(done) {
+          getSchema(
+            docs,
+            {
+              semanticTypes: {
+                email: true,
+                Verification: function(value, key) {
+                  return key.match(/verified/);
+                }
+              }
+            },
+            function(err, res) {
+              assert.ifError(err);
+              schema = res;
+              done();
+            }
+          );
         });
-      });
-      it('uses the enabled and custom type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].name, 'Verification');
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].bsonType, 'Boolean');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-      });
-    });
+        it('uses the enabled and custom type detectors', function() {
+          assert.equal(
+            _.find(schema.fields, 'name', 'is_verified').types[0].name,
+            'Verification'
+          );
+          assert.equal(
+            _.find(schema.fields, 'name', 'is_verified').types[0].bsonType,
+            'Boolean'
+          );
+          assert.equal(
+            _.find(schema.fields, 'name', 'email').types[0].name,
+            'Email'
+          );
+          assert.equal(
+            _.find(schema.fields, 'name', 'email').types[0].bsonType,
+            'String'
+          );
+        });
+      }
+    );
   });
 });

@@ -8,13 +8,13 @@ describe('basic embedded array', function() {
   var following_ids;
   var docs = [
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
-      'following_ids': [BSON.ObjectID('55582407aafa8fbbc57196e2')]
+      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      following_ids: [new BSON.ObjectID('55582407aafa8fbbc57196e2')]
     },
     {
-      '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
-      'following_ids': [
-        BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      _id: new BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      following_ids: [
+        new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
         '55581e0a9bf712d0c2b48d71'
       ]
     }
@@ -23,7 +23,11 @@ describe('basic embedded array', function() {
   before(function(done) {
     getSchema(docs, function(err, res) {
       assert.ifError(err);
-      following_ids = _.find(_.find(res.fields, 'name', 'following_ids').types, 'name', 'Array');
+      following_ids = _.find(
+        _.find(res.fields, 'name', 'following_ids').types,
+        'name',
+        'Array'
+      );
       done();
     });
   });
@@ -37,14 +41,20 @@ describe('basic embedded array', function() {
   });
 
   it('should have a sum of probability for following_ids of 1', function() {
-    assert.equal(_.sum(_.pluck(following_ids.types, 'probability')), 1);
+    assert.equal(_.sum(_.map(following_ids.types, 'probability')), 1);
   });
 
   it('should have 33% String for following_ids', function() {
-    assert.equal(_.find(following_ids.types, 'name', 'String').probability, 1 / 3);
+    assert.equal(
+      _.find(following_ids.types, 'name', 'String').probability,
+      1 / 3
+    );
   });
 
   it('should have 66% ObjectID for following_ids', function() {
-    assert.equal(_.find(following_ids.types, 'name', 'ObjectID').probability, 2 / 3);
+    assert.equal(
+      _.find(following_ids.types, 'name', 'ObjectID').probability,
+      2 / 3
+    );
   });
 });

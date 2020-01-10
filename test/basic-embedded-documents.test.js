@@ -7,27 +7,28 @@ var _ = require('lodash');
 describe('basic embedded documents', function() {
   var docs = [
     {
-      '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
-      'name': 'Brett Flowers',
-      'email': {
-        '_id': 'gohu@pum.io',
-        'is_verified': false
+      _id: new BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      name: 'Brett Flowers',
+      email: {
+        _id: 'gohu@pum.io',
+        is_verified: false
       },
-      'twitter': {
-        'username': '@lekbisova'
+      twitter: {
+        username: '@lekbisova'
       },
-      'stats': {
-        'friends': 7584
+      stats: {
+        friends: 7584
       },
-      'push_token': {
-        'android': undefined,
-        'apple': '4e2e068cd281cfe924ff3174dfe363bd3108a5852ca5197f37c40c1bca6e1a4c'
+      push_token: {
+        android: undefined,
+        apple:
+          '4e2e068cd281cfe924ff3174dfe363bd3108a5852ca5197f37c40c1bca6e1a4c'
       },
-      'last_address': {
-        'latitude': null,
-        'longitude': null
+      last_address: {
+        latitude: null,
+        longitude: null
       },
-      'created_at': new Date()
+      created_at: new Date()
     }
   ];
 
@@ -52,14 +53,17 @@ describe('basic embedded documents', function() {
       'twitter'
     ];
 
-    var nested_path_names = [
-      'push_token.android',
-      'push_token.apple'
-    ];
+    var nested_path_names = ['push_token.android', 'push_token.apple'];
 
-    assert.deepEqual(_.pluck(schema.fields, 'name').sort(), field_names.sort());
-    var push_tokens = _.find(_.find(schema.fields, 'name', 'push_token').types,
-      'name', 'Document').fields;
-    assert.deepEqual(_.pluck(push_tokens, 'path').sort(), nested_path_names.sort());
+    assert.deepEqual(_.map(schema.fields, 'name').sort(), field_names.sort());
+    var push_tokens = _.find(
+      _.find(schema.fields, 'name', 'push_token').types,
+      'name',
+      'Document'
+    ).fields;
+    assert.deepEqual(
+      _.map(push_tokens, 'path').sort(),
+      nested_path_names.sort()
+    );
   });
 });

@@ -16,17 +16,11 @@
     "mongodb-schema": "bin/mongodb-schema"
   },
   "scripts": {
-    "start": "zuul --local 3001 --open -- test/*.test.js",
     "test": "mocha",
-    "ci": "./node_modules/istanbul/lib/cli.js cover _mocha -- -R spec ./test/*.test.js",
     "check": "mongodb-js-precommit"
   },
-  "precommit": [
-    "check"
-  ],
   "check": {
     "ignore": [
-      "coverage/**/*",
       "examples/**/*"
     ]
   },
@@ -41,35 +35,30 @@
     ]
   },
   "dependencies": {
-    "async": "^1.5.2",
+    "async": "^3.1.0",
     "event-stream": "^4.0.1",
     "lodash": "^4.17.15",
-    "progress": "^1.1.8",
+    "progress": "^2.0.3",
     "reservoir": "^0.1.2"
   },
   "devDependencies": {
-    "benchmark": "^2.0.0",
-    "bson": "^0.5.6",
-    "coveralls": "^2.11.2",
-    "debug": "^2.2.0",
-    "eslint-config-mongodb-js": "^3.0.1",
-    "istanbul": "^0.3.15",
-    "mocha": "^3.1.2",
+    "benchmark": "^2.1.4",
+    "bson": "^4.0.3",
+    "debug": "^4.1.1",
+    "eslint-config-mongodb-js": "^5.0.3",
+    "mocha": "^7.0.0",
     "mongodb-js-precommit": "^2.0.0",
-    "ms": "^0.7.1",
-    "pre-commit": "^1.0.10",
-    "yargs": "^3.32.0",
-    "zuul": "^3.0.0"
+    "ms": "^2.1.2"
   },
   "optionalDependencies": {
-    "stats-lite": "^2.0.0",
+    "stats-lite": "^2.2.0",
     "cli-table": "^0.3.1",
-    "js-yaml": "^3.5.2",
-    "mongodb": "^3.1.4",
-    "mongodb-collection-sample": "^4.4.2",
-    "mongodb-extended-json": "^1.6.2",
+    "js-yaml": "^3.13.1",
+    "mongodb": "^3.4.1",
+    "mongodb-collection-sample": "^4.4.4",
+    "mongodb-extended-json": "^1.10.2",
     "mongodb-ns": "^2.0.0",
-    "numeral": "^1.5.3",
+    "numeral": "^2.0.6",
     "yargs": "^3.32.0"
   }
 }

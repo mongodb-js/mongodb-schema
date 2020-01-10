@@ -1,11 +1,6 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 2017
-  },
   "env": {
-      "es6": true
-  }
-  "env": {
+    "es6": true,
     "mocha": true,
     "node": true
   },
@@ -18,8 +13,5 @@
     "new-cap": 0,
     "no-use-before-define": 0
   },
-  "extends": [
-    "mongodb-js/node",
-    "mongodb-js/browser",
-  ]
+  "extends": ["mongodb-js/node", "mongodb-js/browser"]
 }

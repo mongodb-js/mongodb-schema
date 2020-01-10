@@ -357,7 +357,5 @@ Apache 2.0
 [travis_url]: https://travis-ci.org/mongodb-js/mongodb-schema
 [npm_img]: https://img.shields.io/npm/v/mongodb-schema.svg
 [npm_url]: https://www.npmjs.org/package/mongodb-schema
-[coverage_img]: https://coveralls.io/repos/mongodb-js/mongodb-schema/badge.svg
-[coverage_url]: https://coveralls.io/r/mongodb-js/mongodb-schema
 [gitter_img]: https://badges.gitter.im/Join%20Chat.svg
 [gitter_url]: https://gitter.im/mongodb-js/mongodb-js

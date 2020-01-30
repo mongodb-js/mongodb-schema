@@ -44,7 +44,7 @@
     "async": "^1.5.2",
     "event-stream": "^4.0.1",
     "lodash": "^3.8.0",
-    "progress": "^1.1.8",
+    "progress": "^2.0.3",
     "reservoir": "^0.1.2"
   },
   "devDependencies": {

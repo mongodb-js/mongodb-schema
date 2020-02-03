@@ -69,7 +69,7 @@
     "mongodb-collection-sample": "^4.4.2",
     "mongodb-extended-json": "^1.6.2",
     "mongodb-ns": "^2.0.0",
-    "numeral": "^1.5.3",
+    "numeral": "^2.0.6",
     "yargs": "^3.32.0"
   }
 }

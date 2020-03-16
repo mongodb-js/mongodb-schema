@@ -58,7 +58,7 @@
     "mongodb-js-precommit": "^2.0.0",
     "ms": "^2.1.2",
     "pre-commit": "^1.0.10",
-    "yargs": "^3.32.0",
+    "yargs": "^15.3.1",
     "zuul": "^3.0.0"
   },
   "optionalDependencies": {
@@ -70,6 +70,6 @@
     "mongodb-extended-json": "^1.6.2",
     "mongodb-ns": "^2.0.0",
     "numeral": "^1.5.3",
-    "yargs": "^3.32.0"
+    "yargs": "^15.3.1"
   }
 }

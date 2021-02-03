@@ -37,7 +37,7 @@ describe('basic embedded array', function() {
   });
 
   it('should have a sum of probability for following_ids of 1', function() {
-    assert.equal(_.sum(_.pluck(following_ids.types, 'probability')), 1);
+    assert.equal(_.sum(_.map(following_ids.types, 'probability')), 1);
   });
 
   it('should have 33% String for following_ids', function() {

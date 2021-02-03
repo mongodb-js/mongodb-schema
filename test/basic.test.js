@@ -40,7 +40,7 @@ describe('using only basic fields', function() {
       'twitter_username',
       'name[]'
     ];
-    assert.deepEqual(_.pluck(users.fields, 'name').sort(), field_names.sort());
+    assert.deepEqual(_.map(users.fields, 'name').sort(), field_names.sort());
   });
 
   before(function(done) {

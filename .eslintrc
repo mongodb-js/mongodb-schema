@@ -3,11 +3,9 @@
     "ecmaVersion": 2017
   },
   "env": {
-      "es6": true
-  }
-  "env": {
     "mocha": true,
-    "node": true
+    "node": true,
+    "es6": true
   },
   "globals": {
     "expect": true,

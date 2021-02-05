@@ -19,7 +19,8 @@
     "start": "zuul --local 3001 --open -- test/*.test.js",
     "test": "mocha",
     "ci": "./node_modules/istanbul/lib/cli.js cover _mocha -- -R spec ./test/*.test.js",
-    "check": "mongodb-js-precommit"
+    "check": "mongodb-js-precommit",
+    "lint": "eslint lib test examples --fix"
   },
   "precommit": [
     "check"

@@ -1,7 +1,6 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
-var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0, camelcase: 0 */
 describe('basic embedded documents', function() {
@@ -57,9 +56,10 @@ describe('basic embedded documents', function() {
       'push_token.apple'
     ];
 
-    assert.deepEqual(_.pluck(schema.fields, 'name').sort(), field_names.sort());
-    var push_tokens = _.find(_.find(schema.fields, 'name', 'push_token').types,
-      'name', 'Document').fields;
-    assert.deepEqual(_.pluck(push_tokens, 'path').sort(), nested_path_names.sort());
+    assert.deepEqual(schema.fields.map(v => v.name).sort(), field_names.sort());
+
+    var types = schema.fields.find(v => v.name === 'push_token').types;
+    var push_tokens = types.find(v => v.name === 'Document').fields;
+    assert.deepEqual(push_tokens.map(v => v.path).sort(), nested_path_names.sort());
   });
 });

@@ -1,7 +1,6 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
-var _ = require('lodash');
 
 // var debug = require('debug')('mongodb-schema:test:options');
 
@@ -52,10 +51,10 @@ describe('options', function() {
     });
 
     it('does not use semantic type detection', function() {
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'String');
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
-      assert.equal(_.find(schema.fields, 'name', 'shape').types[0].name, 'Document');
-      assert.equal(_.find(schema.fields, 'name', 'shape').types[0].bsonType, 'Document');
+      assert.equal(schema.fields.find(v => v.name === 'email').types[0].name, 'String');
+      assert.equal(schema.fields.find(v => v.name === 'email').types[0].bsonType, 'String');
+      assert.equal(schema.fields.find(v => v.name === 'shape').types[0].name, 'Document');
+      assert.equal(schema.fields.find(v => v.name === 'shape').types[0].bsonType, 'Document');
     });
   });
 
@@ -81,8 +80,8 @@ describe('options', function() {
       });
     });
     it('calls semantic type detection', function() {
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-      assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+      assert.equal(schema.fields.find(v => v.name === 'email').types[0].name, 'Email');
+      assert.equal(schema.fields.find(v => v.name === 'email').types[0].bsonType, 'String');
     });
   });
   context('when `semanticTypes` is an object', function() {
@@ -95,8 +94,8 @@ describe('options', function() {
         });
       });
       it('only uses the enabled type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].name, 'Email');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].bsonType, 'String');
       });
     });
     context('and values are mixed upper/lower case', function() {
@@ -108,8 +107,8 @@ describe('options', function() {
         });
       });
       it('uses the enabled type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].name, 'Email');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].bsonType, 'String');
       });
     });
 
@@ -124,10 +123,10 @@ describe('options', function() {
         });
       });
       it('uses the custom type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].name, 'Verification');
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].bsonType, 'Boolean');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'String');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(schema.fields.find(v => v.name === 'is_verified').types[0].name, 'Verification');
+        assert.equal(schema.fields.find(v => v.name === 'is_verified').types[0].bsonType, 'Boolean');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].name, 'String');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].bsonType, 'String');
       });
     });
 
@@ -142,10 +141,10 @@ describe('options', function() {
         });
       });
       it('uses the enabled and custom type detectors', function() {
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].name, 'Verification');
-        assert.equal(_.find(schema.fields, 'name', 'is_verified').types[0].bsonType, 'Boolean');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].name, 'Email');
-        assert.equal(_.find(schema.fields, 'name', 'email').types[0].bsonType, 'String');
+        assert.equal(schema.fields.find(v => v.name === 'is_verified').types[0].name, 'Verification');
+        assert.equal(schema.fields.find(v => v.name === 'is_verified').types[0].bsonType, 'Boolean');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].name, 'Email');
+        assert.equal(schema.fields.find(v => v.name === 'email').types[0].bsonType, 'String');
       });
     });
   });

@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var _ = require('lodash');
 
 describe('mixed type order', function() {
   var docs = [
@@ -25,12 +24,12 @@ describe('mixed type order', function() {
   before(function(done) {
     getSchema(docs, function(err, schema) {
       assert.ifError(err);
-      registered = _.find(schema.fields, 'name', 'registered');
+      registered = schema.fields.find(v => v.name === 'registered');
 
       if (!registered) {
         return done(new Error('Did not pick up `registered` field'));
       }
-      if (!_.find(registered.types, 'name', 'Undefined')) {
+      if (!registered.types.find(v => v.name === 'Undefined')) {
         return done(new Error('Missing Undefined type on `registered`'));
       }
       done();
@@ -40,7 +39,7 @@ describe('mixed type order', function() {
     assert.equal(registered.types.length, 3);
   });
   it('should return the order of types as ["String", "Number", "Undefined"]', function(done) {
-    assert.deepEqual(_.pluck(registered.types, 'name'),
+    assert.deepEqual(registered.types.map(v => v.name),
       ['String', 'Number', 'Undefined']);
     done();
   });

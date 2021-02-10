@@ -1,6 +1,6 @@
 {
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 2019
   },
   "env": {
     "mocha": true,
@@ -18,6 +18,6 @@
   },
   "extends": [
     "mongodb-js/node",
-    "mongodb-js/browser",
+    "mongodb-js/browser"
   ]
 }

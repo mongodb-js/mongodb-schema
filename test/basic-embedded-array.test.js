@@ -38,8 +38,8 @@ describe('basic embedded array', function() {
 
   it('should have a sum of probability for following_ids of 1', function() {
     var expectedSum = following_ids.types
-    .map(v => v.probability)
-    .reduce((p, c) => p + c || 0, 0);
+      .map(v => v.probability)
+      .reduce((p, c) => p + c || 0, 0);
     assert.equal(expectedSum, 1);
   });
 

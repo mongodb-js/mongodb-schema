@@ -44,14 +44,11 @@
   },
   "dependencies": {
     "async": "^1.5.2",
-    "cli-table": "^0.3.1",
     "event-stream": "^4.0.1",
     "lodash": "^3.8.0",
     "nyc": "^15.1.0",
     "progress": "^2.0.3",
-    "reservoir": "^0.1.2",
-    "stats-lite": "^2.0.0",
-    "yargs": "^3.32.0"
+    "reservoir": "^0.1.2"
   },
   "devDependencies": {
     "benchmark": "^2.0.0",
@@ -63,6 +60,7 @@
     "mocha": "^8.2.1",
     "mongodb-js-precommit": "^2.0.0",
     "ms": "^2.1.2",
+    "nyc": "^15.1.0",
     "pre-commit": "^1.0.10",
     "yargs": "^3.32.0",
     "zuul": "^3.0.0"

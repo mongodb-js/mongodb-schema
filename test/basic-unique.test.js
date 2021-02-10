@@ -11,7 +11,7 @@ describe('has_duplicates', function() {
     docs.push({
       num: i,
       str: String(i)
-    })
+    });
   }
 
   var schema;

@@ -60,7 +60,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
     var arr;
 
     before(function() {
-      var types = schema.fields.find(v => v.name === 'x').types
+      var types = schema.fields.find(v => v.name === 'x').types;
       arr = types.find(v => v.name === 'Array');
     });
 

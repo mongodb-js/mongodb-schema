@@ -47,7 +47,7 @@ describe('mixed types nested', function() {
       valid = schema.fields
         .find(v => v.name === 'address').types
         .find(x => x.name === 'Document').fields
-        .find(v => v.name === 'valid')
+        .find(v => v.name === 'valid');
       if (!valid) {
         return done(new Error('Did not pick up `address.valid` field'));
       }

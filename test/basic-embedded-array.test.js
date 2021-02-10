@@ -1,7 +1,6 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
-var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0, camelcase: 0 */
 describe('basic embedded array', function() {
@@ -23,7 +22,8 @@ describe('basic embedded array', function() {
   before(function(done) {
     getSchema(docs, function(err, res) {
       assert.ifError(err);
-      following_ids = _.find(_.find(res.fields, 'name', 'following_ids').types, 'name', 'Array');
+      var types = res.fields.find(v => v.name === 'following_ids').types;
+      following_ids = types.find(v => v.name === 'Array');
       done();
     });
   });
@@ -37,14 +37,17 @@ describe('basic embedded array', function() {
   });
 
   it('should have a sum of probability for following_ids of 1', function() {
-    assert.equal(_.sum(_.pluck(following_ids.types, 'probability')), 1);
+    var expectedSum = following_ids.types
+    .map(v => v.probability)
+    .reduce((p, c) => p + c || 0, 0);
+    assert.equal(expectedSum, 1);
   });
 
   it('should have 33% String for following_ids', function() {
-    assert.equal(_.find(following_ids.types, 'name', 'String').probability, 1 / 3);
+    assert.equal(following_ids.types.find( v => v.name === 'String').probability, 1 / 3);
   });
 
   it('should have 66% ObjectID for following_ids', function() {
-    assert.equal(_.find(following_ids.types, 'name', 'ObjectID').probability, 2 / 3);
+    assert.equal(following_ids.types.find(v => v.name === 'ObjectID').probability, 2 / 3);
   });
 });

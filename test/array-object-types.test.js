@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var _ = require('lodash');
 
 /* eslint quote-props: 0 */
 describe('arrays and objects as type (INT-203 restructuring)', function() {
@@ -42,13 +41,12 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
   describe('Field', function() {
     var x;
     before(function() {
-      x = _.find(schema.fields, 'name', 'x');
+      x = schema.fields.find(v => v.name === 'x');
     });
     it('have the right type distribution of x', function() {
-      var dist = _.zipObject(
-        _.pluck(x.types, 'name'),
-        _.pluck(x.types, 'probability')
-      );
+      var names = x.types.map(v => v.name);
+      var probabilities = x.types.map( v=> v.probability);
+      var dist = names.reduce((p, c, i) => ({...p, [c]: probabilities[i]}), {});
       assert.deepEqual(dist, {
         'Array': 3 / 6,
         'String': 1 / 6,
@@ -62,7 +60,8 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
     var arr;
 
     before(function() {
-      arr = _.find(_.find(schema.fields, 'name', 'x').types, 'name', 'Array');
+      var types = schema.fields.find(v => v.name === 'x').types
+      arr = types.find(v => v.name === 'Array');
     });
 
     it('should return the lengths of all encountered arrays', function() {
@@ -78,10 +77,9 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
     });
 
     it('should return the type distribution inside an array', function() {
-      var arrDist = _.zipObject(
-        _.pluck(arr.types, 'name'),
-        _.pluck(arr.types, 'probability')
-      );
+      var names = arr.types.map(v => v.name);
+      var probabilities = arr.types.map( v=> v.probability);
+      var arrDist = names.reduce((p, c, i) => ({...p, [c]: probabilities[i]}), {});
       assert.deepEqual(arrDist, {
         'Number': 3 / 8,
         'String': 1 / 8,

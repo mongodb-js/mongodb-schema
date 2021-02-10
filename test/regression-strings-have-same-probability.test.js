@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var _ = require('lodash');
 
 describe('regression', function() {
   describe('strings have same probability', function() {
@@ -30,8 +29,8 @@ describe('regression', function() {
 
 
     it('should not dedupe values but return all 3 of them', function() {
-      assert.equal(_.find(_.find(schema.fields, 'name', 'value').types,
-        'name', 'String').values.length, 3);
+      var types = schema.fields.find(v => v.name === 'value').types;
+      assert.equal(types.find(v => v.name === 'String').values.length, 3);
     });
   });
 });

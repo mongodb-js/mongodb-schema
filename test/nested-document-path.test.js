@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0 */
 describe('nested document path', function() {
@@ -24,9 +23,9 @@ describe('nested document path', function() {
   });
 
   it('should assemble the path correctly with dot-notation', function() {
-    var foo = _.find(schema.fields, 'name', 'foo');
-    var bar = _.find(_.find(foo.types, 'name', 'Document').fields, 'name', 'bar');
-    var baz = _.find(_.find(bar.types, 'name', 'Document').fields, 'name', 'baz');
+    var foo = schema.fields.find(v => v.name === 'foo');
+    var bar = foo.types.find(v => v.name === 'Document').fields.find(v => v.name === 'bar');
+    var baz = bar.types.find(v => v.name === 'Document').fields.find(v => v.name === 'baz');
     assert.ok(foo);
     assert.ok(bar);
     assert.ok(baz);

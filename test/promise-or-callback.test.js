@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var _ = require('lodash');
 
 describe('getSchema should return promise', function() {
   var docs = [
@@ -39,7 +38,10 @@ describe('getSchema should return promise', function() {
     });
 
     it('Using callback and promise should return the same thing', () => {
-      assert(_.isEqual(promiseResponse, callbackResponse));
+      assert.equal(promiseResponse.count, 4);
+      assert.equal(callbackResponse.count, 4);
+      assert.equal(promiseResponse.fields.length, 2);
+      assert.equal(callbackResponse.fields.length, 2);
     });
   });
 

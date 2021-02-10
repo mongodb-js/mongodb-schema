@@ -17,9 +17,9 @@
   },
   "scripts": {
     "start": "zuul --local 3001 --open -- test/*.test.js",
-    "test": "mocha",
+    "test": "nyc mocha",
     "test:watch": "mocha --watch",
-    "ci": "./node_modules/istanbul/lib/cli.js cover _mocha -- -R spec ./test/*.test.js",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "check": "mongodb-js-precommit",
     "lint": "eslint lib test examples --fix"
   },
@@ -61,13 +61,14 @@
   "devDependencies": {
     "benchmark": "^2.0.0",
     "bson": "^1.0.5",
-    "coveralls": "^2.11.2",
+    "coveralls": "^3.1.0",
     "debug": "^4.1.1",
     "eslint-config-mongodb-js": "^5.0.3",
     "istanbul": "^0.4.5",
     "mocha": "^8.2.1",
     "mongodb-js-precommit": "^2.0.0",
     "ms": "^2.1.2",
+    "nyc": "^15.1.0",
     "pre-commit": "^1.0.10",
     "yargs": "^3.32.0",
     "zuul": "^3.0.0"

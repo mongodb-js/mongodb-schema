@@ -46,7 +46,6 @@
     "async": "^1.5.2",
     "event-stream": "^4.0.1",
     "lodash": "^3.8.0",
-    "nyc": "^15.1.0",
     "progress": "^2.0.3",
     "reservoir": "^0.1.2"
   },

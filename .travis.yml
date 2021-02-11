@@ -9,5 +9,5 @@ notifications:
     on_success: change
     on_failure: always
     on_start: false
-script: "npm run test"
+script: "npm run-script ci"
 after_script: "npm run coverage"

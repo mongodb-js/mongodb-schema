@@ -18,6 +18,7 @@
   "scripts": {
     "start": "zuul --local 3001 --open -- test/*.test.js",
     "test": "nyc mocha",
+    "ci": "npm run test",
     "test:watch": "mocha --watch",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "check": "mongodb-js-precommit",

@@ -6,7 +6,7 @@ var BSON = require('bson');
 describe('using only basic fields', function() {
   var docs = [
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      '_id': new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
       'email': 'tupjud@weigehib.gov',
       'is_verified': false,
       'twitter_username': '@zaetisi',

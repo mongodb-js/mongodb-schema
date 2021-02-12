@@ -13,7 +13,7 @@ describe('evolving schema', function() {
   var apple_push_token;
   var docs = [
     {
-      '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      '_id': new BSON.ObjectID('55582407aafa8fbbc57196e2'),
       'name': 'Brett Flowers',
       'email': {
         '_id': 'gohu@pum.io',
@@ -36,7 +36,7 @@ describe('evolving schema', function() {
       'created_at': new Date()
     },
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      '_id': new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
       'email': 'tupjud@weigehib.gov',
       'is_verified': false,
       'twitter_username': '@zaetisi',

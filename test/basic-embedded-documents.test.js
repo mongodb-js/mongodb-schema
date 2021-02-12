@@ -6,7 +6,7 @@ var BSON = require('bson');
 describe('basic embedded documents', function() {
   var docs = [
     {
-      '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      '_id': new BSON.ObjectID('55582407aafa8fbbc57196e2'),
       'name': 'Brett Flowers',
       'email': {
         '_id': 'gohu@pum.io',

@@ -7,13 +7,13 @@ describe('basic embedded array', function() {
   var following_ids;
   var docs = [
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
-      'following_ids': [BSON.ObjectID('55582407aafa8fbbc57196e2')]
+      '_id': new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      'following_ids': [new BSON.ObjectID('55582407aafa8fbbc57196e2')]
     },
     {
-      '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      '_id': new BSON.ObjectID('55582407aafa8fbbc57196e2'),
       'following_ids': [
-        BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+        new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
         '55581e0a9bf712d0c2b48d71'
       ]
     }

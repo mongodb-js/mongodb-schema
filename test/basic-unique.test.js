@@ -44,7 +44,7 @@ describe('unique', function() {
       _id: 1,
       registered: true,
       b: false,
-      int32: bson.Int32(5),
+      int32: new bson.Int32(5),
       date: new Date('2016-01-01')
     },
     {
@@ -52,13 +52,13 @@ describe('unique', function() {
       registered: true,
       code: null,
       b: 'false',
-      int32: bson.Int32(5),
+      int32: new bson.Int32(5),
       date: new Date('2016-01-01')
     },
     {
       _id: 3,
       code: null,
-      int32: bson.Int32(9),
+      int32: new bson.Int32(9),
       date: new Date('2011-11-11')
     }
   ];

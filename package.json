@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "benchmark": "^2.0.0",
-    "bson": "^1.0.5",
+    "bson": "^4.2.2",
     "coveralls": "^3.1.0",
     "debug": "^4.1.1",
     "eslint-config-mongodb-js": "^5.0.3",

@@ -1,9 +1,6 @@
 name: unit tests
 
-on:
-  pull_request:
-    branches:
-      - master
+on: [push, pull_request]
 
 jobs:
   unitTest:
@@ -16,10 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
       - uses: bahmutov/npm-install@v1
       - run: npm test
-      - run: npm run coverage 
- # Maybe we should add https://github.com/marketplace/actions/gitter-notify here?
+      - run: npm run coverage

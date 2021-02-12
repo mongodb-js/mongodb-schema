@@ -19,17 +19,8 @@
     "test": "nyc mocha",
     "test:watch": "mocha --watch",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "check": "mongodb-js-precommit",
+    "check": "mongodb-js-precommit './lib/**/*.js' './test/**/*.js'",
     "lint": "eslint lib test examples --fix"
-  },
-  "precommit": [
-    "check"
-  ],
-  "check": {
-    "ignore": [
-      "coverage/**/*",
-      "examples/**/*"
-    ]
   },
   "keywords": [
     "mongodb",
@@ -59,7 +50,6 @@
     "mongodb-js-precommit": "^2.0.0",
     "ms": "^2.1.3",
     "nyc": "^15.1.0",
-    "pre-commit": "^1.0.10",
     "yargs": "^16.2.0"
   },
   "optionalDependencies": {

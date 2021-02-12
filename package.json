@@ -16,7 +16,6 @@
     "mongodb-schema": "bin/mongodb-schema"
   },
   "scripts": {
-    "start": "zuul --local 3001 --open -- test/*.test.js",
     "test": "nyc mocha",
     "test:watch": "mocha --watch",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
@@ -61,8 +60,7 @@
     "ms": "^2.1.3",
     "nyc": "^15.1.0",
     "pre-commit": "^1.0.10",
-    "yargs": "^16.2.0",
-    "zuul": "^3.0.0"
+    "yargs": "^16.2.0"
   },
   "optionalDependencies": {
     "cli-table": "^0.3.4",

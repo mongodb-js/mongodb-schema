@@ -12,3 +12,5 @@ test/
 *.log
 coverage/
 .eslintrc
+.nyc_output
+**/*.DS_Store

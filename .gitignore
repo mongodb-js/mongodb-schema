@@ -29,3 +29,8 @@ node_modules
 # Release artifacts
 .lone/
 dist/
+
+# Test output
+.nyc_output
+# Mac OS files on folder create/delete
+.DS_Store 

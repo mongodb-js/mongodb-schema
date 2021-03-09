@@ -1,6 +1,5 @@
 var getSchema = require('../');
 var assert = require('assert');
-var _ = require('lodash');
 
 // var debug = require('debug')('mongodb-schema:test:wrapper');
 
@@ -20,8 +19,8 @@ describe('Convenience Wrapper', function() {
       assert.ifError(err);
       assert.ok(res);
       assert.equal(typeof res, 'object');
-      assert.ok(_.has(res, 'count'));
-      assert.ok(_.has(res, 'fields'));
+      assert.ok(!!res.count);
+      assert.ok(!!res.fields);
       assert.equal(res.count, 2);
       done();
     });

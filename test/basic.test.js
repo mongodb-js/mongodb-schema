@@ -1,13 +1,12 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
-var _ = require('lodash');
 
 /* eslint new-cap: 0, quote-props: 0, no-new: 0, camelcase: 0 */
 describe('using only basic fields', function() {
   var docs = [
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      '_id': new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
       'email': 'tupjud@weigehib.gov',
       'is_verified': false,
       'twitter_username': '@zaetisi',
@@ -40,7 +39,7 @@ describe('using only basic fields', function() {
       'twitter_username',
       'name[]'
     ];
-    assert.deepEqual(_.pluck(users.fields, 'name').sort(), field_names.sort());
+    assert.deepEqual(users.fields.map(v => v.name).sort(), field_names.sort());
   });
 
   before(function(done) {
@@ -52,16 +51,16 @@ describe('using only basic fields', function() {
   });
 
   it('should detect the correct type for each field', function() {
-    assert.equal(_.find(users.fields, 'name', '_id').type, 'ObjectID');
-    assert.equal(_.find(users.fields, 'name', 'apple_push_token').type, 'String');
-    assert.equal(_.find(users.fields, 'name', 'created_at').type, 'Date');
-    assert.equal(_.find(users.fields, 'name', 'email').type, 'String');
-    assert.equal(_.find(users.fields, 'name', 'is_verified').type, 'Boolean');
-    assert.equal(_.find(users.fields, 'name', 'length').type, 'Number');
-    assert.equal(_.find(users.fields, 'name', 'last_address_latitude').type, 'Null');
-    assert.equal(_.find(users.fields, 'name', 'last_address_longitude').type, 'Null');
-    assert.equal(_.find(users.fields, 'name', 'name').type, 'String');
-    assert.equal(_.find(users.fields, 'name', 'stats_friends').type, 'Number');
-    assert.equal(_.find(users.fields, 'name', 'twitter_username').type, 'String');
+    assert.equal(users.fields.find(v => v.name === '_id').type, 'ObjectID');
+    assert.equal(users.fields.find(v => v.name === 'apple_push_token').type, 'String');
+    assert.equal(users.fields.find(v => v.name === 'created_at').type, 'Date');
+    assert.equal(users.fields.find(v => v.name === 'email').type, 'String');
+    assert.equal(users.fields.find(v => v.name === 'is_verified').type, 'Boolean');
+    assert.equal(users.fields.find(v => v.name === 'length').type, 'Number');
+    assert.equal(users.fields.find(v => v.name === 'last_address_latitude').type, 'Null');
+    assert.equal(users.fields.find(v => v.name === 'last_address_longitude').type, 'Null');
+    assert.equal(users.fields.find(v => v.name === 'name').type, 'String');
+    assert.equal(users.fields.find(v => v.name === 'stats_friends').type, 'Number');
+    assert.equal(users.fields.find(v => v.name === 'twitter_username').type, 'String');
   });
 });

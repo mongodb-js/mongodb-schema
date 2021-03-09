@@ -141,7 +141,7 @@ var bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
   clear: true
 });
 
-mongodb.connect(uri, function(err, conn) {
+mongodb.connect(uri, {useUnifiedTopology: true}, function(err, conn) {
   if (err) {
     console.error('Failed to connect to MongoDB: ', err);
     process.exit(1);

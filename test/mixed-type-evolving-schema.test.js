@@ -1,7 +1,6 @@
 var getSchema = require('../');
 var assert = require('assert');
 var BSON = require('bson');
-var _ = require('lodash');
 
 /* eslint quote-props: 0, new-cap: 0, camelcase: 0 */
 describe('evolving schema', function() {
@@ -14,7 +13,7 @@ describe('evolving schema', function() {
   var apple_push_token;
   var docs = [
     {
-      '_id': BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      '_id': new BSON.ObjectID('55582407aafa8fbbc57196e2'),
       'name': 'Brett Flowers',
       'email': {
         '_id': 'gohu@pum.io',
@@ -37,7 +36,7 @@ describe('evolving schema', function() {
       'created_at': new Date()
     },
     {
-      '_id': BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      '_id': new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
       'email': 'tupjud@weigehib.gov',
       'is_verified': false,
       'twitter_username': '@zaetisi',
@@ -54,7 +53,7 @@ describe('evolving schema', function() {
   before(function(done) {
     getSchema(docs, function(err, users) {
       assert.ifError(err);
-      apple_push_token = _.find(users.fields, 'name', 'apple_push_token');
+      apple_push_token = users.fields.find(v => v.name === 'apple_push_token');
       done();
     });
   });
@@ -68,9 +67,9 @@ describe('evolving schema', function() {
     assert.equal(apple_push_token.probability, 0.5);
   });
   it('should have seen `apple_push_token` 1 time as a string', function() {
-    assert.equal(_.find(apple_push_token.types, 'name', 'String').count, 1);
+    assert.equal(apple_push_token.types.find(v => v.name === 'String').count, 1);
   });
   it('should have seen 1 unique string value for `apple_push_token`', function() {
-    assert.equal(_.find(apple_push_token.types, 'name', 'String').unique, 1);
+    assert.equal(apple_push_token.types.find(v => v.name === 'String').unique, 1);
   });
 });

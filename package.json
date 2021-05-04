@@ -50,7 +50,7 @@
     "mongodb-js-precommit": "^2.2.1",
     "ms": "^2.1.3",
     "nyc": "^15.1.0",
-    "yargs": "^16.2.0"
+    "yargs": "^17.0.1"
   },
   "optionalDependencies": {
     "cli-table": "^0.3.4",

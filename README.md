@@ -19,7 +19,7 @@ the collection in JSON format to stdout.
 mongodb-schema mongodb://localhost:27017 mongodb.fanclub
 ```
 
-Additional arguments change the number of samples (`--sample`), print additional statistics about the
+Additional arguments change the number of samples (`--number`), print additional statistics about the
 schema analysis (`--stats`), switch to a different output format (`--format`), or let you suppress the
 schema output altogether (`--no-output`) if you are only interested in the schema statistics, semantic
 type discovery (`--semantic-types`), and the ability to disable value collection (`--no-values`).

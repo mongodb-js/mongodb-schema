@@ -21,7 +21,7 @@ var stats = require('stats-lite');
 
 var argv = require('yargs')
   .strict()
-  .usage('Usage: $0 <uri> <ns> [--format=<json|yaml|table> --sample=<n>]')
+  .usage('Usage: $0 <uri> <ns> [--format=<json|yaml|table> --number=<n>]')
   .demand(2)
   .option('n', {
     alias: 'number',
@@ -79,7 +79,7 @@ var argv = require('yargs')
   .describe('h', 'Show this screen.')
   .help('h')
   .wrap(100)
-  .example('$0 localhost:27017 mongodb.fanclub --sample 1000 --repeat 5 --stats '
+  .example('$0 localhost:27017 mongodb.fanclub --number 1000 --repeat 5 --stats '
     + '--no-output', 'analyze 1000 docs from the mongodb.fanclub '
     + 'collection with the old ampersand parser, repeat 5 times and only show statistics.')
   .example('$0 localhost:27017 test.foo --format table',

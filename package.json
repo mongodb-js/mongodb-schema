@@ -55,7 +55,7 @@
   "optionalDependencies": {
     "cli-table": "^0.3.4",
     "js-yaml": "^4.0.0",
-    "mongodb": "^3.6.4",
+    "mongodb": "^4.0.1",
     "mongodb-collection-sample": "^4.4.2",
     "mongodb-extended-json": "^1.6.2",
     "mongodb-ns": "^2.0.0",

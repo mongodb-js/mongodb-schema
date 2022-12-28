@@ -5,8 +5,6 @@ import type { Document } from 'bson';
 
 import semanticTypeRegisters from './semantic-types';
 
-// TODO: Can we clean these types up somehow?
-
 type BaseSchemaType = {
   path: string;
   count: number;
@@ -43,7 +41,7 @@ export type SchemaType = ConstantSchemaType | PrimitiveSchemaType | ArraySchemaT
 
 export type SchemaField = {
   name: string;
-  count: number; // TODO: This count might not always be there?
+  count: number;
   path: string;
   type: string | string[];
   probability: number;

@@ -29,6 +29,7 @@ node_modules
 # Release artifacts
 .lone/
 dist/
+.esm-wrapper.mjs
 
 # Test output
 .nyc_output

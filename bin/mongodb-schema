@@ -1,25 +1,22 @@
 #!/usr/bin/env node
 
-/* eslint no-console: 0 */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-var schemaStream = require('../lib/stream');
-var schemaStats = require('../lib/stats');
+const schemaStream = require('../lib/stream');
+const schemaStats = require('../lib/stats');
 
-var mongodb = require('mongodb');
-var sample = require('mongodb-collection-sample');
-var toNS = require('mongodb-ns');
-var yaml = require('js-yaml');
-var pkg = require('../package.json');
-var Table = require('cli-table');
-var numeral = require('numeral');
-var EJSON = require('mongodb-extended-json');
-var ProgressBar = require('progress');
-var async = require('async');
-var stats = require('stats-lite');
+const mongodb = require('mongodb');
+const sample = require('mongodb-collection-sample');
+const toNS = require('mongodb-ns');
+const yaml = require('js-yaml');
+const pkg = require('../package.json');
+const Table = require('cli-table');
+const numeral = require('numeral');
+const { EJSON } = require('bson');
+const ProgressBar = require('progress');
 
-// var debug = require('debug')('mongodb-schema:bin');
-
-var argv = require('yargs')
+const argv = require('yargs')
   .strict()
   .usage('Usage: $0 <uri> <ns> [--format=<json|yaml|table> --number=<n>]')
   .demand(2)
@@ -73,29 +70,28 @@ var argv = require('yargs')
     default: true,
     describe: 'use random sampling on the collection.'
   })
-  .describe('debug', 'Enable debug messages.')
   .describe('version', 'Show version.')
   .alias('h', 'help')
   .describe('h', 'Show this screen.')
   .help('h')
   .wrap(100)
-  .example('$0 localhost:27017 mongodb.fanclub --number 1000 --repeat 5 --stats '
-    + '--no-output', 'analyze 1000 docs from the mongodb.fanclub '
-    + 'collection with the old ampersand parser, repeat 5 times and only show statistics.')
-  .example('$0 localhost:27017 test.foo --format table',
-    'analyze 100 docs from the test.foo collection and print '
-    + 'the schema in table form.')
+  .example(
+    '$0 localhost:27017 mongodb.fanclub --number 1000 --repeat 5 --stats ' +
+    '--no-output', 'analyze 1000 docs from the mongodb.fanclub ' +
+    'collection with the old ampersand parser, repeat 5 times and only show statistics.'
+  )
+  .example(
+    '$0 localhost:27017 test.foo --format table',
+    'analyze 100 docs from the test.foo collection and print ' +
+    'the schema in table form.'
+  )
   .argv;
 
-if (argv.debug) {
-  process.env.DEBUG = '*';
-}
-
-var uri = argv._[0];
+let uri = argv._[0];
 if (!uri.startsWith('mongodb://')) {
   uri = 'mongodb://' + uri;
 }
-var sampleSize = parseInt(argv.number, 10);
+const sampleSize = parseInt(argv.number, 10);
 
 if (argv.version) {
   console.error(pkg.version);
@@ -123,7 +119,7 @@ function addTableRow(table, field) {
 }
 
 function getTable(schema) {
-  var table = new Table({
+  const table = new Table({
     head: ['Path', 'Type', 'Probability'],
     colWidths: [50, 30, 20]
   });
@@ -133,7 +129,7 @@ function getTable(schema) {
   return table;
 }
 
-var bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
+const bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
   total: argv.number * argv.repeat,
   width: 60,
   complete: '=',
@@ -141,85 +137,87 @@ var bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
   clear: true
 });
 
-mongodb.connect(uri, {useUnifiedTopology: true}, function(err, conn) {
+mongodb.connect(uri, { useUnifiedTopology: true }, async function(err, conn) {
   if (err) {
     console.error('Failed to connect to MongoDB: ', err);
     process.exit(1);
   }
 
-  var ns = toNS(argv._[1]);
-  var db = conn.db(ns.database);
-  var ts;
+  const ns = toNS(argv._[1]);
+  const db = conn.db(ns.database);
+  let ts;
 
-  var options = {
+  const options = {
     size: sampleSize,
     query: {},
     promoteValues: argv.promote
   };
 
-  var schema;
-  var schemaOptions = {
+  let schema;
+  const schemaOptions = {
     storeValues: argv.values,
     semanticTypes: argv.semanticTypes
   };
 
-  async.timesSeries(argv.repeat, function(arr, cb) {
-    var source = argv.sampling ?
-      sample(db, ns.collection, options) :
-      db.collection(ns.collection).find(options.query, {}, {
-        promoteValues: options.promoteValues
-      }).limit(options.size);
+  try {
+    for (let i = 0; i < argv.repeat; i++) {
+      await new Promise((resolve, reject) => {
+        const source = argv.sampling
+          ? sample(db, ns.collection, options)
+          : db.collection(ns.collection).find(options.query, {}, {
+            promoteValues: options.promoteValues
+          }).limit(options.size);
 
-    source
-      .once('data', function() {
-        ts = new Date();
-      })
-      .pipe(schemaStream(schemaOptions))
-      .on('progress', function() {
-        bar.tick();
-      })
-      .on('data', function(data) {
-        schema = data;
-      })
-      .on('end', function() {
-        var dur = new Date() - ts;
-        cb(null, dur);
+        source
+          .once('data', function() {
+            ts = new Date();
+          })
+          .pipe(schemaStream(schemaOptions))
+          .on('progress', function() {
+            bar.tick();
+          })
+          .on('data', function(data) {
+            schema = data;
+          })
+          .on('error', function(err) {
+            reject(err);
+          })
+          .on('end', function() {
+            const duration = new Date() - ts;
+            resolve(duration);
+          });
       });
-  }, function(err2, res) {
-    if (err2) {
-      console.error('error:', err2.message);
-      process.exit(1);
     }
-    if (argv.output) {
-      var output = '';
-      if (argv.format === 'yaml') {
-        output = yaml.dump(schema);
-      } else if (argv.format === 'table') {
-        output = getTable(schema).toString();
-      } else {
-        output = EJSON.stringify(schema, null, 2);
-      }
-      console.log(output);
-    }
-    if (argv.stats) {
-      var branchOutput = '[';
-      var branchingFactors = schemaStats.branch(schema);
-      if (branchingFactors.length > 20) {
-        branchOutput += branchingFactors.slice(0, 20).join(',')
-          + ',...] (top 20 shown)';
-      } else {
-        branchOutput += branchingFactors.join(',') + ']';
-      }
+  } catch (err) {
+    console.error('error:', err.message);
+    process.exit(1);
+  }
 
-      console.error('execution count: ' + argv.repeat);
-      console.error('mean time: ' + numeral(stats.mean(res))
-          .format('0.00') + 'ms (individual results: %s)', res.toString());
-      console.error('stdev time: ' + numeral(stats.stdev(res)).format('0.00') + 'ms');
-      console.error('toplevel fields:', schema.fields.length);
-      console.error('branching factors:', branchOutput);
-      console.error('schema width: ' + schemaStats.width(schema));
-      console.error('schema depth: ' + schemaStats.depth(schema));
+  if (argv.output) {
+    let output = '';
+    if (argv.format === 'yaml') {
+      output = yaml.dump(schema);
+    } else if (argv.format === 'table') {
+      output = getTable(schema).toString();
+    } else {
+      output = EJSON.stringify(schema, null, 2);
     }
-    conn.close();
-  });
+    console.log(output);
+  }
+  if (argv.stats) {
+    let branchOutput = '[';
+    const branchingFactors = schemaStats.branch(schema);
+    if (branchingFactors.length > 20) {
+      branchOutput += `${branchingFactors.slice(0, 20).join(',')},...] (top 20 shown)`;
+    } else {
+      branchOutput += branchingFactors.join(',') + ']';
+    }
+
+    console.error('execution count: ' + argv.repeat);
+    console.error('toplevel fields:', schema.fields.length);
+    console.error('branching factors:', branchOutput);
+    console.error('schema width: ' + schemaStats.width(schema));
+    console.error('schema depth: ' + schemaStats.depth(schema));
+  }
+  conn.close();
 });

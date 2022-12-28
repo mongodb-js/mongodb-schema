@@ -1,11 +1,11 @@
 /* eslint no-console: 0 */
 
-var stream = require('../lib/stream');
-var es = require('event-stream');
-var path = require('path');
-var fs = require('fs');
+import stream from '../src/stream';
+import es from 'event-stream';
+import path from 'path';
+import fs from 'fs';
 
-var ts = new Date();
+const ts = new Date();
 
 fs.createReadStream(path.join(__dirname, './fanclub.json'), {
   flags: 'r'
@@ -18,7 +18,7 @@ fs.createReadStream(path.join(__dirname, './fanclub.json'), {
     if (err) {
       throw err;
     }
-    var dur = new Date() - ts;
+    const dur = new Date() - ts;
     console.log(res);
     console.log('took ' + dur + 'ms.'); // log time it took to parse
   }));

@@ -3,10 +3,9 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const schemaStream = require('../lib/stream');
-const schemaStats = require('../lib/stats');
+const { stream: parseSchemaStream, schemaStats } = require('../');
 
-const mongodb = require('mongodb');
+const { MongoClient } = require('mongodb');
 const sample = require('mongodb-collection-sample');
 const toNS = require('mongodb-ns');
 const yaml = require('js-yaml');
@@ -88,7 +87,7 @@ const argv = require('yargs')
   .argv;
 
 let uri = argv._[0];
-if (!uri.startsWith('mongodb://')) {
+if (!uri.startsWith('mongodb://') && !uri.startsWith('mongodb+srv://')) {
   uri = 'mongodb://' + uri;
 }
 const sampleSize = parseInt(argv.number, 10);
@@ -137,14 +136,20 @@ const bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
   clear: true
 });
 
-mongodb.connect(uri, { useUnifiedTopology: true }, async function(err, conn) {
-  if (err) {
-    console.error('Failed to connect to MongoDB: ', err);
-    process.exit(1);
+const client = new MongoClient(uri);
+
+(async function main() {
+  try {
+    await client.connect();
+  } catch (err) {
+    if (err) {
+      console.error('Failed to connect to MongoDB: ', err);
+      process.exit(1);
+    }
   }
 
   const ns = toNS(argv._[1]);
-  const db = conn.db(ns.database);
+  const db = client.db(ns.database);
   let ts;
 
   const options = {
@@ -164,15 +169,15 @@ mongodb.connect(uri, { useUnifiedTopology: true }, async function(err, conn) {
       await new Promise((resolve, reject) => {
         const source = argv.sampling
           ? sample(db, ns.collection, options)
-          : db.collection(ns.collection).find(options.query, {}, {
+          : db.collection(ns.collection).find(options.query, {
             promoteValues: options.promoteValues
-          }).limit(options.size);
+          }).limit(options.size).stream();
 
         source
           .once('data', function() {
             ts = new Date();
           })
-          .pipe(schemaStream(schemaOptions))
+          .pipe(parseSchemaStream(schemaOptions))
           .on('progress', function() {
             bar.tick();
           })
@@ -219,5 +224,5 @@ mongodb.connect(uri, { useUnifiedTopology: true }, async function(err, conn) {
     console.error('schema width: ' + schemaStats.width(schema));
     console.error('schema depth: ' + schemaStats.depth(schema));
   }
-  conn.close();
-});
+  client.close();
+})();

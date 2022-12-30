@@ -4,6 +4,7 @@ import type { Stream } from 'stream';
 
 import stream from './stream';
 import type { SchemaParseOptions, Schema } from './stream';
+import * as schemaStats from './stats';
 
 type MongoDBCursor = AggregationCursor | FindCursor;
 
@@ -59,5 +60,6 @@ function parseSchema(
 export default parseSchema;
 
 export {
-  parseSchema as stream
+  stream,
+  schemaStats
 };

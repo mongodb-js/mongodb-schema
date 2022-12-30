@@ -28,7 +28,7 @@ node_modules
 
 # Release artifacts
 .lone/
-dist/
+lib/
 .esm-wrapper.mjs
 
 # Test output

@@ -79,7 +79,7 @@
     "cli-table": "^0.3.4",
     "js-yaml": "^4.0.0",
     "mongodb": "^4.13.0",
-    "mongodb-collection-sample": "^4.5.1",
+    "mongodb-collection-sample": "^5.0.0",
     "mongodb-ns": "^2.4.0",
     "numeral": "^2.0.6",
     "stats-lite": "^2.0.0"

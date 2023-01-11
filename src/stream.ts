@@ -241,7 +241,7 @@ function parse(options?: SchemaParseOptions) {
     if (value && value._bsontype) {
       T = value._bsontype;
     } else {
-      T = Object.prototype.toString.call(value).replace(/\[object (\w+)\]/, '$1');
+      T = Object.prototype.toString.call(value).replace(/^\[object (\w+)\]/$, '$1');
     }
     if (T === 'Object') {
       T = 'Document';

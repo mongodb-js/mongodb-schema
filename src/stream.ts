@@ -241,7 +241,7 @@ function parse(options?: SchemaParseOptions) {
     if (value && value._bsontype) {
       T = value._bsontype;
     } else {
-      T = Object.prototype.toString.call(value).replace(/^\[object (\w+)\]/$, '$1');
+      T = Object.prototype.toString.call(value).replace(/^\[object (\w+)\]$/, '$1');
     }
     if (T === 'Object') {
       T = 'Document';
@@ -271,7 +271,9 @@ function parse(options?: SchemaParseOptions) {
     if (type.name === 'String') {
       // Crop strings at 10k characters,
       if (value.length > 10000) {
-        value = value.slice(0, 10000);
+        value = value.charCodeAt(10000 - 1) === value.codePointAt(10000 - 1)
+          ? value.slice(0, 10000)
+          : value.slice(0, 10000 - 1);
       }
     }
     type.values!.pushSome(value);

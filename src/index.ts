@@ -1,6 +1,6 @@
 import es from 'event-stream';
 import type { AggregationCursor, Document, FindCursor } from 'mongodb';
-import type { Stream } from 'stream';
+import type { Readable } from 'stream';
 
 import stream from './stream';
 import type { SchemaParseOptions, Schema } from './stream';
@@ -13,7 +13,7 @@ type MongoDBCursor = AggregationCursor | FindCursor;
  * MongoDB cursor object to parse documents` from.
  */
 function parseSchema(
-  docs: Document[] | MongoDBCursor | Stream,
+  docs: Document[] | MongoDBCursor | Readable,
   options?: SchemaParseOptions
 ): Promise<Schema> {
   const promise = new Promise<Schema>((resolve, reject) => {
@@ -22,13 +22,13 @@ function parseSchema(
       options = {};
     }
 
-    let src: Stream;
+    let src: Readable | es.MapStream;
     // MongoDB Cursors
-    if ((docs as MongoDBCursor).stream && typeof (docs as MongoDBCursor).stream === 'function') {
-      src = (docs as MongoDBCursor).stream();
+    if ('stream' in docs) {
+      src = docs.stream();
       // Streams
-    } else if ((docs as Stream).pipe && typeof (docs as Stream).pipe === 'function') {
-      src = (docs as Stream);
+    } else if ('pipe' in docs) {
+      src = docs;
       // Arrays
     } else if (Array.isArray(docs)) {
       src = es.readArray(docs);

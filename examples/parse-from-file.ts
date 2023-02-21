@@ -1,9 +1,9 @@
 /* eslint no-console: 0 */
 
-import { PassThrough, Transform } from 'stream';
-import { pipeline } from 'stream/promises';
+import { pipeline as callbackPipeline, PassThrough, Transform } from 'stream';
 import path from 'path';
 import fs from 'fs';
+import { promisify } from 'util';
 
 import stream from '../src/stream';
 
@@ -44,6 +44,7 @@ async function parseFromFile(fileName: string) {
   });
 
   const dest = new PassThrough({ objectMode: true });
+  const pipeline = promisify(callbackPipeline);
   await pipeline(fileReadStream, createFileStreamLineParser(), stream(), dest);
   let res;
   for await (const result of dest) {

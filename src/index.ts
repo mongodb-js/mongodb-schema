@@ -1,6 +1,6 @@
 import type { AggregationCursor, Document, FindCursor } from 'mongodb';
-import { Readable, PassThrough } from 'stream';
-import { pipeline } from 'stream/promises';
+import { pipeline as callbackPipeline, Readable, PassThrough } from 'stream';
+import { promisify } from 'util';
 
 import stream from './stream';
 import type { SchemaParseOptions, Schema, SchemaField } from './stream';
@@ -39,6 +39,7 @@ async function parseSchema(
   }
 
   const dest = new PassThrough({ objectMode: true });
+  const pipeline = promisify(callbackPipeline);
   await pipeline(src, stream(options), dest);
   for await (const result of dest) {
     return result;

@@ -355,35 +355,22 @@ function parse(options?: SchemaParseOptions) {
     }
   }
 
-  // Cast es to any as the current typings version does not
-  // have `through` declared. We'll want to move away from
-  // the event-stream package eventually as it's archived on GitHub.
-  const parser = (es as any).through(function write(obj: Document) {
-    Object.keys(obj).forEach(
-      key => addToField(key, obj[key], rootSchema.fields)
-    );
-    rootSchema.count += 1;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
-    this.emit('progress', obj);
-  }, function end() {
-    cleanup();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
-    this.emit('data', rootSchema);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
-    this.emit('end');
+  return new Duplex({
+    objectMode: true,
+    write(obj: Document, enc: unknown, cb: () => void) {
+      for (const key of Object.keys(obj)) { addToField(key, obj[key], rootSchema.fields); }
+      rootSchema.count += 1;
+      this.emit('progress', obj);
+      cb();
+    },
+    read() {},
+    final(cb: () => void) {
+      cleanup();
+      this.push(rootSchema);
+      this.push(null);
+      cb();
+    }
   });
-
-  parser.on('close', function() {
-    cleanup();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore-error
-    this.destroy();
-  });
-
-  return parser;
 }
 
 export default parse;

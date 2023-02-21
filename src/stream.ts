@@ -1,7 +1,21 @@
-import es from 'event-stream';
 import Reservoir from 'reservoir';
+import { Duplex } from 'stream';
 import _ from 'lodash';
-import type { Document } from 'bson';
+import type {
+  Document,
+  ObjectId,
+  MinKey,
+  MaxKey,
+  Long,
+  Double,
+  Int32,
+  Decimal128,
+  Binary,
+  BSONRegExp,
+  Code,
+  BSONSymbol,
+  Timestamp
+} from 'bson';
 
 import semanticTypeRegisters from './semantic-types';
 
@@ -17,9 +31,34 @@ type ConstantSchemaType = BaseSchemaType & {
   name: 'Null' | 'Undefined';
 }
 
+type TypeCastMap = {
+  Array: unknown[];
+  Binary: Binary;
+  Boolean: boolean;
+  Code: Code;
+  Date: Date;
+  Decimal128: Decimal128;
+  Double: Double;
+  Int32: Int32;
+  Int64: Long;
+  MaxKey: MaxKey;
+  MinKey: MinKey;
+  Null: null;
+  Object: Record<string, unknown>;
+  ObjectId: ObjectId;
+  BSONRegExp: BSONRegExp;
+  String: string;
+  BSONSymbol: BSONSymbol;
+  Timestamp: Timestamp;
+  Undefined: undefined;
+};
+
+type TypeCastTypes = keyof TypeCastMap;
+type BSONValue = TypeCastMap[TypeCastTypes];
+
 export type PrimitiveSchemaType = BaseSchemaType & {
-  name: 'String' | 'Number' | 'Int32' | 'Boolean' | 'Decimal128' | 'Long' | 'ObjectID' | 'Date' | 'RegExp' | 'Symbol' | 'MaxKey' | 'MinKey' | 'Binary' | 'Code' | 'Timestamp' | 'DBRef';
-  values: any[];
+  name: 'String' | 'Number' | 'Int32' | 'Boolean' | 'Decimal128' | 'Long' | 'ObjectId' | 'Date' | 'RegExp' | 'Symbol' | 'MaxKey' | 'MinKey' | 'Binary' | 'Code' | 'Timestamp' | 'DBRef';
+  values: BSONValue[];
 }
 
 export type ArraySchemaType = BaseSchemaType & {
@@ -116,9 +155,9 @@ function fieldComparator(a: SchemaField, b: SchemaField) {
  *     schema parser
  * This mutates the passed in schema.
  */
-function finalizeSchema(schema: any, parent?: any, tag?: string) {
+function finalizeSchema(schema: any, parent?: any, tag?: 'fields' | 'types'): void {
   if (schema === undefined) {
-    return schema;
+    return;
   }
 
   if (tag === undefined) {

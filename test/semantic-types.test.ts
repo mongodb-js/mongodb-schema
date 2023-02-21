@@ -7,7 +7,7 @@ import type { Schema, PrimitiveSchemaType } from '../src/stream';
 describe('options', function() {
   const docs = [
     {
-      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      _id: new BSON.ObjectId('55581e0a9bf712d0c2b48d71'),
       email: 'tick@duck.org',
       shape: {
         type: 'Point',
@@ -16,7 +16,7 @@ describe('options', function() {
       is_verified: false
     },
     {
-      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d72'),
+      _id: new BSON.ObjectId('55581e0a9bf712d0c2b48d72'),
       email: 'trick@duck.org',
       shape: {
         type: 'LineString',
@@ -25,7 +25,7 @@ describe('options', function() {
       is_verified: false
     },
     {
-      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d73'),
+      _id: new BSON.ObjectId('55581e0a9bf712d0c2b48d73'),
       email: 'track@duck.org',
       shape: {
         type: 'Polygon',

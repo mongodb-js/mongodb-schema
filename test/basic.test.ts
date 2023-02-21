@@ -7,7 +7,7 @@ import getSchema from '../src';
 describe('using only basic fields', function() {
   const docs = [
     {
-      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+      _id: new BSON.ObjectId('55581e0a9bf712d0c2b48d71'),
       email: 'tupjud@weigehib.gov',
       is_verified: false,
       twitter_username: '@zaetisi',
@@ -48,7 +48,7 @@ describe('using only basic fields', function() {
   });
 
   it('should detect the correct type for each field', function() {
-    assert.equal(users.fields.find(v => v.name === '_id')?.type, 'ObjectID');
+    assert.equal(users.fields.find(v => v.name === '_id')?.type, 'ObjectId');
     assert.equal(users.fields.find(v => v.name === 'apple_push_token')?.type, 'String');
     assert.equal(users.fields.find(v => v.name === 'created_at')?.type, 'Date');
     assert.equal(users.fields.find(v => v.name === 'email')?.type, 'String');

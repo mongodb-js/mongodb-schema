@@ -2,7 +2,10 @@
   "name": "mongodb-schema",
   "description": "Infer the probabilistic schema for a MongoDB collection.",
   "version": "9.0.0",
-  "author": "Thomas Rueckstiess <thomas@rueckstiess.net>",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
   "license": "Apache-2.0",
   "homepage": "http://github.com/mongodb-js/mongodb-schema",
   "repository": {
@@ -20,6 +23,7 @@
     "require": "./lib/index.js",
     "import": "./.esm-wrapper.mjs"
   },
+  "types": "./lib/index.d.ts",
   "files": [
     "LICENSE",
     "lib",
@@ -30,6 +34,8 @@
   ],
   "scripts": {
     "test": "nyc mocha --colors -r ts-node/register test/*.ts",
+    "test-example-parse-from-file": "ts-node examples/parse-from-file.ts",
+    "test-example-parse-schema": "ts-node examples/parse-schema.ts",
     "build": "npm run compile-ts && gen-esm-wrapper . ./.esm-wrapper.mjs",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "prepack": "npm run build",
@@ -43,20 +49,18 @@
     "schema"
   ],
   "dependencies": {
-    "event-stream": "^4.0.1",
     "lodash": "^4.17.21",
     "progress": "^2.0.3",
     "reservoir": "^0.1.2"
   },
   "devDependencies": {
-    "@types/event-stream": "^4.0.0",
     "@types/lodash": "^4.14.191",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",
     "@types/reservoir": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^5.47.1",
     "@typescript-eslint/parser": "^5.47.1",
-    "bson": "^4.7.0",
+    "bson": "^5.0.1",
     "coveralls": "^3.1.1",
     "depcheck": "^1.4.3",
     "eslint": "^8.30.0",

@@ -1,5 +1,5 @@
-import es from 'event-stream';
 import assert from 'assert';
+import { Readable } from 'stream';
 
 import nativeParser from '../src/stream';
 import type { Schema } from '../src/stream';
@@ -25,7 +25,7 @@ describe('native schema stream', function() {
   let progress = 0;
   it('should trigger progress event for each document', function(done) {
     const native = nativeParser();
-    es.readArray(fixture).pipe(native)
+    Readable.from(fixture).pipe(native)
       .on('progress', function() {
         progress += 1;
       })
@@ -34,6 +34,7 @@ describe('native schema stream', function() {
         assert.equal(progress, 3);
       })
       .on('end', function() {
+        assert.equal(progress, 3);
         done();
       });
   });

@@ -1,24 +1,58 @@
 /* eslint no-console: 0 */
 
-import stream from '../src/stream';
-import es from 'event-stream';
+import { PassThrough, Transform } from 'stream';
+import { pipeline } from 'stream/promises';
 import path from 'path';
 import fs from 'fs';
 
-const ts = new Date();
+import stream from '../src/stream';
 
-fs.createReadStream(path.join(__dirname, './fanclub.json'), {
-  flags: 'r'
-})
-  .pipe(es.split()) // split file into individual json docs (one per line)
-  .pipe(es.parse()) // parse each doc
-  .pipe(stream()) // comment out this line to skip schema parsing
-  .pipe(es.stringify()) // stringify result
-  .pipe(es.wait(function(err, res) { // assemble everything back together
-    if (err) {
-      throw err;
+const schemaFileName = path.join(__dirname, './fanclub.json');
+
+function createFileStreamLineParser() {
+  let currentLine: undefined | string;
+
+  return new Transform({
+    readableObjectMode: true,
+    transform(chunk, encoding, next) {
+      const lines = ((currentLine !== undefined ? currentLine : '') + chunk.toString()).split(/\r?\n/);
+
+      currentLine = lines.pop();
+
+      for (const line of lines) {
+        this.push(JSON.parse(line));
+      }
+
+      next();
+    },
+
+    flush(done) {
+      if (currentLine) {
+        this.push(JSON.parse(currentLine));
+      }
+
+      done();
     }
-    const dur = new Date() - ts;
-    console.log(res);
-    console.log('took ' + dur + 'ms.'); // log time it took to parse
-  }));
+  });
+}
+
+async function parseFromFile(fileName: string) {
+  const startTime = Date.now();
+
+  const fileReadStream = fs.createReadStream(fileName, {
+    flags: 'r' // Open for reading, error if doesn't exist.
+  });
+
+  const dest = new PassThrough({ objectMode: true });
+  await pipeline(fileReadStream, createFileStreamLineParser(), stream(), dest);
+  let res;
+  for await (const result of dest) {
+    res = result;
+  }
+
+  const dur = Date.now() - startTime;
+  console.log(res);
+  console.log('Schema analysis took ' + dur + 'ms.'); // Log time it took to parse.
+}
+
+parseFromFile(schemaFileName);

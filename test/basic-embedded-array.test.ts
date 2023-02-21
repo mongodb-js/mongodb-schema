@@ -8,13 +8,13 @@ describe('basic embedded array', function() {
   let followingIds: ArraySchemaType;
   const docs = [
     {
-      _id: new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
-      followingIds: [new BSON.ObjectID('55582407aafa8fbbc57196e2')]
+      _id: new BSON.ObjectId('55581e0a9bf712d0c2b48d71'),
+      followingIds: [new BSON.ObjectId('55582407aafa8fbbc57196e2')]
     },
     {
-      _id: new BSON.ObjectID('55582407aafa8fbbc57196e2'),
+      _id: new BSON.ObjectId('55582407aafa8fbbc57196e2'),
       followingIds: [
-        new BSON.ObjectID('55581e0a9bf712d0c2b48d71'),
+        new BSON.ObjectId('55581e0a9bf712d0c2b48d71'),
         '55581e0a9bf712d0c2b48d71'
       ]
     }
@@ -45,7 +45,7 @@ describe('basic embedded array', function() {
     assert.equal(followingIds.types.find(v => v.name === 'String')?.probability, 1 / 3);
   });
 
-  it('should have 66% ObjectID for followingIds', function() {
-    assert.equal(followingIds.types.find(v => v.name === 'ObjectID')?.probability, 2 / 3);
+  it('should have 66% ObjectId for followingIds', function() {
+    assert.equal(followingIds.types.find(v => v.name === 'ObjectId')?.probability, 2 / 3);
   });
 });

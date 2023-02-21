@@ -1,22 +1,17 @@
-var getSchema = require('../');
-var stats = require('../lib/stats');
+import assert from 'assert';
 
-var assert = require('assert');
-// var debug = require('debug')('mongodb-schema:test:stats');
+import getSchema from '../src';
+import stats from '../src/stats';
+import type { Schema } from '../src/stream';
 
-/* eslint quote-props: 0 */
 describe('schema statistics', function() {
   describe('empty doc', function() {
-    var docs = [
+    const docs = [
       {}
     ];
-    var schema;
-    before(function(done) {
-      getSchema(docs, function(err, res) {
-        assert.ifError(err);
-        schema = res;
-        done();
-      });
+    let schema: Schema;
+    before(async function() {
+      schema = await getSchema(docs);
     });
 
     it('should have the correct schema width', function() {
@@ -27,18 +22,14 @@ describe('schema statistics', function() {
     });
   });
   describe('doc with one key', function() {
-    var docs = [
+    const docs = [
       {
         foo: 'bar'
       }
     ];
-    var schema;
-    before(function(done) {
-      getSchema(docs, function(err, res) {
-        assert.ifError(err);
-        schema = res;
-        done();
-      });
+    let schema: Schema;
+    before(async function() {
+      schema = await getSchema(docs);
     });
 
     it('should have the correct schema width', function() {
@@ -49,7 +40,7 @@ describe('schema statistics', function() {
     });
   });
   describe('example 1', function() {
-    var docs = [
+    const docs = [
       {
         one: [
           'foo',
@@ -64,13 +55,9 @@ describe('schema statistics', function() {
         foo: 'bar'
       }
     ];
-    var schema;
-    before(function(done) {
-      getSchema(docs, function(err, res) {
-        assert.ifError(err);
-        schema = res;
-        done();
-      });
+    let schema: Schema;
+    before(async function() {
+      schema = await getSchema(docs);
     });
 
     it('should have the correct schema width', function() {
@@ -81,7 +68,7 @@ describe('schema statistics', function() {
     });
   });
   describe('example 2', function() {
-    var docs = [
+    const docs = [
       {
         x: [1, 2, 3]
       },
@@ -108,13 +95,9 @@ describe('schema statistics', function() {
         e: 1
       }
     ];
-    var schema;
-    before(function(done) {
-      getSchema(docs, function(err, res) {
-        assert.ifError(err);
-        schema = res;
-        done();
-      });
+    let schema: Schema;
+    before(async function() {
+      schema = await getSchema(docs);
     });
 
     it('should have the correct schema width', function() {
@@ -125,7 +108,7 @@ describe('schema statistics', function() {
     });
   });
   describe('example 3', function() {
-    var docs = [
+    const docs = [
       {
         a: 1,
         b: false,
@@ -143,13 +126,9 @@ describe('schema statistics', function() {
         }
       }
     ];
-    var schema;
-    before(function(done) {
-      getSchema(docs, function(err, res) {
-        assert.ifError(err);
-        schema = res;
-        done();
-      });
+    let schema: Schema;
+    before(async function() {
+      schema = await getSchema(docs);
     });
 
     it('should have the correct schema width', function() {
@@ -160,7 +139,7 @@ describe('schema statistics', function() {
     });
   });
   describe('example 4', function() {
-    var docs = [
+    const docs = [
       {
         a: {
           b: [{
@@ -177,13 +156,9 @@ describe('schema statistics', function() {
         }
       }
     ];
-    var schema;
-    before(function(done) {
-      getSchema(docs, function(err, res) {
-        assert.ifError(err);
-        schema = res;
-        done();
-      });
+    let schema: Schema;
+    before(async function() {
+      schema = await getSchema(docs);
     });
 
     it('should have the correct schema width', function() {

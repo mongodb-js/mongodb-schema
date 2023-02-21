@@ -1,23 +1,13 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 2019
-  },
-  "env": {
-    "mocha": true,
-    "node": true,
-    "es6": true
-  },
-  "globals": {
-    "expect": true,
-    "sinon": true
-  },
-  "rules": {
-    "camelcase": 1,
-    "new-cap": 0,
-    "no-use-before-define": 0
-  },
   "extends": [
-    "mongodb-js/node",
-    "mongodb-js/browser"
-  ]
+    "semistandard",
+    "plugin:promise/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "no-return-assign": 0,
+    "space-before-function-paren": ["error", "never"]
+  }
 }

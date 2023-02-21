@@ -1,9 +1,10 @@
-var nativeParser = require('../lib/stream');
-var es = require('event-stream');
-var assert = require('assert');
-// var debug = require('debug')('mongodb-schema:test:native-parser');
+import assert from 'assert';
+import { Readable } from 'stream';
 
-var fixture = [
+import nativeParser from '../src/stream';
+import type { Schema } from '../src/stream';
+
+const fixture = [
   {
     foo: 1,
     bar: 'test',
@@ -21,18 +22,19 @@ var fixture = [
 ];
 
 describe('native schema stream', function() {
-  var progress = 0;
+  let progress = 0;
   it('should trigger progress event for each document', function(done) {
-    var native = nativeParser();
-    es.readArray(fixture).pipe(native)
+    const native = nativeParser();
+    Readable.from(fixture).pipe(native)
       .on('progress', function() {
         progress += 1;
       })
-      .on('data', function(schema) {
+      .on('data', function(schema: Schema) {
         assert.ok(schema);
         assert.equal(progress, 3);
       })
       .on('end', function() {
+        assert.equal(progress, 3);
         done();
       });
   });

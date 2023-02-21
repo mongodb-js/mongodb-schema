@@ -348,10 +348,7 @@ Apache 2.0
 [bson-types]: http://docs.mongodb.org/manual/reference/bson-types/
 [ampersand-state]: http://ampersandjs.com/docs#ampersand-state
 [ampersand-collection]: http://ampersandjs.com/docs#ampersand-collection
-[tests]: https://github.com/mongodb-js/mongodb-schema/tree/master/test
-[schema]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/schema.js
-[field]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/field.js
-[type]: https://github.com/mongodb-js/mongodb-language-model/blob/master/lib/type.js
+[tests]: https://github.com/mongodb-js/mongodb-schema/tree/main/test
 
 [travis_img]: https://secure.travis-ci.org/mongodb-js/mongodb-schema.svg?branch=master
 [travis_url]: https://travis-ci.org/mongodb-js/mongodb-schema

@@ -1,22 +1,27 @@
-name: unit tests
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  unitTest:
-    runs-on: ubuntu-latest
-
+  test:
+    name: Test
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [12.x, 14.x]
-
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [14.x, 16.x, 18.x]
+    runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run check
-      - run: npm test
-      - run: npm run coverage
+      - name: Install Dependencies
+        run: npm ci
+      - name: Check
+        run: npm run check
+      - name: Test
+        run: npm test
+      - name: Coverage
+        run: npm run coverage

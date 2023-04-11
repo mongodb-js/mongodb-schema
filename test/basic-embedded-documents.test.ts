@@ -2,7 +2,7 @@ import assert from 'assert';
 import BSON from 'bson';
 
 import getSchema from '../src';
-import type { Schema, DocumentSchemaType, SchemaField } from '../src/stream';
+import type { Schema, DocumentSchemaType, SchemaField } from '../src/schema-analyzer';
 
 describe('basic embedded documents', function() {
   const docs = [

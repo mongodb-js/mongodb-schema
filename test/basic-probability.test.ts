@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import getSchema from '../src';
-import type { Schema } from '../src/stream';
+import type { Schema } from '../src/schema-analyzer';
 
 describe('simple probability', function() {
   const docs = [

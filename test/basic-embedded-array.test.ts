@@ -2,7 +2,7 @@ import assert from 'assert';
 import BSON from 'bson';
 
 import getSchema from '../src';
-import type { ArraySchemaType } from '../src/stream';
+import type { ArraySchemaType } from '../src/schema-analyzer';
 
 describe('basic embedded array', function() {
   let followingIds: ArraySchemaType;

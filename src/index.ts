@@ -3,7 +3,8 @@ import { pipeline as callbackPipeline, Readable, PassThrough } from 'stream';
 import { promisify } from 'util';
 
 import stream from './stream';
-import type { SchemaParseOptions, Schema, SchemaField } from './stream';
+import { SchemaAnalyzer } from './schema-analyzer';
+import type { SchemaParseOptions, Schema, SchemaField } from './schema-analyzer';
 import * as schemaStats from './stats';
 
 type MongoDBCursor = AggregationCursor | FindCursor;
@@ -53,5 +54,6 @@ export type { Schema, SchemaField };
 
 export {
   stream,
+  SchemaAnalyzer,
   schemaStats
 };

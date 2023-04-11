@@ -1,7 +1,7 @@
 import assert from 'assert';
 import BSON from 'bson';
 
-import type { Schema } from '../src/stream';
+import type { Schema } from '../src/schema-analyzer';
 import getSchema from '../src';
 
 describe('using only basic fields', function() {

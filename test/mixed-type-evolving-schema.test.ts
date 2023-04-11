@@ -1,7 +1,7 @@
 import assert from 'assert';
 import BSON from 'bson';
 
-import type { SchemaField } from '../src/stream';
+import type { SchemaField } from '../src/schema-analyzer';
 import getSchema from '../src';
 
 describe('evolving schema', function() {

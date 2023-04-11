@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import type { Schema } from '../src/stream';
+import type { Schema } from '../src/schema-analyzer';
 import getSchema from '../src';
 
 describe('getSchema should return promise', function() {

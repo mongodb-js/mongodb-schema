@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import getSchema from '../src';
-import type { Schema, DocumentSchemaType } from '../src/stream';
+import type { Schema, DocumentSchemaType } from '../src/schema-analyzer';
 
 describe('nested document path', function() {
   let schema: Schema;

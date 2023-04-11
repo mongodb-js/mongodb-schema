@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import getSchema from '../src';
-import type { DocumentSchemaType, Schema, SchemaField } from '../src/stream';
+import type { DocumentSchemaType, Schema, SchemaField } from '../src/schema-analyzer';
 
 describe('mixed types nested', function() {
   const docs = [

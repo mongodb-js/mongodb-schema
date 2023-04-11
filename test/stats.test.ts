@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import getSchema from '../src';
 import stats from '../src/stats';
-import type { Schema } from '../src/stream';
+import type { Schema } from '../src/schema-analyzer';
 
 describe('schema statistics', function() {
   describe('empty doc', function() {

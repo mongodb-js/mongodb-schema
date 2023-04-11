@@ -1,6 +1,6 @@
 import getSchema from '../src';
 import assert from 'assert';
-import type { ArraySchemaType, Schema, SchemaField, SchemaType } from '../src/stream';
+import type { ArraySchemaType, Schema, SchemaField, SchemaType } from '../src/schema-analyzer';
 
 describe('arrays and objects as type (INT-203 restructuring)', function() {
   const docs = [

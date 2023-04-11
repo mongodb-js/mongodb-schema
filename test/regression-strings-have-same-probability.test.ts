@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import getSchema from '../src';
-import type { Schema, PrimitiveSchemaType } from '../src/stream';
+import type { Schema, PrimitiveSchemaType } from '../src/schema-analyzer';
 
 describe('regression', function() {
   describe('strings have same probability', function() {

@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import type { SchemaField } from '../src/stream';
+import type { SchemaField } from '../src/schema-analyzer';
 import getSchema from '../src';
 
 describe('mixed type order', function() {

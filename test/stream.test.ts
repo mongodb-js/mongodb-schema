@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Readable } from 'stream';
 
 import nativeParser from '../src/stream';
-import type { Schema } from '../src/stream';
+import type { Schema } from '../src/schema-analyzer';
 
 const fixture = [
   {

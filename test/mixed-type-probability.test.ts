@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import getSchema from '../src';
-import type { Schema, SchemaField } from '../src/stream';
+import type { Schema, SchemaField } from '../src/schema-analyzer';
 
 describe('mixed type probability', function() {
   const docs = [

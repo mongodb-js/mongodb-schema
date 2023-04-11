@@ -2,7 +2,7 @@ import assert from 'assert';
 import bson from 'bson';
 
 import getSchema from '../src';
-import type { Schema, PrimitiveSchemaType } from '../src/stream';
+import type { Schema, PrimitiveSchemaType } from '../src/schema-analyzer';
 
 describe('has_duplicates', function() {
   const docs: {

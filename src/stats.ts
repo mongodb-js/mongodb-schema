@@ -1,4 +1,4 @@
-import type { Schema, ArraySchemaType, SchemaField, SchemaType } from './stream';
+import type { Schema, ArraySchemaType, SchemaField, SchemaType } from './schema-analyzer';
 
 function widthRecursive(schema?: Schema) {
   let width = 0;

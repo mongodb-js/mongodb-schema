@@ -345,7 +345,7 @@ export class SchemaAnalyzer {
    *
    * @param {String}  path     field path in dot notation
    * @param {Any}     value    value of the field
-   * @param {Object}  schema   the updated schema object
+   * @param {SchemaBuildingMap}  schema   the updated schema object
    */
 
   addToType(path: string, value: any, schema: SchemaBuildingMap) {

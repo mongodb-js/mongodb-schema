@@ -23,14 +23,14 @@ async function parseSchema(
   }
 
   let src: Readable;
-  // MongoDB Cursors
   if ('stream' in docs) {
+    // MongoDB Cursor.
     src = docs.stream();
-    // Streams
   } else if ('pipe' in docs) {
+    // Document stream.
     src = docs;
-    // Arrays
   } else if (Array.isArray(docs)) {
+    // Array of documents.
     src = Readable.from(docs);
   } else {
     throw new Error(

@@ -109,12 +109,6 @@ type SchemaAnalysisBaseType = {
   count: number;
   // eslint-disable-next-line no-use-before-define
   values?: ReturnType<typeof Reservoir>
-  // {
-  //   // Reservoir type.
-  //   pushSome: (value: BSONValue) => void;
-  //   map: typeof Array.prototype['map'];
-  //   length: number;
-  // };
 }
 
 type SchemaAnalysisNullType = SchemaAnalysisBaseType & {

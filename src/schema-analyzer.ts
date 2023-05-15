@@ -215,15 +215,15 @@ function getBSONType(value: any): SchemaBSONType {
 }
 
 function isNullType(type: SchemaAnalysisType): type is SchemaAnalysisNullType {
-  return (<SchemaAnalysisNullType>type).name === 'Null';
+  return (type as SchemaAnalysisNullType).name === 'Null';
 }
 
 function isArrayType(type: SchemaAnalysisType): type is SchemaAnalysisArrayType {
-  return (<SchemaAnalysisArrayType>type).name === 'Array';
+  return (type as SchemaAnalysisArrayType).name === 'Array';
 }
 
 function isDocumentType(type: SchemaAnalysisType): type is SchemaAnalysisDocumentType {
-  return (<SchemaAnalysisDocumentType>type).name === 'Document';
+  return (type as SchemaAnalysisDocumentType).name === 'Document';
 }
 
 function cropStringAt10kCharacters(value: string) {

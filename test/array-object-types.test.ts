@@ -69,7 +69,7 @@ describe('arrays and objects as type (INT-203 restructuring)', function() {
     });
 
     it('should return the total count of all containing values', function() {
-      assert.equal((arr as ArraySchemaType).total_count, 8);
+      assert.equal((arr as ArraySchemaType).totalCount, 8);
     });
 
     it('should return the type distribution inside an array', function() {

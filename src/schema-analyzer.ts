@@ -1,9 +1,6 @@
-import _ from 'lodash';
 
+/* eslint-disable camelcase */
 import Reservoir from 'reservoir';
-
-import semanticTypeRegisters from './semantic-types';
-
 import type {
   Document,
   ObjectId,
@@ -20,17 +17,7 @@ import type {
   Timestamp
 } from 'bson';
 
-type BaseSchemaType = {
-  path: string;
-  count: number;
-  probability: number;
-  has_duplicates: boolean;
-  unique: number;
-}
-
-type ConstantSchemaType = BaseSchemaType & {
-  name: 'Null' | 'Undefined';
-}
+import semanticTypes from './semantic-types';
 
 type TypeCastMap = {
   Array: unknown[];
@@ -45,7 +32,7 @@ type TypeCastMap = {
   MaxKey: MaxKey;
   MinKey: MinKey;
   Null: null;
-  Object: Record<string, unknown>;
+  Object: Record<string, unknown>; // Note: In the resulting schema we rename `Object` to `Document`.
   ObjectId: ObjectId;
   BSONRegExp: BSONRegExp;
   String: string;
@@ -56,6 +43,23 @@ type TypeCastMap = {
 
 type TypeCastTypes = keyof TypeCastMap;
 type BSONValue = TypeCastMap[TypeCastTypes];
+
+export type BaseSchemaType = {
+  path: string;
+  name: string;
+  count: number;
+  probability: number;
+  bsonType: string;
+
+  // As `values` is from a sample reservoir this isn't a true check for duplicates/uniqueness.
+  // We cannot compute `unique` and `has_duplicates` when `storeValues` is false.
+  has_duplicates?: boolean;
+  unique?: number;
+}
+
+export type ConstantSchemaType = BaseSchemaType & {
+  name: 'Null' | 'Undefined';
+}
 
 export type PrimitiveSchemaType = BaseSchemaType & {
   name: 'String' | 'Number' | 'Int32' | 'Boolean' | 'Decimal128' | 'Long' | 'ObjectId' | 'Date' | 'RegExp' | 'Symbol' | 'MaxKey' | 'MinKey' | 'Binary' | 'Code' | 'Timestamp' | 'DBRef';
@@ -77,7 +81,9 @@ export type DocumentSchemaType = BaseSchemaType & {
   fields: SchemaField[];
 }
 
-export type SchemaType = ConstantSchemaType | PrimitiveSchemaType | ArraySchemaType | DocumentSchemaType;
+// We include the base schema type to make the `semantic-types` usage
+// easier to type.
+export type SchemaType = BaseSchemaType | ConstantSchemaType | PrimitiveSchemaType | ArraySchemaType | DocumentSchemaType;
 
 export type SchemaField = {
   name: string;
@@ -94,27 +100,63 @@ export type Schema = {
   fields: SchemaField[]
 }
 
-// Used when building the end Schema.
-type SchemaBuildingMap = {
-  [typeName: string]: {
-    name: string;
-    path: string;
-    count: number;
-    lengths?: number[];
-    average_length?: number;
-    total_count?: number;
-    types?: SchemaBuildingMap;
+type SchemaBSONType = Exclude<keyof TypeCastMap, 'Object'> | 'Document';
 
-    fields?: SchemaBuildingMap;
-
-    values?: {
-      // Reservoir type.
-      pushSome: (value: any) => void;
-    };
-  }
+type SchemaAnalysisBaseType = {
+  name: string;
+  path: string;
+  bsonType: SchemaBSONType;
+  count: number;
+  values?: ReturnType<typeof Reservoir>
 }
 
-type SemanticTypeFunction = ((value: string, path?: string) => boolean);
+type SchemaAnalysisNullType = SchemaAnalysisBaseType & {
+  name: 'Null';
+}
+
+type SchemaAnalysisPrimitiveType = SchemaAnalysisBaseType & {
+  name: 'String' | 'Number' | 'Int32' | 'Boolean' | 'Decimal128' | 'Long' | 'ObjectId' | 'Date' | 'RegExp' | 'Symbol' | 'MaxKey' | 'MinKey' | 'Binary' | 'Code' | 'Timestamp' | 'DBRef';
+}
+
+type SchemaAnalysisArrayType = SchemaAnalysisBaseType & {
+  name: 'Array';
+  lengths: number[];
+  // eslint-disable-next-line no-use-before-define
+  types: SchemaAnalysisFieldTypes;
+}
+
+type SchemaAnalysisDocumentType = SchemaAnalysisBaseType & {
+  name: 'Document';
+  // eslint-disable-next-line no-use-before-define
+  fields: SchemaAnalysisFieldsMap;
+}
+
+// We include the base schema type to make the `semantic-types` usage
+// easier to type.
+type SchemaAnalysisType = SchemaAnalysisBaseType | SchemaAnalysisNullType | SchemaAnalysisPrimitiveType | SchemaAnalysisArrayType | SchemaAnalysisDocumentType;
+
+type SchemaAnalysisFieldTypes = {
+  [fieldName: string]: SchemaAnalysisType
+}
+
+type SchemaAnalysisField = {
+  name: string;
+  path: string;
+  count: number;
+  types: SchemaAnalysisFieldTypes;
+}
+
+// This is used for the current state of the schema analysis.
+type SchemaAnalysisFieldsMap = {
+  [fieldName: string]: SchemaAnalysisField
+}
+
+type SchemaAnalysisRoot = {
+  fields: SchemaAnalysisFieldsMap;
+  count: number;
+}
+
+type SemanticTypeFunction = ((value: BSONValue, path?: string) => boolean);
 type SemanticTypeMap = {
   [typeName: string]: SemanticTypeFunction | boolean;
 };
@@ -124,16 +166,11 @@ export type SchemaParseOptions = {
   storeValues?: boolean;
 };
 
-export type RootSchema = {
-  fields: SchemaBuildingMap;
-  count: number;
-}
-
 /**
 * Extracts a Javascript string from a BSON type to compute unique values.
 */
 function extractStringValueFromBSON(value: any): string {
-  if (value && value._bsontype) {
+  if (value?._bsontype) {
     if (['Decimal128', 'Long'].includes(value._bsontype)) {
       return value.toString();
     }
@@ -162,148 +199,166 @@ function fieldComparator(a: SchemaField, b: SchemaField) {
 }
 
 /**
- * Final pass through the result to add missing information:
- *   - compute `probability`, `unique`, `has_duplicates` and
- *     `average_length` fields
- *   - add `Undefined` pseudo-types
- *   - collapse `type` arrays to single string if length 1
- *   - turns fields and types objects into arrays to conform with original
- *     schema parser
- * This mutates the passed in schema.
- */
-function finalizeSchema(schema: any, parent?: any, tag?: 'fields' | 'types'): void {
-  if (schema === undefined) {
-    return;
-  }
-
-  if (tag === undefined) {
-    // Recursively finalize fields.
-    // debug('recursively calling schema.fields');
-    finalizeSchema(schema.fields, schema, 'fields');
-  }
-
-  if (tag === 'fields') {
-    Object.values(schema).forEach((field: any) => {
-      // Create `Undefined` pseudo-type.
-      const missing = parent.count - field.count;
-      if (missing > 0) {
-        field.types.Undefined = {
-          name: 'Undefined',
-          type: 'Undefined',
-          path: field.path,
-          count: missing
-        };
-      }
-      field.total_count = Object.values(field.types)
-        .map((v: any) => v.count)
-        .reduce((p, c) => p + c, 0);
-
-      // Recursively finalize types.
-      finalizeSchema(field.types, field, 'types');
-      field.type = field.types.map((v: SchemaField) => v.name);
-      if (field.type.length === 1) {
-        field.type = field.type[0];
-      }
-
-      // A field has duplicates when any of its types have duplicates.
-      field.has_duplicates = !!field.types.find((v: SchemaField) => v.has_duplicates);
-
-      // Compute probability.
-      field.probability = field.count / parent.count;
-    });
-
-    // turn object into array
-    parent.fields = Object.values(parent.fields as SchemaField[]).sort(fieldComparator);
-  }
-
-  if (tag === 'types') {
-    Object.values(schema).forEach((type: any) => {
-      type.total_count = (type.lengths || []).reduce((p: number, c: number) => p + c || 0, 0);
-
-      // debug('recursively calling schema.fields');
-      finalizeSchema(type.fields, type, 'fields');
-
-      // debug('recursively calling schema.types');
-      finalizeSchema(type.types, type, 'types');
-
-      // compute `probability` for each type
-      type.probability = type.count / (parent.total_count || parent.count);
-
-      // compute `unique` and `has_duplicates` for each type
-      if (type.name === 'Null' || type.name === 'Undefined') {
-        delete type.values;
-        type.unique = type.count === 0 ? 0 : 1;
-        type.has_duplicates = type.count > 1;
-      } else if (type.values) {
-        type.unique = new Set(type.values.map(extractStringValueFromBSON)).size;
-        type.has_duplicates = type.unique !== type.values.length;
-      }
-
-      // compute `average_length` for array types
-      if (type.lengths) {
-        type.average_length = type.total_count / type.lengths.length;
-      }
-      // recursively finalize fields and types
-    });
-
-    parent.types = Object.values(parent.types as SchemaType[]).sort((a, b) => b.probability - a.probability);
-  }
-}
-
-/**
  * Returns the type of value as a string. BSON type aware. Replaces `Object`
  * with `Document` to avoid naming conflicts with javascript Objects.
  */
-function getBSONType(value: any): string {
-  let T;
-  if (value && value._bsontype) {
-    T = value._bsontype;
-  } else {
-    T = Object.prototype.toString.call(value).replace(/^\[object (\w+)\]$/, '$1');
+function getBSONType(value: any): SchemaBSONType {
+  const bsonType = value?._bsontype
+    ? value._bsontype
+    : Object.prototype.toString.call(value).replace(/^\[object (\w+)\]$/, '$1');
+
+  if (bsonType === 'Object') {
+    // In the resulting schema we rename `Object` to `Document`.
+    return 'Document';
   }
-  if (T === 'Object') {
-    T = 'Document';
+  return bsonType;
+}
+
+function isNullType(type: SchemaAnalysisType): type is SchemaAnalysisNullType {
+  return (type as SchemaAnalysisNullType).name === 'Null';
+}
+
+function isArrayType(type: SchemaAnalysisType): type is SchemaAnalysisArrayType {
+  return (type as SchemaAnalysisArrayType).name === 'Array';
+}
+
+function isDocumentType(type: SchemaAnalysisType): type is SchemaAnalysisDocumentType {
+  return (type as SchemaAnalysisDocumentType).name === 'Document';
+}
+
+function cropStringAt10kCharacters(value: string) {
+  return value.charCodeAt(10000 - 1) === value.codePointAt(10000 - 1)
+    ? value.slice(0, 10000)
+    : value.slice(0, 10000 - 1);
+}
+
+function computeHasDuplicatesForType(type: SchemaAnalysisType, unique?: number) {
+  if (isNullType(type)) {
+    return type.count > 0;
   }
-  return T;
+
+  if (!type.values) {
+    return undefined;
+  }
+
+  return unique !== type.values.length;
+}
+
+function computeUniqueForType(type: SchemaAnalysisType) {
+  if (isNullType(type)) {
+    return type.count === 0 ? 0 : 1;
+  }
+
+  if (!type.values) {
+    return undefined;
+  }
+
+  // As `values` is from a sample reservoir this isn't a true check for uniqueness.
+  return new Set(type.values.map(extractStringValueFromBSON)).size;
 }
 
 /**
- * Handles adding the value to the value reservoir. Will also crop
- * strings at 10,000 characters.
- *
- * @param {Object} type    the type object from `addToType`
- * @param {Any}    value   the value to be added to `type.values`
+ * Final pass through the result to add missing information:
+ *   - Compute `probability`, `unique`, `has_duplicates` and
+ *     `average_length` fields.
+ *   - Add `Undefined` pseudo-types.
+ *   - Collapse `type` arrays to single string if length 1.
+ *   - Turn fields and types objects into arrays to conform with original
+ *     schema parser.
  */
-function addToValue(type: SchemaBuildingMap[string], value: any) {
-  if (type.name === 'String') {
-    // Crop strings at 10k characters,
-    if (value.length > 10000) {
-      value = value.charCodeAt(10000 - 1) === value.codePointAt(10000 - 1)
-        ? value.slice(0, 10000)
-        : value.slice(0, 10000 - 1);
-    }
+function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
+  function finalizeArrayFieldProperties(type: SchemaAnalysisArrayType) {
+    const total_count = Object.values(type.types)
+      .map((v: any) => v.count)
+      .reduce((p, c) => p + c, 0);
+
+    const types = finalizeSchemaFieldTypes(type.types, total_count);
+
+    return {
+      types,
+      total_count,
+      lengths: type.lengths,
+      average_length: total_count / type.lengths.length
+    };
   }
-  type.values!.pushSome(value);
+
+  function finalizeSchemaFieldTypes(types: SchemaAnalysisFieldTypes, parentCount: number): SchemaType[] {
+    return Object.values(types).map((type) => {
+      const unique = computeUniqueForType(type);
+
+      return {
+        name: type.name,
+        path: type.path,
+        count: type.count,
+        probability: type.count / parentCount,
+        unique,
+        has_duplicates: computeHasDuplicatesForType(type, unique),
+        values: isNullType(type) ? undefined : type.values,
+        bsonType: type.bsonType, // Note: `Object` is replaced with `Document`.
+        ...(isArrayType(type) ? finalizeArrayFieldProperties(type) : {}),
+        ...(isDocumentType(type) ? { fields: finalizeDocumentFieldSchema(type.fields, type.count) } : {})
+      };
+    }).sort((a, b) => b.probability - a.probability);
+  }
+
+  function finalizeDocumentFieldSchema(fieldMap: SchemaAnalysisFieldsMap, parentCount: number): SchemaField[] {
+    return Object.values(fieldMap).map((field: SchemaAnalysisField): SchemaField => {
+      const fieldTypes = finalizeSchemaFieldTypes(field.types, parentCount);
+
+      const undefinedCount = parentCount - field.count;
+      if (undefinedCount > 0) {
+        // Add the `Undefined` pseudo-type.
+        fieldTypes.push({
+          name: 'Undefined',
+          bsonType: 'Undefined',
+          unique: undefinedCount > 1 ? 0 : 1,
+          has_duplicates: undefinedCount > 1,
+          path: field.path,
+          count: undefinedCount,
+          probability: undefinedCount / parentCount
+        });
+      }
+
+      return {
+        name: field.name,
+        path: field.path,
+        count: field.count,
+        type: fieldTypes.length === 1 ? fieldTypes[0].name : fieldTypes.map((v: SchemaType) => v.name), // Or one value or array.
+        probability: field.count / parentCount,
+        has_duplicates: !!fieldTypes.find((v: SchemaType) => v.has_duplicates),
+        types: fieldTypes
+      };
+    }).sort(fieldComparator);
+  }
+
+  return finalizeDocumentFieldSchema(schemaAnalysis.fields, schemaAnalysis.count);
 }
 
 export class SchemaAnalyzer {
-  finalized: boolean;
   semanticTypes: SemanticTypeMap;
-  rootSchema: RootSchema;
   options: SchemaParseOptions;
+  documentsAnalyzed = 0;
+  schemaAnalysisRoot: SchemaAnalysisRoot = {
+    fields: {},
+    count: 0
+  };
+
+  finalized = true;
+  schemaResult: Schema = {
+    count: 0,
+    fields: []
+  };
 
   constructor(options?: SchemaParseOptions) {
     // Set default options.
     this.options = { semanticTypes: false, storeValues: true, ...options };
 
-    this.finalized = false;
-
     this.semanticTypes = {
-      ...semanticTypeRegisters
+      ...semanticTypes
     };
 
     if (typeof this.options.semanticTypes === 'object') {
-      // enable existing types that evaluate to true
+      // Enable existing semantic types that evaluate to true.
       const enabledTypes = Object.entries(this.options.semanticTypes)
         .filter(([, v]) => typeof v === 'boolean' && v)
         .map(([k]) => k.toLowerCase());
@@ -320,16 +375,10 @@ export class SchemaAnalyzer {
           this.semanticTypes[k] = v;
         });
     }
-
-    this.rootSchema = {
-      fields: {},
-      count: 0
-    };
   }
 
-  getSemanticType(value: any, path: string) {
+  getSemanticType(value: BSONValue, path: string) {
     // Pass value to semantic type detectors, return first match or undefined.
-
     const returnValue = Object.entries(this.semanticTypes)
       .filter(([, v]) => {
         return (v as SemanticTypeFunction)(value, path);
@@ -339,89 +388,89 @@ export class SchemaAnalyzer {
     return returnValue;
   }
 
-  /**
-   * Takes a field value, determines the correct type, handles recursion into
-   * nested arrays and documents, and passes the value down to `addToValue`.
-   *
-   * @param {String}  path     field path in dot notation
-   * @param {Any}     value    value of the field
-   * @param {SchemaBuildingMap}  schema   the updated schema object
-   */
+  analyzeDoc(doc: Document) {
+    this.finalized = false;
+    /**
+     * Takes a field value, determines the correct type, handles recursion into
+     * nested arrays and documents, and passes the value down to `addToValue`.
+     * Note: This mutates the `schema` argument.
+     */
+    const addToType = (path: string, value: BSONValue, schema: SchemaAnalysisFieldTypes) => {
+      const bsonType = getBSONType(value);
+      // If semantic type detection is enabled, the type is the semantic type
+      // or the original bson type if no semantic type was detected. If disabled,
+      // it is always the bson type.
+      const typeName = (this.options.semanticTypes) ? this.getSemanticType(value, path) || bsonType : bsonType;
+      if (!schema[typeName]) {
+        schema[typeName] = {
+          name: typeName,
+          bsonType: bsonType,
+          path: path,
+          count: 0
+        };
+      }
+      const type = schema[typeName];
+      type.count++;
 
-  addToType(path: string, value: any, schema: SchemaBuildingMap) {
-    const bsonType = getBSONType(value);
-    // If semantic type detection is enabled, the type is the semantic type
-    // or the original bson type if no semantic type was detected. If disabled,
-    // it is always the bson type.
-    const typeName = (this.options.semanticTypes) ? this.getSemanticType(value, path) || bsonType : bsonType;
-    const type = schema[typeName] = _.get(schema, typeName, {
-      name: typeName,
-      bsonType: bsonType,
-      path: path,
-      count: 0
-    } as SchemaBuildingMap[string]);
-    type.count++;
+      if (isArrayType(type)) {
+        // Recurse into arrays by calling `addToType` for each element.
+        type.types = type.types ?? {};
+        type.lengths = type.lengths ?? [];
+        type.lengths.push((value as BSONValue[]).length);
+        (value as BSONValue[]).forEach((v: BSONValue) => addToType(path, v, type.types));
+      } else if (isDocumentType(type)) {
+        // Recurse into nested documents by calling `addToField` for all sub-fields.
+        type.fields = type.fields ?? {};
+        Object.entries(value as Document).forEach(([k, v]) => addToField(`${path}.${k}`, v, type.fields));
+      } else if (this.options.storeValues && !isNullType(type)) {
+        // When the `storeValues` option is enabled, store some example values.
+        if (!type.values) {
+          type.values = bsonType === 'String'
+            ? Reservoir(100) : Reservoir(10000);
+        }
 
-    // Recurse into arrays by calling `addToType` for each element.
-    if (typeName === 'Array') {
-      type.types = type.types ?? {};
-      type.lengths = type.lengths || [];
-      type.lengths.push(value.length);
-      value.forEach((v: SchemaBuildingMap) => this.addToType(path, v, type.types!));
-
-    // Recurse into nested documents by calling `addToField` for all sub-fields.
-    } else if (typeName === 'Document') {
-      type.fields = _.get(type, 'fields', {});
-      Object.entries(value).forEach(([k, v]) => this.addToField(`${path}.${k}`, v, type.fields!));
-
-    // If the `storeValues` option is enabled, store some example values.
-    } else if (this.options.storeValues) {
-      const defaultValue = bsonType === 'String'
-        ? Reservoir(100) : Reservoir(10000);
-      type.values = type.values || defaultValue;
-
-      addToValue(type, value);
-    }
-  }
-
-  /**
-   * Handles a field from a document. Passes the value to `addToType`.
-   *
-   * @param {String}  path     field path in dot notation
-   * @param {Any}     value    value of the field
-   * @param {Object}  schema   the updated schema object
-   */
-  addToField(path: string, value: any, schema: SchemaBuildingMap) {
-    const pathSplitOnDot = path.split('.');
-    const defaults = {
-      [path]: {
-        name: pathSplitOnDot[pathSplitOnDot.length - 1],
-        path: path,
-        count: 0,
-        types: {}
+        type.values.pushSome(
+          type.name === 'String' ? cropStringAt10kCharacters(value as string) : value
+        );
       }
     };
-    _.defaultsDeep(schema, defaults);
-    const field = schema[path];
 
-    field.count++;
-    // debug('added to field', field);
-    this.addToType(path, value, field.types!);
-  }
+    /**
+     * Handles a field from a document. Passes the value to `addToType`.
+     * Note: This mutates the `schema` argument.
+     */
+    const addToField = (path: string, value: BSONValue, schema: SchemaAnalysisFieldsMap) => {
+      if (!schema[path]) {
+        schema[path] = {
+          name: path.split('.')?.pop() || path,
+          path: path,
+          count: 0,
+          types: {}
+        };
+      }
+      const field = schema[path];
 
-  analyzeDoc(doc: Document) {
+      field.count++;
+      addToType(path, value, field.types);
+    };
+
     for (const key of Object.keys(doc)) {
-      this.addToField(key, doc[key], this.rootSchema.fields);
+      addToField(key, doc[key], this.schemaAnalysisRoot.fields);
     }
-    this.rootSchema.count += 1;
+    this.schemaAnalysisRoot.count += 1;
   }
 
-  getResult(): RootSchema {
-    if (!this.finalized) {
-      finalizeSchema(this.rootSchema as SchemaBuildingMap[string]);
-      this.finalized = true;
+  getResult(): Schema {
+    if (this.finalized) {
+      return this.schemaResult;
     }
 
-    return this.rootSchema;
+    this.schemaResult = {
+      count: this.schemaAnalysisRoot.count,
+      fields: finalizeSchema(this.schemaAnalysisRoot)
+    };
+
+    this.finalized = true;
+    return this.schemaResult;
   }
 }

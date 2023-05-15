@@ -107,7 +107,6 @@ type SchemaAnalysisBaseType = {
   path: string;
   bsonType: SchemaBSONType;
   count: number;
-  // eslint-disable-next-line no-use-before-define
   values?: ReturnType<typeof Reservoir>
 }
 
@@ -233,8 +232,6 @@ function cropStringAt10kCharacters(value: string) {
     : value.slice(0, 10000 - 1);
 }
 
-// TODO: Should we rename all the snake case to camel case?
-
 function computeHasDuplicatesForType(type: SchemaAnalysisType, unique?: number) {
   if (isNullType(type)) {
     return type.count > 0;
@@ -306,7 +303,6 @@ function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
 
   function finalizeDocumentFieldSchema(fieldMap: SchemaAnalysisFieldsMap, parentCount: number): SchemaField[] {
     return Object.values(fieldMap).map((field: SchemaAnalysisField): SchemaField => {
-      // const fieldTypes = finalizeSchemaFieldTypes(field.types, field.count); // tODO
       const fieldTypes = finalizeSchemaFieldTypes(field.types, parentCount);
 
       const undefinedCount = parentCount - field.count;
@@ -327,9 +323,8 @@ function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
         name: field.name,
         path: field.path,
         count: field.count,
-        // TODO: Would it be good to stop making this just one value?
         type: fieldTypes.length === 1 ? fieldTypes[0].name : fieldTypes.map((v: SchemaType) => v.name), // Or one value or array.
-        probability: field.count / parentCount, // TODO: For nested docs.
+        probability: field.count / parentCount,
         has_duplicates: !!fieldTypes.find((v: SchemaType) => v.has_duplicates),
         types: fieldTypes
       };

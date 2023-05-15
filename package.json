@@ -50,7 +50,6 @@
     "schema"
   ],
   "dependencies": {
-    "progress": "^2.0.3",
     "reservoir": "^0.1.2"
   },
   "devDependencies": {
@@ -74,8 +73,7 @@
     "mongodb": "^5.0.1",
     "nyc": "^15.1.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.4",
-    "yargs": "^17.6.2"
+    "typescript": "^4.9.4"
   },
   "optionalDependencies": {
     "bson": "^5.0.1",
@@ -85,6 +83,8 @@
     "mongodb-collection-sample": "^5.0.0",
     "mongodb-ns": "^2.4.0",
     "numeral": "^2.0.6",
-    "stats-lite": "^2.0.0"
+    "progress": "^2.0.3",
+    "stats-lite": "^2.0.0",
+    "yargs": "^17.6.2"
   }
 }

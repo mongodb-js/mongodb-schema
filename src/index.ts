@@ -4,7 +4,17 @@ import { promisify } from 'util';
 
 import stream from './stream';
 import { SchemaAnalyzer } from './schema-analyzer';
-import type { SchemaParseOptions, Schema, SchemaField } from './schema-analyzer';
+import type {
+  ArraySchemaType,
+  BaseSchemaType,
+  ConstantSchemaType,
+  DocumentSchemaType,
+  PrimitiveSchemaType,
+  SchemaType,
+  Schema,
+  SchemaField,
+  SchemaParseOptions
+} from './schema-analyzer';
 import * as schemaStats from './stats';
 
 type MongoDBCursor = AggregationCursor | FindCursor;
@@ -50,7 +60,17 @@ async function parseSchema(
 
 export default parseSchema;
 
-export type { Schema, SchemaField };
+export type {
+  ArraySchemaType,
+  BaseSchemaType,
+  ConstantSchemaType,
+  DocumentSchemaType,
+  PrimitiveSchemaType,
+  SchemaType,
+  Schema,
+  SchemaField,
+  SchemaParseOptions
+};
 
 export {
   stream,

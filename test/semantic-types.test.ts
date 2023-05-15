@@ -96,7 +96,7 @@ describe('options', function() {
         schema = await getSchema(docs, {
           semanticTypes: {
             Verification: function(value, key) {
-              return !!key?.match(/verified/);
+              return !!key?.pop?.()?.match(/verified/);
             }
           }
         });
@@ -115,7 +115,7 @@ describe('options', function() {
           semanticTypes: {
             email: true,
             Verification: function(value, key) {
-              return !!key?.match(/verified/);
+              return !!key?.pop?.()?.match(/verified/);
             }
           }
         });

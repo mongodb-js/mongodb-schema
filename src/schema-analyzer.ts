@@ -45,7 +45,7 @@ type TypeCastTypes = keyof TypeCastMap;
 type BSONValue = TypeCastMap[TypeCastTypes];
 
 export type BaseSchemaType = {
-  path: string;
+  path: string[];
   name: string;
   count: number;
   probability: number;
@@ -88,7 +88,7 @@ export type SchemaType = BaseSchemaType | ConstantSchemaType | PrimitiveSchemaTy
 export type SchemaField = {
   name: string;
   count: number;
-  path: string;
+  path: string[];
   type: string | string[];
   probability: number;
   has_duplicates: boolean;
@@ -104,7 +104,7 @@ type SchemaBSONType = Exclude<keyof TypeCastMap, 'Object'> | 'Document';
 
 type SchemaAnalysisBaseType = {
   name: string;
-  path: string;
+  path: string[];
   bsonType: SchemaBSONType;
   count: number;
   values?: ReturnType<typeof Reservoir>
@@ -141,7 +141,7 @@ type SchemaAnalysisFieldTypes = {
 
 type SchemaAnalysisField = {
   name: string;
-  path: string;
+  path: string[];
   count: number;
   types: SchemaAnalysisFieldTypes;
 }
@@ -156,7 +156,7 @@ type SchemaAnalysisRoot = {
   count: number;
 }
 
-type SemanticTypeFunction = ((value: BSONValue, path?: string) => boolean);
+type SemanticTypeFunction = ((value: BSONValue, path?: string[]) => boolean);
 type SemanticTypeMap = {
   [typeName: string]: SemanticTypeFunction | boolean;
 };
@@ -377,7 +377,7 @@ export class SchemaAnalyzer {
     }
   }
 
-  getSemanticType(value: BSONValue, path: string) {
+  getSemanticType(value: BSONValue, path: string[]) {
     // Pass value to semantic type detectors, return first match or undefined.
     const returnValue = Object.entries(this.semanticTypes)
       .filter(([, v]) => {
@@ -395,7 +395,7 @@ export class SchemaAnalyzer {
      * nested arrays and documents, and passes the value down to `addToValue`.
      * Note: This mutates the `schema` argument.
      */
-    const addToType = (path: string, value: BSONValue, schema: SchemaAnalysisFieldTypes) => {
+    const addToType = (path: string[], value: BSONValue, schema: SchemaAnalysisFieldTypes) => {
       const bsonType = getBSONType(value);
       // If semantic type detection is enabled, the type is the semantic type
       // or the original bson type if no semantic type was detected. If disabled,
@@ -405,7 +405,7 @@ export class SchemaAnalyzer {
         schema[typeName] = {
           name: typeName,
           bsonType: bsonType,
-          path: path,
+          path,
           count: 0
         };
       }
@@ -421,7 +421,9 @@ export class SchemaAnalyzer {
       } else if (isDocumentType(type)) {
         // Recurse into nested documents by calling `addToField` for all sub-fields.
         type.fields = type.fields ?? {};
-        Object.entries(value as Document).forEach(([k, v]) => addToField(`${path}.${k}`, v, type.fields));
+        Object.entries(value as Document).forEach(
+          ([fieldName, v]) => addToField(fieldName, [...path, fieldName], v, type.fields)
+        );
       } else if (this.options.storeValues && !isNullType(type)) {
         // When the `storeValues` option is enabled, store some example values.
         if (!type.values) {
@@ -439,23 +441,23 @@ export class SchemaAnalyzer {
      * Handles a field from a document. Passes the value to `addToType`.
      * Note: This mutates the `schema` argument.
      */
-    const addToField = (path: string, value: BSONValue, schema: SchemaAnalysisFieldsMap) => {
-      if (!schema[path]) {
-        schema[path] = {
-          name: path.split('.')?.pop() || path,
+    const addToField = (fieldName: string, path: string[], value: BSONValue, schema: SchemaAnalysisFieldsMap) => {
+      if (!schema[fieldName]) {
+        schema[fieldName] = {
+          name: fieldName,
           path: path,
           count: 0,
           types: {}
         };
       }
-      const field = schema[path];
+      const field = schema[fieldName];
 
       field.count++;
       addToType(path, value, field.types);
     };
 
     for (const key of Object.keys(doc)) {
-      addToField(key, doc[key], this.schemaAnalysisRoot.fields);
+      addToField(key, [key], doc[key], this.schemaAnalysisRoot.fields);
     }
     this.schemaAnalysisRoot.count += 1;
   }

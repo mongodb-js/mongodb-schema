@@ -4,7 +4,17 @@ import { promisify } from 'util';
 
 import stream from './stream';
 import { SchemaAnalyzer } from './schema-analyzer';
-import type { SchemaParseOptions, Schema, SchemaField } from './schema-analyzer';
+import type {
+  ArraySchemaType,
+  BaseSchemaType,
+  ConstantSchemaType,
+  DocumentSchemaType,
+  PrimitiveSchemaType,
+  SchemaType,
+  Schema,
+  SchemaField,
+  SchemaParseOptions
+} from './schema-analyzer';
 import * as schemaStats from './stats';
 
 type MongoDBCursor = AggregationCursor | FindCursor;
@@ -23,14 +33,14 @@ async function parseSchema(
   }
 
   let src: Readable;
-  // MongoDB Cursors
   if ('stream' in docs) {
+    // MongoDB Cursor.
     src = docs.stream();
-    // Streams
   } else if ('pipe' in docs) {
+    // Document stream.
     src = docs;
-    // Arrays
   } else if (Array.isArray(docs)) {
+    // Array of documents.
     src = Readable.from(docs);
   } else {
     throw new Error(
@@ -50,7 +60,17 @@ async function parseSchema(
 
 export default parseSchema;
 
-export type { Schema, SchemaField };
+export type {
+  ArraySchemaType,
+  BaseSchemaType,
+  ConstantSchemaType,
+  DocumentSchemaType,
+  PrimitiveSchemaType,
+  SchemaType,
+  Schema,
+  SchemaField,
+  SchemaParseOptions
+};
 
 export {
   stream,

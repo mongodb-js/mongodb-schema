@@ -29,7 +29,6 @@ export class ParseStream extends Duplex {
   }
 }
 
-// for backwards compatibility
 export default function makeParseStream(options?: SchemaParseOptions) {
   return new ParseStream(options);
 }

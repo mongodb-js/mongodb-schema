@@ -1,4 +1,4 @@
-# mongodb-schema [![][npm_img]][npm_url] [![][travis_img]][travis_url] [![][coverage_img]][coverage_url]
+# mongodb-schema [![][npm_img]][npm_url] [![][coverage_img]][coverage_url]
 
 Infer a probabilistic schema for a MongoDB collection.
 
@@ -42,37 +42,42 @@ below accordingly).
 1. From your application folder, install the driver and `mongodb-schema` locally:
 
    ```
-   npm install mongodb mongodb-schema
+   npm install --save mongodb mongodb-schema
    ```
 
 2. (optional) If you don't have any data in your MongoDB instance yet, you can create a
 `test.data` collection with this command:
 
     ```
-    mongo --eval "db.data.insert([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
+    mongosh --eval "db.data.insertMany([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
     ```
 
 3. Create a new file `parse-schema.js` and paste in the following code:
 
     ```javascript
     const parseSchema = require('mongodb-schema');
-    const MongoClient = require('mongodb').MongoClient;
+    const { MongoClient } = require('mongodb');
+
     const dbName = 'test';
+    const uri = `mongodb://localhost:27017/${dbName}`;
+    const client = new MongoClient(uri);
 
-    MongoClient.connect(`mongodb://localhost:27017/${dbName}`, { useNewUrlParser: true }, function(err, client) {
-      if (err) return console.error(err);
+    async function run() {
+      try {
+        const database = client.db(dbName);
+        const documentStream = database.collection('data').find();
 
-      const db = client.db(dbName);
-
-      // here we are passing in a cursor as the first argument. You can
-      // also pass in a stream or an array of documents directly.
-      parseSchema(db.collection('data').find(), function(err, schema) {
-        if (err) return console.error(err);
+        // Here we are passing in a cursor as the first argument. You can
+        // also pass in a stream or an array of documents directly.
+        const schema = await parseSchema(documentStream);
 
         console.log(JSON.stringify(schema, null, 2));
-        client.close();
-      });
-    });
+      } finally {
+        await client.close();
+      }
+    }
+
+    run().catch(console.dir);
     ```
 
 4. When we run the above with `node ./parse-schema.js`, we'll see output
@@ -346,15 +351,9 @@ Apache 2.0
 
 
 [bson-types]: http://docs.mongodb.org/manual/reference/bson-types/
-[ampersand-state]: http://ampersandjs.com/docs#ampersand-state
-[ampersand-collection]: http://ampersandjs.com/docs#ampersand-collection
 [tests]: https://github.com/mongodb-js/mongodb-schema/tree/main/test
 
-[travis_img]: https://secure.travis-ci.org/mongodb-js/mongodb-schema.svg?branch=master
-[travis_url]: https://travis-ci.org/mongodb-js/mongodb-schema
 [npm_img]: https://img.shields.io/npm/v/mongodb-schema.svg
 [npm_url]: https://www.npmjs.org/package/mongodb-schema
 [coverage_img]: https://coveralls.io/repos/mongodb-js/mongodb-schema/badge.svg
 [coverage_url]: https://coveralls.io/r/mongodb-js/mongodb-schema
-[gitter_img]: https://badges.gitter.im/Join%20Chat.svg
-[gitter_url]: https://gitter.im/mongodb-js/mongodb-js

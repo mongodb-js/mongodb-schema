@@ -77,7 +77,7 @@ const argv = require('yargs')
   .example(
     '$0 localhost:27017 mongodb.fanclub --number 1000 --repeat 5 --stats ' +
     '--no-output', 'analyze 1000 docs from the mongodb.fanclub ' +
-    'collection with the old ampersand parser, repeat 5 times and only show statistics.'
+    'collection, repeat 5 times and only show statistics.'
   )
   .example(
     '$0 localhost:27017 test.foo --format table',

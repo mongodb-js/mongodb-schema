@@ -31,7 +31,7 @@ describe('basic embedded array', function() {
   });
 
   it('should have an average length of 1.5 for followingIds', function() {
-    assert.equal(followingIds.average_length, 1.5);
+    assert.equal(followingIds.averageLength, 1.5);
   });
 
   it('should have a sum of probability for followingIds of 1', function() {

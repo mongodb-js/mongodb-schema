@@ -92,7 +92,7 @@ below accordingly).
         "count": 4,               // 4 documents counted with _id
         "type": "Number",         // the type of _id is `Number`
         "probability": 1,         // all documents had an _id field
-        "has_duplicates": false,  // therefore no duplicates
+        "hasDuplicates": false,  // therefore no duplicates
         "types": [                // an array of Type objects, @see `./lib/types/`
           {
             "name": "Number",     // name of the type
@@ -118,7 +118,7 @@ below accordingly).
           "Number",
           "Undefined"             // for convenience, we treat Undefined as its own type
         ],
-        "has_duplicates": false,   // there were no duplicate values
+        "hasDuplicates": false,   // there were no duplicate values
         "types": [
           {
             "name": "Boolean",

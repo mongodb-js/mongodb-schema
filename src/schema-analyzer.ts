@@ -1,5 +1,4 @@
 
-/* eslint-disable camelcase */
 import Reservoir from 'reservoir';
 import type {
   Document,
@@ -52,8 +51,8 @@ export type BaseSchemaType = {
   bsonType: string;
 
   // As `values` is from a sample reservoir this isn't a true check for duplicates/uniqueness.
-  // We cannot compute `unique` and `has_duplicates` when `storeValues` is false.
-  has_duplicates?: boolean;
+  // We cannot compute `unique` and `hasDuplicates` when `storeValues` is false.
+  hasDuplicates?: boolean;
   unique?: number;
 }
 
@@ -69,8 +68,8 @@ export type PrimitiveSchemaType = BaseSchemaType & {
 export type ArraySchemaType = BaseSchemaType & {
   name: 'Array';
   lengths: number[];
-  average_length: number;
-  total_count: number;
+  averageLength: number;
+  totalCount: number;
   // eslint-disable-next-line no-use-before-define
   types: SchemaType[];
 }
@@ -91,7 +90,7 @@ export type SchemaField = {
   path: string[];
   type: string | string[];
   probability: number;
-  has_duplicates: boolean;
+  hasDuplicates: boolean;
   types: SchemaType[];
 };
 
@@ -259,8 +258,8 @@ function computeUniqueForType(type: SchemaAnalysisType) {
 
 /**
  * Final pass through the result to add missing information:
- *   - Compute `probability`, `unique`, `has_duplicates` and
- *     `average_length` fields.
+ *   - Compute `probability`, `unique`, `hasDuplicates` and
+ *     `averageLength` fields.
  *   - Add `Undefined` pseudo-types.
  *   - Collapse `type` arrays to single string if length 1.
  *   - Turn fields and types objects into arrays to conform with original
@@ -268,17 +267,17 @@ function computeUniqueForType(type: SchemaAnalysisType) {
  */
 function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
   function finalizeArrayFieldProperties(type: SchemaAnalysisArrayType) {
-    const total_count = Object.values(type.types)
+    const totalCount = Object.values(type.types)
       .map((v: any) => v.count)
       .reduce((p, c) => p + c, 0);
 
-    const types = finalizeSchemaFieldTypes(type.types, total_count);
+    const types = finalizeSchemaFieldTypes(type.types, totalCount);
 
     return {
       types,
-      total_count,
+      totalCount,
       lengths: type.lengths,
-      average_length: total_count / type.lengths.length
+      averageLength: totalCount / type.lengths.length
     };
   }
 
@@ -292,7 +291,7 @@ function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
         count: type.count,
         probability: type.count / parentCount,
         unique,
-        has_duplicates: computeHasDuplicatesForType(type, unique),
+        hasDuplicates: computeHasDuplicatesForType(type, unique),
         values: isNullType(type) ? undefined : type.values,
         bsonType: type.bsonType, // Note: `Object` is replaced with `Document`.
         ...(isArrayType(type) ? finalizeArrayFieldProperties(type) : {}),
@@ -312,7 +311,7 @@ function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
           name: 'Undefined',
           bsonType: 'Undefined',
           unique: undefinedCount > 1 ? 0 : 1,
-          has_duplicates: undefinedCount > 1,
+          hasDuplicates: undefinedCount > 1,
           path: field.path,
           count: undefinedCount,
           probability: undefinedCount / parentCount
@@ -325,7 +324,7 @@ function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
         count: field.count,
         type: fieldTypes.length === 1 ? fieldTypes[0].name : fieldTypes.map((v: SchemaType) => v.name), // Or one value or array.
         probability: field.count / parentCount,
-        has_duplicates: !!fieldTypes.find((v: SchemaType) => v.has_duplicates),
+        hasDuplicates: !!fieldTypes.find((v: SchemaType) => v.hasDuplicates),
         types: fieldTypes
       };
     }).sort(fieldComparator);

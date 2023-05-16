@@ -4,7 +4,7 @@ import bson from 'bson';
 import getSchema from '../src';
 import type { Schema, PrimitiveSchemaType } from '../src/schema-analyzer';
 
-describe('has_duplicates', function() {
+describe('hasDuplicates', function() {
   const docs: {
     num: number;
     str: string;
@@ -22,7 +22,7 @@ describe('has_duplicates', function() {
   });
 
   it('should not have duplicates', function() {
-    assert.equal(schema.fields.find(v => v.name === 'num')?.has_duplicates, false);
+    assert.equal(schema.fields.find(v => v.name === 'num')?.hasDuplicates, false);
   });
 
   it('should have 10000 number values for the `num` field', function() {
@@ -76,7 +76,7 @@ describe('unique', function() {
   });
 
   it('should not have duplicates for `_id`', function() {
-    assert.equal(schema.fields.find(v => v.name === '_id')?.has_duplicates, false);
+    assert.equal(schema.fields.find(v => v.name === '_id')?.hasDuplicates, false);
   });
 
   it('should have count of 2 for `registered`', function() {
@@ -104,10 +104,10 @@ describe('unique', function() {
   });
 
   it('should not have duplicate values for b', function() {
-    assert.equal(schema.fields.find(v => v.name === 'b')?.has_duplicates, false);
+    assert.equal(schema.fields.find(v => v.name === 'b')?.hasDuplicates, false);
   });
 
   it('should have duplicates for `registered`', function() {
-    assert.equal(schema.fields.find(v => v.name === 'registered')?.has_duplicates, true);
+    assert.equal(schema.fields.find(v => v.name === 'registered')?.hasDuplicates, true);
   });
 });

@@ -1,10 +1,12 @@
 import assert from 'assert';
+import type { Document } from 'bson';
 
 import { getSchemaPaths } from '../src';
 
 describe('getSchemaPaths', function() {
+  let schemaPaths: string[][];
+
   describe('with fields with dots in them', function() {
-    let schemaPaths: string[][];
     const docs = [
       {
         pineapple: {
@@ -34,7 +36,6 @@ describe('getSchemaPaths', function() {
   });
 
   describe('with multiple documents with different fields', function() {
-    let schemaPaths: string[][];
     const docs = [
       {
         pineapple: {
@@ -69,7 +70,6 @@ describe('getSchemaPaths', function() {
   });
 
   describe('with nested array documents', function() {
-    let schemaPaths: string[][];
     const docs = [
       {
         orangutan: [{
@@ -94,6 +94,18 @@ describe('getSchemaPaths', function() {
         ['orangutan', 'lizard', 'snakes'],
         ['orangutan', 'lizard', 'birds']
       ]);
+    });
+  });
+
+  describe('with no documents', function() {
+    const docs: Document[] = [];
+
+    before(async function() {
+      schemaPaths = await getSchemaPaths(docs);
+    });
+
+    it('returns no paths', function() {
+      assert.deepEqual(schemaPaths, []);
     });
   });
 });

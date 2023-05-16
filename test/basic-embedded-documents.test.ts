@@ -49,14 +49,14 @@ describe('basic embedded documents', function() {
     ];
 
     const nestedFieldPaths = [
-      'push_token.android',
-      'push_token.apple'
+      ['push_token', 'android'],
+      ['push_token', 'apple']
     ];
 
-    assert.deepEqual(schema.fields.map(v => v.name).sort(), fieldNames.sort());
+    assert.deepEqual(schema.fields.map(v => v.name), fieldNames);
 
     const types = schema.fields.find(v => v.name === 'push_token')?.types;
     const pushTokens = (types?.find(v => v.name === 'Document') as DocumentSchemaType)?.fields;
-    assert.deepEqual(pushTokens?.map((v: SchemaField) => v.path).sort(), nestedFieldPaths.sort());
+    assert.deepEqual(pushTokens?.map((v: SchemaField) => v.path), nestedFieldPaths);
   });
 });

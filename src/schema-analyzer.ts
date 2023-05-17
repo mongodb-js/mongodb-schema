@@ -225,6 +225,46 @@ function isDocumentType(type: SchemaAnalysisType): type is SchemaAnalysisDocumen
   return (type as SchemaAnalysisDocumentType).name === 'Document';
 }
 
+/**
+ * Recursively extracts all of the schema field paths as string arrays.
+ */
+function schemaToPaths(
+  fields: SchemaAnalysisFieldsMap,
+  parent: string[] = []
+): string[][] {
+  const paths: string[][] = [];
+
+  for (const field of Object.values(fields)) {
+    const path = [...parent, field.name];
+    paths.push(path);
+
+    // Recurse on doc.
+    const doc = Object.values(field.types).find((f) => f.bsonType === 'Document') as
+      | SchemaAnalysisDocumentType
+      | undefined;
+
+    if (doc) {
+      paths.push(...schemaToPaths(doc.fields, path));
+    }
+
+    // Recurse on array.
+    const array = Object.values(field.types).find((f) => f.bsonType === 'Array') as
+      | SchemaAnalysisArrayType
+      | undefined;
+    if (array) {
+      const arrayDoc = Object.values(array.types).find((f) => f.bsonType === 'Document') as
+        | SchemaAnalysisDocumentType
+        | undefined;
+
+      if (arrayDoc) {
+        paths.push(...schemaToPaths(arrayDoc.fields, path));
+      }
+    }
+  }
+
+  return paths;
+}
+
 function cropStringAt10kCharacters(value: string) {
   return value.charCodeAt(10000 - 1) === value.codePointAt(10000 - 1)
     ? value.slice(0, 10000)
@@ -473,5 +513,9 @@ export class SchemaAnalyzer {
 
     this.finalized = true;
     return this.schemaResult;
+  }
+
+  getSchemaPaths(): string[][] {
+    return schemaToPaths(this.schemaAnalysisRoot.fields);
   }
 }

@@ -59,12 +59,12 @@ describe('getSchemaPaths', function() {
       schemaPaths = await getSchemaPaths(docs);
     });
 
-    it('returns all of the field paths', function() {
+    it('returns all of the field paths (sorted)', function() {
       assert.deepEqual(schemaPaths, [
+        ['clementine'],
         ['pineapple'],
         ['pineapple', 'orange'],
-        ['pineapple', 'orange', 'apple'],
-        ['clementine']
+        ['pineapple', 'orange', 'apple']
       ]);
     });
   });
@@ -86,13 +86,13 @@ describe('getSchemaPaths', function() {
       schemaPaths = await getSchemaPaths(docs);
     });
 
-    it('returns all of the field paths', function() {
+    it('returns all of the field paths (sorted)', function() {
       assert.deepEqual(schemaPaths, [
         ['orangutan'],
-        ['orangutan', 'tuatara'],
         ['orangutan', 'lizard'],
+        ['orangutan', 'lizard', 'birds'],
         ['orangutan', 'lizard', 'snakes'],
-        ['orangutan', 'lizard', 'birds']
+        ['orangutan', 'tuatara']
       ]);
     });
   });

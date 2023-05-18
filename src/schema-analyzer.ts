@@ -183,7 +183,11 @@ function extractStringValueFromBSON(value: any): string {
   return String(value);
 }
 
-function fieldComparator(a: SchemaField, b: SchemaField) {
+function fieldComparator(a: {
+  name: string
+}, b: {
+  name: string
+}) {
   // Make sure _id is always at top, even in presence of uppercase fields.
   const aName = a.name;
   const bName = b.name;
@@ -233,8 +237,9 @@ function schemaToPaths(
   parent: string[] = []
 ): string[][] {
   const paths: string[][] = [];
+  const sortedFields = Object.values(fields).sort(fieldComparator);
 
-  for (const field of Object.values(fields)) {
+  for (const field of sortedFields) {
     const path = [...parent, field.name];
     paths.push(path);
 

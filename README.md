@@ -49,7 +49,7 @@ below accordingly).
 `test.data` collection with this command:
 
     ```
-    mongosh --eval "db.data.insertMany([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test`
+    mongosh --eval "db.data.insertMany([{_id: 1, a: true}, {_id: 2, a: 'true'}, {_id: 3, a: 1}, {_id: 4}])" localhost:27017/test
     ```
 
 3. Create a new file `parse-schema.js` and paste in the following code:

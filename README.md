@@ -55,7 +55,7 @@ below accordingly).
 3. Create a new file `parse-schema.js` and paste in the following code:
 
     ```javascript
-    const parseSchema = require('mongodb-schema');
+    const { default: parseSchema } = require('mongodb-schema');
     const { MongoClient } = require('mongodb');
 
     const dbName = 'test';

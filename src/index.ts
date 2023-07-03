@@ -13,7 +13,13 @@ import type {
   SchemaType,
   Schema,
   SchemaField,
-  SchemaParseOptions
+  SchemaParseOptions,
+  SimplifiedSchemaBaseType,
+  SimplifiedSchemaArrayType,
+  SimplifiedSchemaDocumentType,
+  SimplifiedSchemaType,
+  SimplifiedSchemaField,
+  SimplifiedSchema
 } from './schema-analyzer';
 import * as schemaStats from './stats';
 
@@ -81,6 +87,22 @@ async function getSchemaPaths(
   throw new Error('unreachable'); // `dest` always emits one doc.
 }
 
+// Convenience shortcut for getting the simplified schema.
+async function getSimplifiedSchema(
+  source: Document[] | MongoDBCursor | Readable
+): Promise<SimplifiedSchema> {
+  const streamSource = getStreamSource(source);
+
+  const dest = new PassThrough({ objectMode: true });
+  await pipeline(streamSource, stream({
+    simplifiedSchema: true
+  }), dest);
+  for await (const result of dest) {
+    return result;
+  }
+  throw new Error('unreachable'); // `dest` always emits one doc.
+}
+
 export default parseSchema;
 
 export type {
@@ -92,12 +114,20 @@ export type {
   SchemaType,
   Schema,
   SchemaField,
-  SchemaParseOptions
+  SchemaParseOptions,
+  SimplifiedSchemaBaseType,
+  SimplifiedSchemaArrayType,
+  SimplifiedSchemaDocumentType,
+  SimplifiedSchemaType,
+  SimplifiedSchemaField,
+  SimplifiedSchema
 };
 
 export {
   stream,
+  parseSchema,
   getSchemaPaths,
+  getSimplifiedSchema,
   SchemaAnalyzer,
   schemaStats
 };

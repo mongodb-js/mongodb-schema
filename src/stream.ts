@@ -7,7 +7,7 @@ import type {
 import { SchemaAnalyzer } from './schema-analyzer';
 import type { SchemaParseOptions } from './schema-analyzer';
 
-type ParseStreamOptions = SchemaParseOptions & {
+export type ParseStreamOptions = SchemaParseOptions & {
   simplifiedSchema?: boolean,
   schemaPaths?: boolean;
 };

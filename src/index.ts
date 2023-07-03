@@ -3,6 +3,7 @@ import { Readable, PassThrough } from 'stream';
 import { pipeline } from 'stream/promises';
 
 import stream from './stream';
+import type { ParseStreamOptions } from './stream';
 import { SchemaAnalyzer } from './schema-analyzer';
 import type {
   ArraySchemaType,
@@ -48,6 +49,20 @@ function getStreamSource(
   return streamSource;
 }
 
+async function schemaStream(
+  source: Document[] | MongoDBCursor | Readable,
+  options?: ParseStreamOptions
+) {
+  const streamSource = getStreamSource(source);
+
+  const dest = new PassThrough({ objectMode: true });
+  await pipeline(streamSource, stream(options), dest);
+  for await (const result of dest) {
+    return result;
+  }
+  throw new Error('unreachable'); // `dest` always emits exactly one doc.
+}
+
 /**
  * Convenience shortcut for parsing schemas. Accepts an array, stream or
  * MongoDB cursor object to parse documents` from.
@@ -56,51 +71,25 @@ async function parseSchema(
   source: Document[] | MongoDBCursor | Readable,
   options?: SchemaParseOptions
 ): Promise<Schema> {
-  // Shift parameters if no options are specified.
-  if (typeof options === 'undefined') {
-    options = {};
-  }
-
-  const streamSource = getStreamSource(source);
-
-  const dest = new PassThrough({ objectMode: true });
-  await pipeline(streamSource, stream(options), dest);
-  for await (const result of dest) {
-    return result;
-  }
-  throw new Error('unreachable'); // `dest` always emits one doc.
+  return await schemaStream(source, options);
 }
 
 // Convenience shortcut for getting schema paths.
 async function getSchemaPaths(
   source: Document[] | MongoDBCursor | Readable
 ): Promise<string[][]> {
-  const streamSource = getStreamSource(source);
-
-  const dest = new PassThrough({ objectMode: true });
-  await pipeline(streamSource, stream({
+  return await schemaStream(source, {
     schemaPaths: true
-  }), dest);
-  for await (const result of dest) {
-    return result;
-  }
-  throw new Error('unreachable'); // `dest` always emits one doc.
+  });
 }
 
 // Convenience shortcut for getting the simplified schema.
 async function getSimplifiedSchema(
   source: Document[] | MongoDBCursor | Readable
 ): Promise<SimplifiedSchema> {
-  const streamSource = getStreamSource(source);
-
-  const dest = new PassThrough({ objectMode: true });
-  await pipeline(streamSource, stream({
+  return await schemaStream(source, {
     simplifiedSchema: true
-  }), dest);
-  for await (const result of dest) {
-    return result;
-  }
-  throw new Error('unreachable'); // `dest` always emits one doc.
+  });
 }
 
 export default parseSchema;

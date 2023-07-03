@@ -285,7 +285,6 @@ export type SimplifiedSchemaDocumentType = SimplifiedSchemaBaseType & {
 }
 export type SimplifiedSchemaType = SimplifiedSchemaBaseType | SimplifiedSchemaArrayType | SimplifiedSchemaDocumentType;
 export type SimplifiedSchemaField = {
-  // name: string;
   types: SimplifiedSchemaType[];
 };
 export type SimplifiedSchema = {
@@ -311,7 +310,6 @@ function simplifiedSchema(fields: SchemaAnalysisFieldsMap): SimplifiedSchema {
       const fieldTypes = finalizeSchemaFieldTypes(field.types);
 
       fieldSchema[field.name] = {
-        // name: field.name,
         types: fieldTypes
       };
     });
@@ -576,11 +574,7 @@ export class SchemaAnalyzer {
   }
 
   /**
-   * This returns a simplified schema result which may not tell the whole picture.
-   *
-   * For cases where the schema of different documents differs greatly,
-   * the result of this function will contain a union of the different document's schema
-   * and may omit nested fields when another types exists in most documents.
+   * Returns a simplified schema result, this has no type metadata.
    */
   getSimplifiedSchema(): SimplifiedSchema {
     return simplifiedSchema(this.schemaAnalysisRoot.fields);

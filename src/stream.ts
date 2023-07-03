@@ -7,14 +7,19 @@ import type {
 import { SchemaAnalyzer } from './schema-analyzer';
 import type { SchemaParseOptions } from './schema-analyzer';
 
+export type ParseStreamOptions = SchemaParseOptions & {
+  simplifiedSchema?: boolean,
+  schemaPaths?: boolean;
+};
+
 export class ParseStream extends Duplex {
   analyzer: SchemaAnalyzer;
+  options: ParseStreamOptions;
   schemaPaths = false;
-  constructor(options?: SchemaParseOptions & {
-    schemaPaths?: boolean;
-  }) {
+
+  constructor(options?: ParseStreamOptions) {
     super({ objectMode: true });
-    this.schemaPaths = !!options?.schemaPaths;
+    this.options = options || {};
     this.analyzer = new SchemaAnalyzer(options);
   }
 
@@ -27,8 +32,10 @@ export class ParseStream extends Duplex {
   _read() {}
 
   _final(cb: () => void) {
-    if (this.schemaPaths) {
+    if (this.options.schemaPaths) {
       this.push(this.analyzer.getSchemaPaths());
+    } else if (this.options.simplifiedSchema) {
+      this.push(this.analyzer.getSimplifiedSchema());
     } else {
       this.push(this.analyzer.getResult());
     }
@@ -37,8 +44,6 @@ export class ParseStream extends Duplex {
   }
 }
 
-export default function makeParseStream(options?: SchemaParseOptions & {
-    schemaPaths?: boolean;
-  }) {
+export default function makeParseStream(options?: ParseStreamOptions) {
   return new ParseStream(options);
 }

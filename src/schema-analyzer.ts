@@ -270,6 +270,55 @@ function schemaToPaths(
   return paths;
 }
 
+export type SimplifiedSchemaBaseType = {
+  bsonType: SchemaBSONType;
+}
+export type SimplifiedSchemaArrayType = SimplifiedSchemaBaseType & {
+  bsonType: 'Array';
+  // eslint-disable-next-line no-use-before-define
+  types: SimplifiedSchemaType[];
+}
+export type SimplifiedSchemaDocumentType = SimplifiedSchemaBaseType & {
+  bsonType: 'Document';
+  // eslint-disable-next-line no-use-before-define
+  fields: SimplifiedSchema;
+}
+export type SimplifiedSchemaType = SimplifiedSchemaBaseType | SimplifiedSchemaArrayType | SimplifiedSchemaDocumentType;
+export type SimplifiedSchemaField = {
+  types: SimplifiedSchemaType[];
+};
+export type SimplifiedSchema = {
+  [fieldName: string]: SimplifiedSchemaField
+}
+
+function simplifiedSchema(fields: SchemaAnalysisFieldsMap): SimplifiedSchema {
+  function finalizeSchemaFieldTypes(types: SchemaAnalysisFieldTypes): SimplifiedSchemaType[] {
+    return Object.values(types).map((type) => {
+      return {
+        bsonType: type.bsonType, // Note: `Object` is replaced with `Document`.
+        ...(isArrayType(type) ? {
+          types: finalizeSchemaFieldTypes(type.types)
+        } : {}),
+        ...(isDocumentType(type) ? { fields: finalizeDocumentFieldSchema(type.fields) } : {})
+      };
+    });
+  }
+
+  function finalizeDocumentFieldSchema(fieldMap: SchemaAnalysisFieldsMap): SimplifiedSchema {
+    const fieldSchema: SimplifiedSchema = {};
+    Object.values(fieldMap).forEach((field: SchemaAnalysisField) => {
+      const fieldTypes = finalizeSchemaFieldTypes(field.types);
+
+      fieldSchema[field.name] = {
+        types: fieldTypes
+      };
+    });
+    return fieldSchema;
+  }
+
+  return finalizeDocumentFieldSchema(fields);
+}
+
 function cropStringAt10kCharacters(value: string) {
   return value.charCodeAt(10000 - 1) === value.codePointAt(10000 - 1)
     ? value.slice(0, 10000)
@@ -522,5 +571,12 @@ export class SchemaAnalyzer {
 
   getSchemaPaths(): string[][] {
     return schemaToPaths(this.schemaAnalysisRoot.fields);
+  }
+
+  /**
+   * Returns a simplified schema result, this has no type metadata.
+   */
+  getSimplifiedSchema(): SimplifiedSchema {
+    return simplifiedSchema(this.schemaAnalysisRoot.fields);
   }
 }

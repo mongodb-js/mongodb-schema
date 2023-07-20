@@ -23,24 +23,32 @@ export class ParseStream extends Duplex {
     this.analyzer = new SchemaAnalyzer(options);
   }
 
-  _write(obj: Document, enc: unknown, cb: () => void) {
-    this.analyzer.analyzeDoc(obj);
-    this.emit('progress', obj);
-    cb();
+  _write(obj: Document, enc: unknown, cb: (err?: any) => void) {
+    try {
+      this.analyzer.analyzeDoc(obj);
+      this.emit('progress', obj);
+      cb();
+    } catch (err: any) {
+      cb(err);
+    }
   }
 
   _read() {}
 
-  _final(cb: () => void) {
-    if (this.options.schemaPaths) {
-      this.push(this.analyzer.getSchemaPaths());
-    } else if (this.options.simplifiedSchema) {
-      this.push(this.analyzer.getSimplifiedSchema());
-    } else {
-      this.push(this.analyzer.getResult());
+  _final(cb: (err?: any) => void) {
+    try {
+      if (this.options.schemaPaths) {
+        this.push(this.analyzer.getSchemaPaths());
+      } else if (this.options.simplifiedSchema) {
+        this.push(this.analyzer.getSimplifiedSchema());
+      } else {
+        this.push(this.analyzer.getResult());
+      }
+      this.push(null);
+      cb();
+    } catch (err: any) {
+      cb(err);
     }
-    this.push(null);
-    cb();
   }
 }
 

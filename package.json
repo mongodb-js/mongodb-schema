@@ -80,7 +80,6 @@
     "cli-table": "^0.3.4",
     "js-yaml": "^4.0.0",
     "mongodb": "^5.0.1",
-    "mongodb-collection-sample": "^5.0.0",
     "mongodb-ns": "^2.4.0",
     "numeral": "^2.0.6",
     "progress": "^2.0.3",

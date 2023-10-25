@@ -3,10 +3,10 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const { stream: parseSchemaStream, schemaStats } = require('../');
+const { SchemaAnalyzer, schemaStats: _schemaStats } = require('../');
+const schemaStats = _schemaStats.default;
 
 const { MongoClient } = require('mongodb');
-const sample = require('mongodb-collection-sample');
 const toNS = require('mongodb-ns');
 const yaml = require('js-yaml');
 const pkg = require('../package.json');
@@ -35,12 +35,6 @@ const argv = require('yargs')
     type: 'boolean',
     describe: 'Print the computed schema to stdout.',
     default: true
-  })
-  .option('r', {
-    alias: 'repeat',
-    type: 'number',
-    describe: 'Repeat experiment n times.',
-    default: 1
   })
   .option('s', {
     alias: 'stats',
@@ -75,9 +69,9 @@ const argv = require('yargs')
   .help('h')
   .wrap(100)
   .example(
-    '$0 localhost:27017 mongodb.fanclub --number 1000 --repeat 5 --stats ' +
+    '$0 localhost:27017 mongodb.fanclub --number 1000 --stats ' +
     '--no-output', 'analyze 1000 docs from the mongodb.fanclub ' +
-    'collection, repeat 5 times and only show statistics.'
+    'collection and only show statistics.'
   )
   .example(
     '$0 localhost:27017 test.foo --format table',
@@ -129,12 +123,22 @@ function getTable(schema) {
 }
 
 const bar = new ProgressBar('analyzing [:bar] :percent :etas ', {
-  total: argv.number * argv.repeat,
+  total: argv.number,
   width: 60,
   complete: '=',
   incomplete: ' ',
   clear: true
 });
+
+function sample(collection, size = 1000) {
+  return collection.aggregate([{
+    $sample: {
+      size
+    }
+  }], {
+    allowDiskUse: true
+  });
+}
 
 const client = new MongoClient(uri);
 
@@ -158,45 +162,29 @@ const client = new MongoClient(uri);
     promoteValues: argv.promote
   };
 
-  let schema;
   const schemaOptions = {
     storeValues: argv.values,
     semanticTypes: argv.semanticTypes
   };
 
+  const analyzer = new SchemaAnalyzer(schemaOptions);
   try {
-    for (let i = 0; i < argv.repeat; i++) {
-      await new Promise((resolve, reject) => {
-        const source = argv.sampling
-          ? sample(db, ns.collection, options)
-          : db.collection(ns.collection).find(options.query, {
-            promoteValues: options.promoteValues
-          }).limit(options.size).stream();
+    const input = argv.sampling
+      ? sample(db.collection(ns.collection), sampleSize)
+      : db.collection(ns.collection).find(options.query, {
+        promoteValues: options.promoteValues
+      }).limit(options.size);
 
-        source
-          .once('data', function() {
-            ts = new Date();
-          })
-          .pipe(parseSchemaStream(schemaOptions))
-          .on('progress', function() {
-            bar.tick();
-          })
-          .on('data', function(data) {
-            schema = data;
-          })
-          .on('error', function(err) {
-            reject(err);
-          })
-          .on('end', function() {
-            const duration = new Date() - ts;
-            resolve(duration);
-          });
-      });
+    for await (const doc of input) {
+      bar.tick();
+      analyzer.analyzeDoc(doc);
     }
   } catch (err) {
     console.error('error:', err.message);
     process.exit(1);
   }
+
+  const schema = analyzer.getResult();
 
   if (argv.output) {
     let output = '';
@@ -209,6 +197,7 @@ const client = new MongoClient(uri);
     }
     console.log(output);
   }
+
   if (argv.stats) {
     let branchOutput = '[';
     const branchingFactors = schemaStats.branch(schema);
@@ -218,11 +207,14 @@ const client = new MongoClient(uri);
       branchOutput += branchingFactors.join(',') + ']';
     }
 
-    console.error('execution count: ' + argv.repeat);
     console.error('toplevel fields:', schema.fields.length);
     console.error('branching factors:', branchOutput);
     console.error('schema width: ' + schemaStats.width(schema));
     console.error('schema depth: ' + schemaStats.depth(schema));
   }
+
+  console.dir(analyzer.getSchemaPaths());
+  console.dir(analyzer.getSimplifiedSchema(), { depth: null });
+
   client.close();
 })();

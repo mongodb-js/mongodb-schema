@@ -114,6 +114,7 @@ export type {
 
 export {
   stream,
+  getStreamSource,
   parseSchema,
   getSchemaPaths,
   getSimplifiedSchema,

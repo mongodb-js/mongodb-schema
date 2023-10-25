@@ -23,6 +23,12 @@ import type {
   SimplifiedSchema
 } from './schema-analyzer';
 import * as schemaStats from './stats';
+import type {
+  Relationship
+} from './database-analyzer';
+import {
+  findRelationshipsForSchema
+} from './database-analyzer';
 
 type MongoDBCursor = AggregationCursor | FindCursor;
 
@@ -109,7 +115,8 @@ export type {
   SimplifiedSchemaDocumentType,
   SimplifiedSchemaType,
   SimplifiedSchemaField,
-  SimplifiedSchema
+  SimplifiedSchema,
+  Relationship
 };
 
 export {
@@ -119,5 +126,6 @@ export {
   getSchemaPaths,
   getSimplifiedSchema,
   SchemaAnalyzer,
-  schemaStats
+  schemaStats,
+  findRelationshipsForSchema
 };

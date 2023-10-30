@@ -4,8 +4,7 @@ import { pipeline as callbackPipeline, PassThrough, Transform } from 'stream';
 import path from 'path';
 import fs from 'fs';
 import { promisify } from 'util';
-
-import stream from '../src/stream';
+import { parseSchema } from '../src';
 
 const schemaFileName = path.join(__dirname, './fanclub.json');
 
@@ -44,12 +43,10 @@ async function parseFromFile(fileName: string) {
   });
 
   const dest = new PassThrough({ objectMode: true });
+  const resultPromise = parseSchema(dest);
   const pipeline = promisify(callbackPipeline);
-  await pipeline(fileReadStream, createFileStreamLineParser(), stream(), dest);
-  let res;
-  for await (const result of dest) {
-    res = result;
-  }
+  await pipeline(fileReadStream, createFileStreamLineParser(), dest);
+  const res = await resultPromise;
 
   const dur = Date.now() - startTime;
   console.log(res);

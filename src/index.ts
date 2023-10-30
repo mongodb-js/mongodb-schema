@@ -1,9 +1,3 @@
-import type { AggregationCursor, Document, FindCursor } from 'mongodb';
-import { Readable, PassThrough } from 'stream';
-import { pipeline } from 'stream/promises';
-
-import stream from './stream';
-import type { ParseStreamOptions } from './stream';
 import { SchemaAnalyzer } from './schema-analyzer';
 import type {
   ArraySchemaType,
@@ -24,43 +18,30 @@ import type {
 } from './schema-analyzer';
 import * as schemaStats from './stats';
 
-type MongoDBCursor = AggregationCursor | FindCursor;
+type AnyIterable<T = any> = Iterable<T> | AsyncIterable<T>;
 
-function getStreamSource(
-  source: Document[] | MongoDBCursor | Readable
-): Readable {
-  let streamSource: Readable;
-  if ('stream' in source) {
-    // MongoDB Cursor.
-    streamSource = source.stream();
-  } else if ('pipe' in source) {
-    // Document stream.
-    streamSource = source;
-  } else if (Array.isArray(source)) {
-    // Array of documents.
-    streamSource = Readable.from(source);
-  } else {
+function verifyStreamSource(
+  source: AnyIterable
+): AnyIterable {
+  if (!(Symbol.iterator in source) && !(Symbol.asyncIterator in source)) {
     throw new Error(
       'Unknown input type for `docs`. Must be an array, ' +
         'stream or MongoDB Cursor.'
     );
   }
 
-  return streamSource;
+  return source;
 }
 
-async function schemaStream(
-  source: Document[] | MongoDBCursor | Readable,
-  options?: ParseStreamOptions
-) {
-  const streamSource = getStreamSource(source);
-
-  const dest = new PassThrough({ objectMode: true });
-  await pipeline(streamSource, stream(options), dest);
-  for await (const result of dest) {
-    return result;
+async function getCompletedSchemaAnalyzer(
+  source: AnyIterable,
+  options?: SchemaParseOptions
+): Promise<SchemaAnalyzer> {
+  const analyzer = new SchemaAnalyzer(options);
+  for await (const doc of verifyStreamSource(source)) {
+    analyzer.analyzeDoc(doc);
   }
-  throw new Error('unreachable'); // `dest` always emits exactly one doc.
+  return analyzer;
 }
 
 /**
@@ -68,28 +49,24 @@ async function schemaStream(
  * MongoDB cursor object to parse documents` from.
  */
 async function parseSchema(
-  source: Document[] | MongoDBCursor | Readable,
+  source: AnyIterable,
   options?: SchemaParseOptions
 ): Promise<Schema> {
-  return await schemaStream(source, options);
+  return (await getCompletedSchemaAnalyzer(source, options)).getResult();
 }
 
 // Convenience shortcut for getting schema paths.
 async function getSchemaPaths(
-  source: Document[] | MongoDBCursor | Readable
+  source: AnyIterable
 ): Promise<string[][]> {
-  return await schemaStream(source, {
-    schemaPaths: true
-  });
+  return (await getCompletedSchemaAnalyzer(source)).getSchemaPaths();
 }
 
 // Convenience shortcut for getting the simplified schema.
 async function getSimplifiedSchema(
-  source: Document[] | MongoDBCursor | Readable
+  source: AnyIterable
 ): Promise<SimplifiedSchema> {
-  return await schemaStream(source, {
-    simplifiedSchema: true
-  });
+  return (await getCompletedSchemaAnalyzer(source)).getSimplifiedSchema();
 }
 
 export default parseSchema;
@@ -113,8 +90,6 @@ export type {
 };
 
 export {
-  stream,
-  getStreamSource,
   parseSchema,
   getSchemaPaths,
   getSimplifiedSchema,

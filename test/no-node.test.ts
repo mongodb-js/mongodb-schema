@@ -20,6 +20,7 @@ function createMockModuleSystem() {
           previous = current;
           current = path.dirname(current);
           if (fs.existsSync(nodeModulesEntry)) {
+            console.log({ previous, current, nodeModulesEntry, identifier });
             return require(nodeModulesEntry);
           }
         } while (previous !== current);

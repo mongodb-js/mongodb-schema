@@ -12,7 +12,7 @@ function createMockModuleSystem() {
   // Tiny (incomplete) CommonJS module system mock
   function makeRequire(basename: string) {
     return function require(identifier: string): any {
-      if (!identifier.startsWith('./') && !identifier.startsWith('../') && !identifier.startsWith('/')) {
+      if (!identifier.startsWith('./') && !identifier.startsWith('../') && !path.isAbsolute(identifier)) {
         let current = path.dirname(basename);
         let previous: string;
         do {
@@ -20,7 +20,6 @@ function createMockModuleSystem() {
           previous = current;
           current = path.dirname(current);
           if (fs.existsSync(nodeModulesEntry)) {
-            console.log({ previous, current, nodeModulesEntry, identifier });
             return require(nodeModulesEntry);
           }
         } while (previous !== current);

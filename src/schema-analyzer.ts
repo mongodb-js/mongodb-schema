@@ -293,7 +293,12 @@ export type SimplifiedSchema = {
 
 function simplifiedSchema(fields: SchemaAnalysisFieldsMap): SimplifiedSchema {
   function finalizeSchemaFieldTypes(types: SchemaAnalysisFieldTypes): SimplifiedSchemaType[] {
-    return Object.values(types).map((type) => {
+    return Object.values(types).sort(
+      (a: SchemaAnalysisType, b: SchemaAnalysisType) => {
+        // Sort the types by what occurs most frequent first.
+        return b.count - a.count;
+      }
+    ).map((type: SchemaAnalysisType) => {
       return {
         bsonType: type.bsonType, // Note: `Object` is replaced with `Document`.
         ...(isArrayType(type) ? {

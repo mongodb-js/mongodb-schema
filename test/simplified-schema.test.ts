@@ -7,11 +7,11 @@ import { allBSONTypesDoc } from './all-bson-types-fixture';
 const docsFixture = [
   {
     foo: 1,
-    bar: 'test'
+    bar: 25
   },
   {
     foo: 2,
-    bar: 25,
+    bar: 'test',
     baz: true
   },
   {

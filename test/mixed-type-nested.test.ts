@@ -30,10 +30,11 @@ describe('mixed types nested', function() {
     {
       _id: 5,
       address: {
-        valid: true
+        valid: true,
+        toString: { value: false }
       }
     }
-  ];
+  ] as const;
 
   let schema: Schema;
   let valid: SchemaField | undefined;

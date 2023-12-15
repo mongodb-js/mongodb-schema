@@ -1,6 +1,6 @@
 
 import Reservoir from 'reservoir';
-import type {
+import {
   Document,
   ObjectId,
   MinKey,
@@ -310,7 +310,7 @@ function simplifiedSchema(fields: SchemaAnalysisFieldsMap): SimplifiedSchema {
   }
 
   function finalizeDocumentFieldSchema(fieldMap: SchemaAnalysisFieldsMap): SimplifiedSchema {
-    const fieldSchema: SimplifiedSchema = {};
+    const fieldSchema: SimplifiedSchema = Object.create(null);
     Object.values(fieldMap).forEach((field: SchemaAnalysisField) => {
       const fieldTypes = finalizeSchemaFieldTypes(field.types);
 
@@ -437,7 +437,7 @@ export class SchemaAnalyzer {
   options: SchemaParseOptions;
   documentsAnalyzed = 0;
   schemaAnalysisRoot: SchemaAnalysisRoot = {
-    fields: {},
+    fields: Object.create(null),
     count: 0
   };
 
@@ -464,7 +464,7 @@ export class SchemaAnalyzer {
       this.semanticTypes = {
         ...Object.entries(this.semanticTypes)
           .filter(([k]) => enabledTypes.includes(k.toLowerCase()))
-          .reduce((p, [k, v]) => ({ ...p, [k]: v }), {})
+          .reduce((p, [k, v]) => ({ ...p, [k]: v }), Object.create(null))
       };
 
       Object.entries(this.options.semanticTypes)
@@ -512,13 +512,13 @@ export class SchemaAnalyzer {
 
       if (isArrayType(type)) {
         // Recurse into arrays by calling `addToType` for each element.
-        type.types = type.types ?? {};
+        type.types = type.types ?? Object.create(null);
         type.lengths = type.lengths ?? [];
         type.lengths.push((value as BSONValue[]).length);
         (value as BSONValue[]).forEach((v: BSONValue) => addToType(path, v, type.types));
       } else if (isDocumentType(type)) {
         // Recurse into nested documents by calling `addToField` for all sub-fields.
-        type.fields = type.fields ?? {};
+        type.fields = type.fields ?? Object.create(null);
         Object.entries(value as Document).forEach(
           ([fieldName, v]) => addToField(fieldName, [...path, fieldName], v, type.fields)
         );
@@ -545,7 +545,7 @@ export class SchemaAnalyzer {
           name: fieldName,
           path: path,
           count: 0,
-          types: {}
+          types: Object.create(null)
         };
       }
       const field = schema[fieldName];

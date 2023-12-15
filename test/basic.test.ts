@@ -19,7 +19,8 @@ describe('using only basic fields', function() {
       last_address_longitude: null,
       created_at: new Date(),
       length: 29,
-      'name[]': 'Annabeth Frankie'
+      'name[]': 'Annabeth Frankie',
+      toString: 42
     }
   ];
 
@@ -38,7 +39,8 @@ describe('using only basic fields', function() {
       'name',
       'stats_friends',
       'twitter_username',
-      'name[]'
+      'name[]',
+      'toString'
     ];
     assert.deepEqual(users.fields.map(v => v.name).sort(), fieldNames.sort());
   });
@@ -59,5 +61,6 @@ describe('using only basic fields', function() {
     assert.equal(users.fields.find(v => v.name === 'name')?.type, 'String');
     assert.equal(users.fields.find(v => v.name === 'stats_friends')?.type, 'Number');
     assert.equal(users.fields.find(v => v.name === 'twitter_username')?.type, 'String');
+    assert.equal(users.fields.find(v => v.name === 'toString')?.type, 'Number');
   });
 });

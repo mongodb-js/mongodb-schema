@@ -17,6 +17,12 @@ import type {
   SimplifiedSchema
 } from './schema-analyzer';
 import * as schemaStats from './stats';
+import type {
+  Relationship
+} from './database-analyzer';
+import {
+  findRelationshipsForSchema
+} from './database-analyzer';
 
 type AnyIterable<T = any> = Iterable<T> | AsyncIterable<T>;
 
@@ -86,7 +92,8 @@ export type {
   SimplifiedSchemaDocumentType,
   SimplifiedSchemaType,
   SimplifiedSchemaField,
-  SimplifiedSchema
+  SimplifiedSchema,
+  Relationship
 };
 
 export {
@@ -94,5 +101,6 @@ export {
   getSchemaPaths,
   getSimplifiedSchema,
   SchemaAnalyzer,
-  schemaStats
+  schemaStats,
+  findRelationshipsForSchema
 };

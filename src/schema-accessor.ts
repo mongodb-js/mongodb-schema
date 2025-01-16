@@ -1,5 +1,5 @@
 import { Schema as InternalSchema } from './schema-analyzer';
-import { internalSchemaToExtended, internalSchemaToMongodb, internalSchemaToStandard } from './schema-convertors';
+import convertors from './schema-convertors';
 import { ExtendedJSONSchema, MongodbJSONSchema, StandardJSONSchema } from './types';
 
 export interface SchemaAccessor {
@@ -33,16 +33,16 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
 
   async getStandardJsonSchema(): Promise<StandardJSONSchema> {
     if (this.standardJSONSchema) return this.standardJSONSchema;
-    return this.standardJSONSchema = await internalSchemaToStandard(this.internalSchema, { signal: this.signal });
+    return this.standardJSONSchema = await convertors.internalSchemaToStandard(this.internalSchema, { signal: this.signal });
   }
 
   async getMongodbJsonSchema(): Promise<MongodbJSONSchema> {
     if (this.mongodbJSONSchema) return this.mongodbJSONSchema;
-    return this.mongodbJSONSchema = await internalSchemaToMongodb(this.internalSchema, { signal: this.signal });
+    return this.mongodbJSONSchema = await convertors.internalSchemaToMongodb(this.internalSchema, { signal: this.signal });
   }
 
   async getExtendedJsonSchema(): Promise<ExtendedJSONSchema> {
     if (this.extendedJSONSchema) return this.extendedJSONSchema;
-    return this.extendedJSONSchema = await internalSchemaToExtended(this.internalSchema, { signal: this.signal });
+    return this.extendedJSONSchema = await convertors.internalSchemaToExtended(this.internalSchema, { signal: this.signal });
   }
 }

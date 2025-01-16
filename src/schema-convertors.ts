@@ -1,7 +1,7 @@
 import { Schema as InternalSchema } from './schema-analyzer';
 import { ExtendedJSONSchema, MongodbJSONSchema, StandardJSONSchema } from './types';
 
-export function internalSchemaToStandard(
+function internalSchemaToStandard(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
@@ -10,7 +10,7 @@ export function internalSchemaToStandard(
   return {};
 }
 
-export function internalSchemaToMongodb(
+function internalSchemaToMongodb(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
@@ -19,7 +19,7 @@ export function internalSchemaToMongodb(
   return {} as MongodbJSONSchema;
 }
 
-export function internalSchemaToExtended(
+function internalSchemaToExtended(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
@@ -27,3 +27,9 @@ export function internalSchemaToExtended(
   // TODO: COMPASS-8702
   return {} as ExtendedJSONSchema;
 }
+
+export default {
+  internalSchemaToStandard,
+  internalSchemaToMongodb,
+  internalSchemaToExtended
+};

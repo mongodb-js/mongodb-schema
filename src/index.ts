@@ -1,3 +1,4 @@
+import { InternalSchemaBasedAccessor, SchemaAccessor } from './schema-accessor';
 import { SchemaAnalyzer } from './schema-analyzer';
 import type {
   ArraySchemaType,
@@ -6,7 +7,7 @@ import type {
   DocumentSchemaType,
   PrimitiveSchemaType,
   SchemaType,
-  Schema,
+  Schema as InternalSchema,
   SchemaField,
   SchemaParseOptions,
   SimplifiedSchemaBaseType,
@@ -17,31 +18,18 @@ import type {
   SimplifiedSchema
 } from './schema-analyzer';
 import * as schemaStats from './stats';
+import { AnyIterable, StandardJSONSchema, MongodbJSONSchema, ExtendedJSONSchema } from './types';
+import { getCompletedSchemaAnalyzer } from './utils';
 
-type AnyIterable<T = any> = Iterable<T> | AsyncIterable<T>;
-
-function verifyStreamSource(
-  source: AnyIterable
-): AnyIterable {
-  if (!(Symbol.iterator in source) && !(Symbol.asyncIterator in source)) {
-    throw new Error(
-      'Unknown input type for `docs`. Must be an array, ' +
-        'stream or MongoDB Cursor.'
-    );
-  }
-
-  return source;
-}
-
-async function getCompletedSchemaAnalyzer(
+/**
+ * Analyze documents - schema can be retrieved in different formats.
+ */
+async function analyzeDocuments(
   source: AnyIterable,
   options?: SchemaParseOptions
-): Promise<SchemaAnalyzer> {
-  const analyzer = new SchemaAnalyzer(options);
-  for await (const doc of verifyStreamSource(source)) {
-    analyzer.analyzeDoc(doc);
-  }
-  return analyzer;
+): Promise<SchemaAccessor> {
+  const internalSchema = (await getCompletedSchemaAnalyzer(source, options)).getResult();
+  return new InternalSchemaBasedAccessor(internalSchema, options?.signal);
 }
 
 /**
@@ -51,7 +39,7 @@ async function getCompletedSchemaAnalyzer(
 async function parseSchema(
   source: AnyIterable,
   options?: SchemaParseOptions
-): Promise<Schema> {
+): Promise<InternalSchema> {
   return (await getCompletedSchemaAnalyzer(source, options)).getResult();
 }
 
@@ -78,7 +66,8 @@ export type {
   DocumentSchemaType,
   PrimitiveSchemaType,
   SchemaType,
-  Schema,
+  InternalSchema as Schema,
+  InternalSchema,
   SchemaField,
   SchemaParseOptions,
   SimplifiedSchemaBaseType,
@@ -86,11 +75,15 @@ export type {
   SimplifiedSchemaDocumentType,
   SimplifiedSchemaType,
   SimplifiedSchemaField,
-  SimplifiedSchema
+  SimplifiedSchema,
+  StandardJSONSchema,
+  MongodbJSONSchema,
+  ExtendedJSONSchema
 };
 
 export {
   parseSchema,
+  analyzeDocuments,
   getSchemaPaths,
   getSimplifiedSchema,
   SchemaAnalyzer,

@@ -163,6 +163,7 @@ type SemanticTypeMap = {
 export type SchemaParseOptions = {
   semanticTypes?: boolean | SemanticTypeMap;
   storeValues?: boolean;
+  signal?: AbortSignal;
 };
 
 /**

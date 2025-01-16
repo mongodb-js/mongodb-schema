@@ -1,3 +1,4 @@
 ignores:
  - 'reservoir'
  - '@types/reservoir'
+ - 'json-schema'

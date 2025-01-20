@@ -2,11 +2,11 @@ import { type JSONSchema4 } from 'json-schema';
 
 export type StandardJSONSchema = JSONSchema4;
 
-export type MongodbJSONSchema = Pick<StandardJSONSchema, 'title' | 'required' | 'description'> & {
-  bsonType: string;
-  properties?: Record<string, MongodbJSONSchema>;
-  items?: MongodbJSONSchema[];
-  anyOf?: MongodbJSONSchema[];
+export type MongoDBJSONSchema = Pick<StandardJSONSchema, 'title' | 'required' | 'description'> & {
+  bsonType?: string | string[];
+  properties?: Record<string, MongoDBJSONSchema>;
+  items?: MongoDBJSONSchema | MongoDBJSONSchema[];
+  anyOf?: MongoDBJSONSchema[];
 }
 
 export type ExtendedJSONSchema = StandardJSONSchema & {

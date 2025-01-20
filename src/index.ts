@@ -18,7 +18,7 @@ import type {
   SimplifiedSchema
 } from './schema-analyzer';
 import * as schemaStats from './stats';
-import { AnyIterable, StandardJSONSchema, MongodbJSONSchema, ExtendedJSONSchema } from './types';
+import { AnyIterable, StandardJSONSchema, MongoDBJSONSchema, ExtendedJSONSchema } from './types';
 import { getCompletedSchemaAnalyzer } from './utils';
 
 /**
@@ -77,7 +77,7 @@ export type {
   SimplifiedSchemaField,
   SimplifiedSchema,
   StandardJSONSchema,
-  MongodbJSONSchema,
+  MongoDBJSONSchema,
   ExtendedJSONSchema
 };
 

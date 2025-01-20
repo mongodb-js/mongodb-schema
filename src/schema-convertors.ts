@@ -1,5 +1,5 @@
 import { Schema as InternalSchema } from './schema-analyzer';
-import { ExtendedJSONSchema, MongodbJSONSchema, StandardJSONSchema } from './types';
+import { ExtendedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
 function internalSchemaToStandard(
   internalSchema: InternalSchema,
@@ -10,13 +10,13 @@ function internalSchemaToStandard(
   return {};
 }
 
-function internalSchemaToMongodb(
+function internalSchemaToMongoDB(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
-}): MongodbJSONSchema {
+}): MongoDBJSONSchema {
   // TODO: COMPASS-8701
-  return {} as MongodbJSONSchema;
+  return {} as MongoDBJSONSchema;
 }
 
 function internalSchemaToExtended(
@@ -30,6 +30,6 @@ function internalSchemaToExtended(
 
 export default {
   internalSchemaToStandard,
-  internalSchemaToMongodb,
+  internalSchemaToMongoDB,
   internalSchemaToExtended
 };

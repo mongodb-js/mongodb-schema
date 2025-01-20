@@ -1,12 +1,16 @@
 import { Schema as InternalSchema } from './schema-analyzer';
 import convertors from './schema-convertors';
-import { ExtendedJSONSchema, MongodbJSONSchema, StandardJSONSchema } from './types';
+import { ExtendedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
 export interface SchemaAccessor {
   getStandardJsonSchema: () => Promise<StandardJSONSchema>;
-  getMongodbJsonSchema: () => Promise<MongodbJSONSchema>;
+  getMongoDBJsonSchema: () => Promise<MongoDBJSONSchema>;
   getExtendedJsonSchema: () => Promise<ExtendedJSONSchema>;
   getInternalSchema: () => Promise<InternalSchema>;
+}
+
+type Options = {
+  signal?: AbortSignal;
 }
 
 /**
@@ -18,31 +22,29 @@ export interface SchemaAccessor {
 export class InternalSchemaBasedAccessor implements SchemaAccessor {
   private internalSchema: InternalSchema;
   private standardJSONSchema?: StandardJSONSchema;
-  private mongodbJSONSchema?: MongodbJSONSchema;
+  private mongodbJSONSchema?: MongoDBJSONSchema;
   private extendedJSONSchema?: ExtendedJSONSchema;
-  private signal?: AbortSignal;
 
-  constructor(internalSchema: InternalSchema, signal?: AbortSignal) {
-    this.signal = signal;
+  constructor(internalSchema: InternalSchema) {
     this.internalSchema = internalSchema;
   }
 
-  async getInternalSchema(): Promise<InternalSchema> {
+  async getInternalSchema(options?: Options): Promise<InternalSchema> {
     return this.internalSchema;
   }
 
-  async getStandardJsonSchema(): Promise<StandardJSONSchema> {
+  async getStandardJsonSchema(options: Options = {}): Promise<StandardJSONSchema> {
     if (this.standardJSONSchema) return this.standardJSONSchema;
-    return this.standardJSONSchema = await convertors.internalSchemaToStandard(this.internalSchema, { signal: this.signal });
+    return this.standardJSONSchema = await convertors.internalSchemaToStandard(this.internalSchema, options);
   }
 
-  async getMongodbJsonSchema(): Promise<MongodbJSONSchema> {
+  async getMongoDBJsonSchema(options: Options = {}): Promise<MongoDBJSONSchema> {
     if (this.mongodbJSONSchema) return this.mongodbJSONSchema;
-    return this.mongodbJSONSchema = await convertors.internalSchemaToMongodb(this.internalSchema, { signal: this.signal });
+    return this.mongodbJSONSchema = await convertors.internalSchemaToMongoDB(this.internalSchema, options);
   }
 
-  async getExtendedJsonSchema(): Promise<ExtendedJSONSchema> {
+  async getExtendedJsonSchema(options: Options = {}): Promise<ExtendedJSONSchema> {
     if (this.extendedJSONSchema) return this.extendedJSONSchema;
-    return this.extendedJSONSchema = await convertors.internalSchemaToExtended(this.internalSchema, { signal: this.signal });
+    return this.extendedJSONSchema = await convertors.internalSchemaToExtended(this.internalSchema, options);
   }
 }

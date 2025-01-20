@@ -1,14 +1,14 @@
-import internalSchemaToStandard from '../internalToStandard';
+import internalSchemaToMongoDB from './internalToMongodb';
 import { Schema as InternalSchema } from '../schema-analyzer';
-import { ExtendedJSONSchema, MongoDBJSONSchema } from '../types';
+import { ExtendedJSONSchema, StandardJSONSchema } from '../types';
 
-function internalSchemaToMongoDB(
+function internalSchemaToStandard(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
-}): MongoDBJSONSchema {
-  // TODO: COMPASS-8701
-  return {} as MongoDBJSONSchema;
+}): StandardJSONSchema {
+  // TODO: COMPASS-8700
+  return {} as StandardJSONSchema;
 }
 
 function internalSchemaToExtended(

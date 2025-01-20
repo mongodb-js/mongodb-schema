@@ -1,11 +1,11 @@
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
-import { MongodbJSONSchema } from '../types';
+import { MongoDBJSONSchema } from '../types';
 
 const internalTypeToBsonType = (type: string) => type === 'Document' ? 'object' : type.toLowerCase();
 
-function parseType(type: SchemaType, signal?: AbortSignal): MongodbJSONSchema {
+function parseType(type: SchemaType, signal?: AbortSignal): MongoDBJSONSchema {
   if (signal?.aborted) throw new Error('Operation aborted');
-  const schema: MongodbJSONSchema = {
+  const schema: MongoDBJSONSchema = {
     bsonType: internalTypeToBsonType(type.bsonType)
   };
   switch (type.bsonType) {
@@ -22,7 +22,7 @@ function parseType(type: SchemaType, signal?: AbortSignal): MongodbJSONSchema {
   return schema;
 }
 
-function parseTypes(types: SchemaType[], signal?: AbortSignal): MongodbJSONSchema {
+function parseTypes(types: SchemaType[], signal?: AbortSignal): MongoDBJSONSchema {
   if (signal?.aborted) throw new Error('Operation aborted');
   const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
   const isSingleType = definedTypes.length === 1;
@@ -36,16 +36,16 @@ function parseTypes(types: SchemaType[], signal?: AbortSignal): MongodbJSONSchem
     };
   }
   return {
-    bsonType: definedTypes.map((type) => type.bsonType)
+    bsonType: definedTypes.map((type) => internalTypeToBsonType(type.bsonType))
   };
 }
 
 function parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): {
-  required: MongodbJSONSchema['required'],
-  properties: MongodbJSONSchema['properties'],
+  required: MongoDBJSONSchema['required'],
+  properties: MongoDBJSONSchema['properties'],
 } {
   const required = [];
-  const properties: MongodbJSONSchema['properties'] = {};
+  const properties: MongoDBJSONSchema['properties'] = {};
   for (const field of fields) {
     if (signal?.aborted) throw new Error('Operation aborted');
     if (field.probability === 1) required.push(field.name);
@@ -59,8 +59,8 @@ export default function internalSchemaToMongodb(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
-} = {}): MongodbJSONSchema {
-  const schema: MongodbJSONSchema = {
+} = {}): MongoDBJSONSchema {
+  const schema: MongoDBJSONSchema = {
     bsonType: 'object',
     ...parseFields(internalSchema.fields, options.signal)
   };

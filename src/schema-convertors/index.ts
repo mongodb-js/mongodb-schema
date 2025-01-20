@@ -1,4 +1,4 @@
-import internalSchemaToMongoDB from './internalToMongodb';
+import internalSchemaToMongoDB from './internalToMongoDB';
 import { Schema as InternalSchema } from '../schema-analyzer';
 import { ExtendedJSONSchema, StandardJSONSchema } from '../types';
 

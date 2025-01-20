@@ -1,5 +1,5 @@
 import { InternalSchemaBasedAccessor, SchemaAccessor } from './schema-accessor';
-import { SchemaAnalyzer } from './schema-analyzer';
+import { getCompletedSchemaAnalyzer, SchemaAnalyzer } from './schema-analyzer';
 import type {
   ArraySchemaType,
   BaseSchemaType,
@@ -19,7 +19,6 @@ import type {
 } from './schema-analyzer';
 import * as schemaStats from './stats';
 import { AnyIterable, StandardJSONSchema, MongoDBJSONSchema, ExtendedJSONSchema } from './types';
-import { getCompletedSchemaAnalyzer } from './utils';
 
 /**
  * Analyze documents - schema can be retrieved in different formats.
@@ -29,7 +28,7 @@ async function analyzeDocuments(
   options?: SchemaParseOptions
 ): Promise<SchemaAccessor> {
   const internalSchema = (await getCompletedSchemaAnalyzer(source, options)).getResult();
-  return new InternalSchemaBasedAccessor(internalSchema, options?.signal);
+  return new InternalSchemaBasedAccessor(internalSchema);
 }
 
 /**

@@ -607,7 +607,7 @@ export async function getCompletedSchemaAnalyzer(
 ): Promise<SchemaAnalyzer> {
   const analyzer = new SchemaAnalyzer(options);
   for await (const doc of verifyStreamSource(source)) {
-    if (options?.signal?.aborted) throw options.signal.aborted;
+    if (options?.signal?.aborted) throw options.signal.reason;
     analyzer.analyzeDoc(doc);
   }
   return analyzer;

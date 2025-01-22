@@ -29,7 +29,7 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
     this.internalSchema = internalSchema;
   }
 
-  async getInternalSchema(options?: Options): Promise<InternalSchema> {
+  async getInternalSchema(): Promise<InternalSchema> {
     return this.internalSchema;
   }
 

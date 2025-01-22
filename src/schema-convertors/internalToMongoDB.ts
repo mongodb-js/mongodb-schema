@@ -1,12 +1,46 @@
+import { BSONRegExp } from 'bson';
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { MongoDBJSONSchema } from '../types';
 
-const internalTypeToBsonType = (type: string) => type === 'Document' ? 'object' : type.toLowerCase();
+const InternalTypeToBsonTypeMap: Record<
+  SchemaType['name'] | 'Double' | 'BSONSymbol',
+  string
+> = {
+  Double: 'double',
+  Number: 'double',
+  String: 'string',
+  Document: 'object',
+  Array: 'array',
+  Binary: 'binData',
+  Undefined: 'undefined',
+  ObjectId: 'objectId',
+  Boolean: 'bool',
+  Date: 'date',
+  Null: 'null',
+  RegExp: 'regex',
+  BSONRegExp: 'regex',
+  DBRef: 'dbPointer',
+  BSONSymbol: 'symbol',
+  Symbol: 'symbol',
+  Code: 'javascript',
+  Int32: 'int',
+  Timestamp: 'timestamp',
+  Long: 'long',
+  Decimal128: 'decimal',
+  MinKey: 'minKey',
+  MaxKey: 'maxKey'
+};
+
+const convertInternalType = (type: string) => {
+  const bsonType = InternalTypeToBsonTypeMap[type];
+  if (!bsonType) throw new Error(`Encountered unknown type: ${type}`);
+  return bsonType;
+};
 
 function parseType(type: SchemaType, signal?: AbortSignal): MongoDBJSONSchema {
   if (signal?.aborted) throw new Error('Operation aborted');
   const schema: MongoDBJSONSchema = {
-    bsonType: internalTypeToBsonType(type.bsonType)
+    bsonType: convertInternalType(type.bsonType)
   };
   switch (type.bsonType) {
     case 'Array':
@@ -36,7 +70,7 @@ function parseTypes(types: SchemaType[], signal?: AbortSignal): MongoDBJSONSchem
     };
   }
   return {
-    bsonType: definedTypes.map((type) => internalTypeToBsonType(type.bsonType))
+    bsonType: definedTypes.map((type) => convertInternalType(type.bsonType))
   };
 }
 

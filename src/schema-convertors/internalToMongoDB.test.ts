@@ -898,82 +898,82 @@ describe('internalSchemaToStandard', function() {
         required: [],
         properties: {
           _id: {
-            bsonType: 'objectid'
+            bsonType: 'objectId'
           },
           array: {
             bsonType: 'array',
             items: {
-              bsonType: 'number'
+              bsonType: 'double'
             }
           },
           binData: {
-            bsonType: 'binary'
+            bsonType: 'binData'
           },
           binaries: {
             bsonType: 'object',
             properties: {
               binaryOld: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               compressedTimeSeries: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               custom: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               encrypted: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               functionData: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               generic: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               md5: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               uuid: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               },
               uuidOld: {
-                bsonType: 'binary'
+                bsonType: 'binData'
               }
             },
             required: []
           },
           boolean: {
-            bsonType: 'boolean'
+            bsonType: 'bool'
           },
           date: {
             bsonType: 'date'
           },
           dbRef: {
-            bsonType: 'dbref'
+            bsonType: 'dbPointer'
           },
           decimal: {
-            bsonType: 'decimal128'
+            bsonType: 'decimal'
           },
           double: {
             bsonType: 'double'
           },
           int: {
-            bsonType: 'int32'
+            bsonType: 'int'
           },
           javascript: {
-            bsonType: 'code'
+            bsonType: 'javascript'
           },
           javascriptWithScope: {
-            bsonType: 'code'
+            bsonType: 'javascript'
           },
           long: {
             bsonType: 'long'
           },
           maxKey: {
-            bsonType: 'maxkey'
+            bsonType: 'maxKey'
           },
           minKey: {
-            bsonType: 'minkey'
+            bsonType: 'minKey'
           },
           null: {
             bsonType: 'null'
@@ -988,16 +988,16 @@ describe('internalSchemaToStandard', function() {
             required: []
           },
           objectId: {
-            bsonType: 'objectid'
+            bsonType: 'objectId'
           },
           regex: {
-            bsonType: 'bsonregexp'
+            bsonType: 'regex'
           },
           string: {
             bsonType: 'string'
           },
           symbol: {
-            bsonType: 'bsonsymbol'
+            bsonType: 'symbol'
           },
           timestamp: {
             bsonType: 'timestamp'
@@ -1416,7 +1416,7 @@ describe('internalSchemaToStandard', function() {
                       values: [
                         '2'
                       ],
-                      bsonType: 'string'
+                      bsonType: 'String'
                     }
                   ],
                   totalCount: 3,
@@ -1437,7 +1437,7 @@ describe('internalSchemaToStandard', function() {
             arrayMixedType: {
               bsonType: 'array',
               items: {
-                bsonType: ['int32', 'string']
+                bsonType: ['int', 'string']
               }
             }
           }
@@ -1513,7 +1513,7 @@ describe('internalSchemaToStandard', function() {
           required: [],
           properties: {
             mixedType: {
-              bsonType: ['int32', 'string']
+              bsonType: ['int', 'string']
             }
           }
         });
@@ -1633,7 +1633,7 @@ describe('internalSchemaToStandard', function() {
                 {
                   bsonType: 'array',
                   items: {
-                    bsonType: 'int32'
+                    bsonType: 'int'
                   }
                 },
                 {

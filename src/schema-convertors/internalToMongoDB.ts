@@ -1,4 +1,3 @@
-import { BSONRegExp } from 'bson';
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { MongoDBJSONSchema } from '../types';
 

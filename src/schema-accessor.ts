@@ -1,11 +1,11 @@
 import { Schema as InternalSchema } from './schema-analyzer';
 import convertors from './schema-convertors';
-import { ExtendedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
+import { ExpandedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
 export interface SchemaAccessor {
   getStandardJsonSchema: () => Promise<StandardJSONSchema>;
   getMongoDBJsonSchema: () => Promise<MongoDBJSONSchema>;
-  getExtendedJsonSchema: () => Promise<ExtendedJSONSchema>;
+  getExpandedJSONSchema: () => Promise<ExpandedJSONSchema>;
   getInternalSchema: () => Promise<InternalSchema>;
 }
 
@@ -23,7 +23,7 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
   private internalSchema: InternalSchema;
   private standardJSONSchema?: StandardJSONSchema;
   private mongodbJSONSchema?: MongoDBJSONSchema;
-  private extendedJSONSchema?: ExtendedJSONSchema;
+  private ExpandedJSONSchema?: ExpandedJSONSchema;
 
   constructor(internalSchema: InternalSchema) {
     this.internalSchema = internalSchema;
@@ -41,7 +41,7 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
     return this.mongodbJSONSchema ??= await convertors.internalSchemaToMongoDB(this.internalSchema, options);
   }
 
-  async getExtendedJsonSchema(options: Options = {}): Promise<ExtendedJSONSchema> {
-    return this.extendedJSONSchema ??= await convertors.internalSchemaToExtended(this.internalSchema, options);
+  async getExpandedJSONSchema(options: Options = {}): Promise<ExpandedJSONSchema> {
+    return this.ExpandedJSONSchema ??= await convertors.internalSchemaToExpanded(this.internalSchema, options);
   }
 }

@@ -1,7 +1,7 @@
 import assert from 'assert';
 import internalSchemaToStandard from './internalToMongoDB';
 
-describe.only('internalSchemaToStandard', function() {
+describe('internalSchemaToStandard', function() {
   describe('Converts: ', function() {
     it('get me analyzed thing', async function() {
       const internal = {

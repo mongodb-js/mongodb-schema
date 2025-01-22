@@ -16,6 +16,7 @@
     "./src/**/*"
   ],
   "exclude": [
-    "./src/**/*.spec.*"
+    "./src/**/*.spec.*",
+    "./src/**/*.test.*"
   ]
 }

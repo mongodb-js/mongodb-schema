@@ -56,7 +56,7 @@ function parseType(type: SchemaType, signal?: AbortSignal): MongoDBJSONSchema {
 }
 
 function parseTypes(types: SchemaType[], signal?: AbortSignal): MongoDBJSONSchema {
-  if (signal?.aborted) throw new Error('Operation aborted');
+  if (signal?.aborted) throw signal.reason ?? new Error('Operation aborted');
   const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
   const isSingleType = definedTypes.length === 1;
   if (isSingleType) {

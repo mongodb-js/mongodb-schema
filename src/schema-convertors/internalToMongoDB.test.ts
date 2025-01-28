@@ -1,9 +1,9 @@
 import assert from 'assert';
-import internalSchemaToStandard from './internalToMongoDB';
+import internalSchemaToMongoDB from './internalToMongoDB';
 
-describe('internalSchemaToStandard', function() {
-  describe('Converts: ', function() {
-    it('get me analyzed thing', async function() {
+describe('internalSchemaToMongoDB', async function() {
+  describe('Converts: ', async function() {
+    it('all the types', async function() {
       const internal = {
         count: 1,
         fields: [
@@ -892,7 +892,7 @@ describe('internalSchemaToStandard', function() {
           }
         ]
       };
-      const standard = internalSchemaToStandard(internal);
+      const standard = await internalSchemaToMongoDB(internal);
       assert.deepStrictEqual(standard, {
         bsonType: 'object',
         required: [],
@@ -1006,7 +1006,7 @@ describe('internalSchemaToStandard', function() {
       });
     });
 
-    it('nested document/object', function() {
+    it('nested document/object', async function() {
       const internal = {
         count: 2,
         fields: [
@@ -1105,7 +1105,7 @@ describe('internalSchemaToStandard', function() {
           }
         ]
       };
-      const standard = internalSchemaToStandard(internal);
+      const standard = await internalSchemaToMongoDB(internal);
       assert.deepStrictEqual(standard, {
         bsonType: 'object',
         required: ['author'],
@@ -1126,8 +1126,8 @@ describe('internalSchemaToStandard', function() {
       });
     });
 
-    describe('arrays', function() {
-      it('array - single type', function() {
+    describe('arrays', async function() {
+      it('array - single type', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1190,7 +1190,7 @@ describe('internalSchemaToStandard', function() {
             }
           ]
         };
-        const standard = internalSchemaToStandard(internal);
+        const standard = await internalSchemaToMongoDB(internal);
         assert.deepStrictEqual(standard, {
           bsonType: 'object',
           required: [],
@@ -1205,7 +1205,7 @@ describe('internalSchemaToStandard', function() {
         });
       });
 
-      it('array - complex mixed type', function() {
+      it('array - complex mixed type', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1335,7 +1335,7 @@ describe('internalSchemaToStandard', function() {
             }
           ]
         };
-        const standard = internalSchemaToStandard(internal);
+        const standard = await internalSchemaToMongoDB(internal);
         assert.deepStrictEqual(standard, {
           bsonType: 'object',
           required: [],
@@ -1366,7 +1366,7 @@ describe('internalSchemaToStandard', function() {
         });
       });
 
-      it('array - simple mixed type', function() {
+      it('array - simple mixed type', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1429,7 +1429,7 @@ describe('internalSchemaToStandard', function() {
             }
           ]
         };
-        const standard = internalSchemaToStandard(internal);
+        const standard = await internalSchemaToMongoDB(internal);
         assert.deepStrictEqual(standard, {
           bsonType: 'object',
           required: ['arrayMixedType'],
@@ -1445,8 +1445,8 @@ describe('internalSchemaToStandard', function() {
       });
     });
 
-    describe('mixed types', function() {
-      it('simple mixed type', function() {
+    describe('mixed types', async function() {
+      it('simple mixed type', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1507,7 +1507,7 @@ describe('internalSchemaToStandard', function() {
             }
           ]
         };
-        const standard = internalSchemaToStandard(internal);
+        const standard = await internalSchemaToMongoDB(internal);
         assert.deepStrictEqual(standard, {
           bsonType: 'object',
           required: [],
@@ -1519,7 +1519,7 @@ describe('internalSchemaToStandard', function() {
         });
       });
 
-      it('complex mixed type', function() {
+      it('complex mixed type', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1623,7 +1623,7 @@ describe('internalSchemaToStandard', function() {
             }
           ]
         };
-        const standard = internalSchemaToStandard(internal);
+        const standard = await internalSchemaToMongoDB(internal);
         assert.deepStrictEqual(standard, {
           bsonType: 'object',
           required: [],
@@ -1649,6 +1649,119 @@ describe('internalSchemaToStandard', function() {
             }
           }
         });
+      });
+    });
+
+    it('can be aborted', async function() {
+      const internal = {
+        count: 2,
+        fields: [
+          {
+            name: 'mixedComplexType',
+            path: [
+              'mixedComplexType'
+            ],
+            count: 2,
+            type: [
+              'Array',
+              'Document',
+              'Undefined'
+            ],
+            probability: 0.6666666666666666,
+            hasDuplicates: false,
+            types: [
+              {
+                name: 'Array',
+                path: [
+                  'mixedComplexType'
+                ],
+                count: 1,
+                probability: 0.3333333333333333,
+                bsonType: 'Array',
+                types: [
+                  {
+                    name: 'Int32',
+                    path: [
+                      'mixedComplexType'
+                    ],
+                    count: 3,
+                    probability: 1,
+                    unique: 3,
+                    hasDuplicates: false,
+                    values: [
+                      1,
+                      2,
+                      3
+                    ],
+                    bsonType: 'Int32'
+                  }
+                ],
+                totalCount: 3,
+                lengths: [
+                  3
+                ],
+                averageLength: 3
+              },
+              {
+                name: 'Document',
+                path: [
+                  'mixedComplexType'
+                ],
+                count: 1,
+                probability: 0.3333333333333333,
+                bsonType: 'Document',
+                fields: [
+                  {
+                    name: 'a',
+                    path: [
+                      'mixedComplexType',
+                      'a'
+                    ],
+                    count: 1,
+                    type: 'String',
+                    probability: 1,
+                    hasDuplicates: false,
+                    types: [
+                      {
+                        name: 'String',
+                        path: [
+                          'mixedComplexType',
+                          'a'
+                        ],
+                        count: 1,
+                        probability: 1,
+                        unique: 1,
+                        hasDuplicates: false,
+                        values: [
+                          'bc'
+                        ],
+                        bsonType: 'String'
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                name: 'Undefined',
+                bsonType: 'Undefined',
+                unique: 1,
+                hasDuplicates: false,
+                path: [
+                  'mixedComplexType'
+                ],
+                count: 1,
+                probability: 0.3333333333333333
+              }
+            ]
+          }
+        ]
+      };
+      const abortController = new AbortController();
+      const promise = internalSchemaToMongoDB(internal, { signal: abortController.signal });
+      abortController.abort(new Error('Too long, didn\'t wait.'));
+      await assert.rejects(promise, {
+        name: 'Error',
+        message: 'Too long, didn\'t wait.'
       });
     });
   });

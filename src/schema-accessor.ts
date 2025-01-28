@@ -1,5 +1,5 @@
 import { Schema as InternalSchema } from './schema-analyzer';
-import convertors from './schema-convertors';
+import { convertors } from './schema-convertors';
 import { ExpandedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
 export interface SchemaAccessor {

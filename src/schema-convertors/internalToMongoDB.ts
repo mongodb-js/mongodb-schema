@@ -36,18 +36,27 @@ const convertInternalType = (type: string) => {
   return bsonType;
 };
 
-function parseType(type: SchemaType, signal?: AbortSignal): MongoDBJSONSchema {
-  if (signal?.aborted) throw new Error('Operation aborted');
+async function allowAbort(signal?: AbortSignal) {
+  return new Promise<void>((resolve, reject) =>
+    setTimeout(() => {
+      if (signal?.aborted) return reject(signal?.reason || new Error('Operation aborted'));
+      resolve();
+    })
+  );
+}
+
+async function parseType(type: SchemaType, signal?: AbortSignal): Promise<MongoDBJSONSchema> {
+  await allowAbort(signal);
   const schema: MongoDBJSONSchema = {
     bsonType: convertInternalType(type.bsonType)
   };
   switch (type.bsonType) {
     case 'Array':
-      schema.items = parseTypes((type as ArraySchemaType).types);
+      schema.items = await parseTypes((type as ArraySchemaType).types);
       break;
     case 'Document':
       Object.assign(schema,
-        parseFields((type as DocumentSchemaType).fields, signal)
+        await parseFields((type as DocumentSchemaType).fields, signal)
       );
       break;
   }
@@ -55,14 +64,14 @@ function parseType(type: SchemaType, signal?: AbortSignal): MongoDBJSONSchema {
   return schema;
 }
 
-function parseTypes(types: SchemaType[], signal?: AbortSignal): MongoDBJSONSchema {
-  if (signal?.aborted) throw signal.reason ?? new Error('Operation aborted');
+async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<MongoDBJSONSchema> {
+  await allowAbort(signal);
   const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
   const isSingleType = definedTypes.length === 1;
   if (isSingleType) {
     return parseType(definedTypes[0], signal);
   }
-  const parsedTypes = definedTypes.map(type => parseType(type, signal));
+  const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
   if (definedTypes.some(type => ['Document', 'Array'].includes(type.bsonType))) {
     return {
       anyOf: parsedTypes
@@ -73,29 +82,30 @@ function parseTypes(types: SchemaType[], signal?: AbortSignal): MongoDBJSONSchem
   };
 }
 
-function parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): {
+async function parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): Promise<{
   required: MongoDBJSONSchema['required'],
   properties: MongoDBJSONSchema['properties'],
-} {
+}> {
   const required = [];
   const properties: MongoDBJSONSchema['properties'] = {};
   for (const field of fields) {
-    if (signal?.aborted) throw new Error('Operation aborted');
     if (field.probability === 1) required.push(field.name);
-    properties[field.name] = parseTypes(field.types, signal);
+    properties[field.name] = await parseTypes(field.types, signal);
   }
 
   return { required, properties };
 }
 
-export default function internalSchemaToMongodb(
+export default async function internalSchemaToMongodb(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
-} = {}): MongoDBJSONSchema {
+} = {}): Promise<MongoDBJSONSchema> {
+  const { required, properties } = await parseFields(internalSchema.fields, options.signal);
   const schema: MongoDBJSONSchema = {
     bsonType: 'object',
-    ...parseFields(internalSchema.fields, options.signal)
+    required,
+    properties
   };
   return schema;
 }

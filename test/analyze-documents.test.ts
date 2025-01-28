@@ -1,5 +1,5 @@
 import { analyzeDocuments } from '../src';
-import convertors from '../src/schema-convertors';
+import { convertors } from '../src/schema-convertors';
 import sinon from 'sinon';
 import assert from 'assert';
 

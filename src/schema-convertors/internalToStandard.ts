@@ -6,7 +6,7 @@ export default function internalSchemaToStandard(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal
-}): StandardJSONSchema {
+}): Promise<StandardJSONSchema> {
   // TODO: COMPASS-8700
-  return {} as StandardJSONSchema;
+  return Promise.resolve({} as StandardJSONSchema);
 }

@@ -1,5 +1,5 @@
 import { analyzeDocuments } from '../src';
-import convertors from '../src/schema-convertors';
+import { convertors } from '../src/schema-convertors';
 import sinon from 'sinon';
 import assert from 'assert';
 
@@ -15,11 +15,11 @@ describe('analyzeDocuments', function() {
   });
 
   it('Only converts the same format once', async function() {
-    const convertSpy = sinon.spy(convertors, 'internalSchemaToExtended');
+    const convertSpy = sinon.spy(convertors, 'internalSchemaToExpanded');
     const analyzeResults = await analyzeDocuments(docs);
-    await analyzeResults.getExtendedJsonSchema();
-    await analyzeResults.getExtendedJsonSchema();
-    await analyzeResults.getExtendedJsonSchema();
+    await analyzeResults.getExpandedJSONSchema();
+    await analyzeResults.getExpandedJSONSchema();
+    await analyzeResults.getExpandedJSONSchema();
     assert.strictEqual(convertSpy.calledOnce, true);
   });
 });

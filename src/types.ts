@@ -9,7 +9,7 @@ export type MongoDBJSONSchema = Pick<StandardJSONSchema, 'title' | 'required' | 
   anyOf?: MongoDBJSONSchema[];
 }
 
-export type ExtendedJSONSchema = StandardJSONSchema & {
+export type ExpandedJSONSchema = StandardJSONSchema & {
   ['x-bsonType']: string;
   ['x-metadata']: {
     hasDuplicates: boolean;

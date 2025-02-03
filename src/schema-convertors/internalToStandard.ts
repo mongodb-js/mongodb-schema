@@ -241,7 +241,7 @@ export const RELAXED_EJSON_DEFINITIONS = Object.freeze({
 });
 
 const convertInternalType = (internalType: string) => {
-  const type = InternalTypeToStandardTypeMap[internalType];
+  const type = { ...InternalTypeToStandardTypeMap[internalType] };
   if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
   return type;
 };
@@ -272,8 +272,8 @@ async function parseType(type: SchemaType, signal?: AbortSignal): Promise<Standa
   return schema;
 }
 
-function isSimpleTypesOnly(types: StandardTypeDefinition[]): types is { type: JSONSchema4TypeName }[] {
-  return types.every(definition => !definition.$ref);
+function isSimpleTypesOnly(types: StandardJSONSchema[]): types is { type: JSONSchema4TypeName }[] {
+  return types.every(definition => !!definition.type && Object.keys(definition).length === 1);
 }
 
 async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<StandardJSONSchema> {
@@ -284,19 +284,13 @@ async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<St
     return parseType(definedTypes[0], signal);
   }
   const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
-  if (definedTypes.some(type => ['Document', 'Array'].includes(type.bsonType))) {
+  if (isSimpleTypesOnly(parsedTypes)) {
     return {
-      anyOf: parsedTypes
-    };
-  }
-  const convertedTypes = definedTypes.map((type) => convertInternalType(type.bsonType));
-  if (isSimpleTypesOnly(convertedTypes)) {
-    return {
-      type: convertedTypes.map(({ type }) => type)
+      type: parsedTypes.map(({ type }) => type)
     };
   }
   return {
-    anyOf: convertedTypes
+    anyOf: parsedTypes
   };
 }
 

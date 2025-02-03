@@ -64,6 +64,10 @@ async function parseType(type: SchemaType, signal?: AbortSignal): Promise<MongoD
   return schema;
 }
 
+function isSimpleTypesOnly(types: MongoDBJSONSchema[]): types is { bsonType: string }[] {
+  return types.every(definition => !!definition.bsonType && Object.keys(definition).length === 1);
+}
+
 async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<MongoDBJSONSchema> {
   await allowAbort(signal);
   const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
@@ -72,13 +76,13 @@ async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<Mo
     return parseType(definedTypes[0], signal);
   }
   const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
-  if (definedTypes.some(type => ['Document', 'Array'].includes(type.bsonType))) {
+  if (isSimpleTypesOnly(parsedTypes)) {
     return {
-      anyOf: parsedTypes
+      bsonType: parsedTypes.map(({ bsonType }) => bsonType)
     };
   }
   return {
-    bsonType: definedTypes.map((type) => convertInternalType(type.bsonType))
+    anyOf: parsedTypes
   };
 }
 

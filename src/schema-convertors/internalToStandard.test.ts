@@ -3,7 +3,7 @@ import internalSchemaToStandard, { RELAXED_EJSON_DEFINITIONS } from './internalT
 
 describe('internalSchemaToStandard', async function() {
   describe('Converts: ', async function() {
-    it.only('all the types', async function() {
+    it('all the types', async function() {
       const internal = {
         count: 1,
         fields: [
@@ -893,7 +893,6 @@ describe('internalSchemaToStandard', async function() {
         ]
       };
       const standard = await internalSchemaToStandard(internal);
-      console.log(JSON.stringify(standard));
       assert.deepStrictEqual(standard, {
         type: 'object',
         required: [],
@@ -986,7 +985,8 @@ describe('internalSchemaToStandard', async function() {
               key: {
                 type: 'string'
               }
-            }
+            },
+            required: []
           },
           objectId: {
             $ref: '#/$defs/ObjectId'
@@ -1525,7 +1525,7 @@ describe('internalSchemaToStandard', async function() {
         });
       });
 
-      it('complex mixed type', async function() {
+      it('complex mixed type (with array and object)', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1653,6 +1653,72 @@ describe('internalSchemaToStandard', async function() {
                   }
                 }
               ]
+            }
+          }
+        });
+      });
+
+      it('complex mixed type (with $refs)', async function() {
+        const internal = {
+          count: 2,
+          fields: [
+            {
+              name: 'mixedType',
+              path: [
+                'mixedType'
+              ],
+              count: 2,
+              type: [
+                'String',
+                'ObjectId'
+              ],
+              probability: 1,
+              hasDuplicates: false,
+              types: [
+                {
+                  name: 'String',
+                  path: [
+                    'mixedType'
+                  ],
+                  count: 1,
+                  probability: 0.3333333333333333,
+                  unique: 1,
+                  hasDuplicates: false,
+                  values: [
+                    'abc'
+                  ],
+                  bsonType: 'String'
+                },
+                {
+                  name: 'ObjectId',
+                  path: [
+                    'objectId'
+                  ],
+                  count: 1,
+                  probability: 0.8,
+                  unique: 1,
+                  hasDuplicates: false,
+                  values: [
+                    '642d766c7300158b1f22e975'
+                  ],
+                  bsonType: 'ObjectId'
+                }
+              ]
+            }
+          ]
+        };
+        const standard = await internalSchemaToStandard(internal);
+        assert.deepStrictEqual(standard, {
+          type: 'object',
+          required: ['mixedType'],
+          $defs: RELAXED_EJSON_DEFINITIONS,
+          properties: {
+            mixedType: {
+              anyOf: [{
+                type: 'string'
+              }, {
+                $ref: '#/$defs/ObjectId'
+              }]
             }
           }
         });

@@ -1,21 +1,23 @@
+import { JSONSchema4TypeName } from 'json-schema';
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { StandardJSONSchema } from '../types';
 
+type StandardTypeDefinition = { type: JSONSchema4TypeName, $ref?: never; } | { $ref: string, type?: never };
+
 const InternalTypeToStandardTypeMap: Record<
-  SchemaType['name'] | 'Double' | 'BSONSymbol',
-  string | { $ref: string }
+  SchemaType['name'] | 'Double' | 'BSONSymbol', StandardTypeDefinition
 > = {
   Double: { $ref: '#/$defs/Double' },
   Number: { $ref: '#/$defs/Double' },
-  String: 'string',
-  Document: 'object',
-  Array: 'array',
+  String: { type: 'string' },
+  Document: { type: 'object' },
+  Array: { type: 'array' },
   Binary: { $ref: '#/$defs/Binary' },
   Undefined: { $ref: '#/$defs/Undefined' },
   ObjectId: { $ref: '#/$defs/ObjectId' },
-  Boolean: 'boolean',
+  Boolean: { type: 'boolean' },
   Date: { $ref: '#/$defs/Date' },
-  Null: 'null',
+  Null: { type: 'null' },
   RegExp: { $ref: '#/$defs/RegExp' },
   BSONRegExp: { $ref: '#/$defs/RegExp' },
   DBRef: { $ref: '#/$defs/DBRef' },
@@ -23,15 +25,15 @@ const InternalTypeToStandardTypeMap: Record<
   BSONSymbol: { $ref: '#/$defs/BSONSymbol' },
   Symbol: { $ref: '#/$defs/BSONSymbol' },
   Code: { $ref: '#/$defs/Code' },
-  Int32: 'integer',
+  Int32: { type: 'integer' },
   Timestamp: { $ref: '#/$defs/Timestamp' },
-  Long: 'integer',
+  Long: { type: 'integer' },
   Decimal128: { $ref: '#/$defs/Decimal' },
   MinKey: { $ref: '#/$defs/MinKey' },
   MaxKey: { $ref: '#/$defs/MaxKey' }
 };
 
-const RELAXED_EJSON_DEFINITIONS = Object.freeze({
+export const RELAXED_EJSON_DEFINITIONS = Object.freeze({
   ObjectId: {
     type: 'object',
     properties: {
@@ -238,10 +240,10 @@ const RELAXED_EJSON_DEFINITIONS = Object.freeze({
   }
 });
 
-const convertInternalType = (type: string) => {
-  const bsonType = InternalTypeToStandardTypeMap[type];
-  if (!bsonType) throw new Error(`Encountered unknown type: ${type}`);
-  return bsonType;
+const convertInternalType = (internalType: string) => {
+  const type = InternalTypeToStandardTypeMap[internalType];
+  if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
+  return type;
 };
 
 async function allowAbort(signal?: AbortSignal) {
@@ -255,9 +257,7 @@ async function allowAbort(signal?: AbortSignal) {
 
 async function parseType(type: SchemaType, signal?: AbortSignal): Promise<StandardJSONSchema> {
   await allowAbort(signal);
-  const schema: StandardJSONSchema = {
-    bsonType: convertInternalType(type.bsonType)
-  };
+  const schema: StandardJSONSchema = convertInternalType(type.bsonType);
   switch (type.bsonType) {
     case 'Array':
       schema.items = await parseTypes((type as ArraySchemaType).types);
@@ -270,6 +270,10 @@ async function parseType(type: SchemaType, signal?: AbortSignal): Promise<Standa
   }
 
   return schema;
+}
+
+function isSimpleTypesOnly(types: StandardTypeDefinition[]): types is { type: JSONSchema4TypeName }[] {
+  return types.every(definition => !definition.$ref);
 }
 
 async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<StandardJSONSchema> {
@@ -285,8 +289,14 @@ async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<St
       anyOf: parsedTypes
     };
   }
+  const convertedTypes = definedTypes.map((type) => convertInternalType(type.bsonType));
+  if (isSimpleTypesOnly(convertedTypes)) {
+    return {
+      type: convertedTypes.map(({ type }) => type)
+    };
+  }
   return {
-    bsonType: definedTypes.map((type) => convertInternalType(type.bsonType))
+    anyOf: convertedTypes
   };
 }
 
@@ -311,7 +321,7 @@ export default async function internalSchemaToMongodb(
 } = {}): Promise<StandardJSONSchema> {
   const { required, properties } = await parseFields(internalSchema.fields, options.signal);
   const schema: StandardJSONSchema = {
-    bsonType: 'object',
+    type: 'object',
     required,
     properties,
     $defs: RELAXED_EJSON_DEFINITIONS

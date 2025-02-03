@@ -111,7 +111,7 @@ export const RELAXED_EJSON_DEFINITIONS = Object.freeze({
         type: 'string'
       },
       $scope: {
-        type: 'object' // TODO: object is ejson object hmm
+        type: 'object'
       }
     },
     required: ['$code', '$scope'],

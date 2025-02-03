@@ -272,7 +272,7 @@ async function parseType(type: SchemaType, signal?: AbortSignal): Promise<Standa
   return schema;
 }
 
-function isSimpleTypesOnly(types: StandardJSONSchema[]): types is { type: JSONSchema4TypeName }[] {
+function isPlainTypesOnly(types: StandardJSONSchema[]): types is { type: JSONSchema4TypeName }[] {
   return types.every(definition => !!definition.type && Object.keys(definition).length === 1);
 }
 
@@ -284,7 +284,7 @@ async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<St
     return parseType(definedTypes[0], signal);
   }
   const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
-  if (isSimpleTypesOnly(parsedTypes)) {
+  if (isPlainTypesOnly(parsedTypes)) {
     return {
       type: parsedTypes.map(({ type }) => type)
     };

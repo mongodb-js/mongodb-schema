@@ -64,7 +64,7 @@ async function parseType(type: SchemaType, signal?: AbortSignal): Promise<MongoD
   return schema;
 }
 
-function isSimpleTypesOnly(types: MongoDBJSONSchema[]): types is { bsonType: string }[] {
+function isPlainTypesOnly(types: MongoDBJSONSchema[]): types is { bsonType: string }[] {
   return types.every(definition => !!definition.bsonType && Object.keys(definition).length === 1);
 }
 
@@ -76,7 +76,7 @@ async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<Mo
     return parseType(definedTypes[0], signal);
   }
   const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
-  if (isSimpleTypesOnly(parsedTypes)) {
+  if (isPlainTypesOnly(parsedTypes)) {
     return {
       bsonType: parsedTypes.map(({ bsonType }) => bsonType)
     };

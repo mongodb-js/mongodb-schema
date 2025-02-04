@@ -4,7 +4,7 @@ import { StandardJSONSchema } from '../types';
 
 type StandardTypeDefinition = { type: JSONSchema4TypeName, $ref?: never; } | { $ref: string, type?: never };
 
-const InternalTypeToStandardTypeMap: Record<
+export const InternalTypeToStandardTypeMap: Record<
   SchemaType['name'] | 'Double' | 'BSONSymbol', StandardTypeDefinition
 > = {
   Double: { $ref: '#/$defs/Double' },
@@ -315,6 +315,7 @@ export default async function internalSchemaToStandard(
 } = {}): Promise<StandardJSONSchema> {
   const { required, properties } = await parseFields(internalSchema.fields, options.signal);
   const schema: StandardJSONSchema = {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
     type: 'object',
     required,
     properties,

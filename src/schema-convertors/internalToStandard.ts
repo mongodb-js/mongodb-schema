@@ -1,6 +1,7 @@
 import { JSONSchema4TypeName } from 'json-schema';
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { StandardJSONSchema } from '../types';
+import { allowAbort } from './util';
 
 type StandardTypeDefinition = { type: JSONSchema4TypeName, $ref?: never; } | { $ref: string, type?: never };
 
@@ -245,15 +246,6 @@ const convertInternalType = (internalType: string) => {
   if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
   return type;
 };
-
-async function allowAbort(signal?: AbortSignal) {
-  return new Promise<void>((resolve, reject) =>
-    setTimeout(() => {
-      if (signal?.aborted) return reject(signal?.reason || new Error('Operation aborted'));
-      resolve();
-    })
-  );
-}
 
 async function parseType(type: SchemaType, signal?: AbortSignal): Promise<StandardJSONSchema> {
   await allowAbort(signal);

@@ -33,14 +33,24 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
     return this.internalSchema;
   }
 
+  /**
+   * Get standard JSON Schema - as per
+   * https://json-schema.org/draft/2020-12/schema
+   */
   async getStandardJsonSchema(options: Options = {}): Promise<StandardJSONSchema> {
     return this.standardJSONSchema ??= await convertors.internalSchemaToStandard(this.internalSchema, options);
   }
 
+  /**
+   * Get MongoDB's $jsonSchema
+   */
   async getMongoDBJsonSchema(options: Options = {}): Promise<MongoDBJSONSchema> {
     return this.mongodbJSONSchema ??= await convertors.internalSchemaToMongoDB(this.internalSchema, options);
   }
 
+  /**
+   * Get expanded JSON Schema - with additional properties
+   */
   async getExpandedJSONSchema(options: Options = {}): Promise<ExpandedJSONSchema> {
     return this.ExpandedJSONSchema ??= await convertors.internalSchemaToExpanded(this.internalSchema, options);
   }

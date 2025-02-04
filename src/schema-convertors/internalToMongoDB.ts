@@ -1,7 +1,11 @@
+/**
+ * Transforms the internal schema to $jsonSchema
+ */
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { MongoDBJSONSchema } from '../types';
+import { allowAbort } from './util';
 
-const InternalTypeToBsonTypeMap: Record<
+export const InternalTypeToBsonTypeMap: Record<
   SchemaType['name'] | 'Double' | 'BSONSymbol',
   string
 > = {
@@ -35,15 +39,6 @@ const convertInternalType = (type: string) => {
   if (!bsonType) throw new Error(`Encountered unknown type: ${type}`);
   return bsonType;
 };
-
-async function allowAbort(signal?: AbortSignal) {
-  return new Promise<void>((resolve, reject) =>
-    setTimeout(() => {
-      if (signal?.aborted) return reject(signal?.reason || new Error('Operation aborted'));
-      resolve();
-    })
-  );
-}
 
 async function parseType(type: SchemaType, signal?: AbortSignal): Promise<MongoDBJSONSchema> {
   await allowAbort(signal);

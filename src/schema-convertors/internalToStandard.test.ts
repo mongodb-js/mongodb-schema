@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Ajv2020 from 'ajv';
+import Ajv2020 from 'ajv/dist/2020';
 import internalSchemaToStandard, { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 
 describe('internalSchemaToStandard', async function() {

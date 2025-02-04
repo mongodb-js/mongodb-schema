@@ -10,13 +10,16 @@ export type MongoDBJSONSchema = Pick<StandardJSONSchema, 'title' | 'required' | 
 }
 
 export type ExpandedJSONSchema = StandardJSONSchema & {
-  ['x-bsonType']: string;
-  ['x-metadata']: {
-    hasDuplicates: boolean;
+  ['x-bsonType']?: string | string[];
+  ['x-metadata']?: {
+    hasDuplicates?: boolean;
     probability: number;
     count: number;
   };
-  ['x-sampleValues']: any[];
+  ['x-sampleValues']?: any[];
+  properties?: Record<string, ExpandedJSONSchema>;
+  items?: ExpandedJSONSchema | ExpandedJSONSchema[];
+  anyOf?: ExpandedJSONSchema[];
 }
 
 export type AnyIterable<T = any> = Iterable<T> | AsyncIterable<T>;

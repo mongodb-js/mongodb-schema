@@ -1,5 +1,4 @@
-import { JSONSchema4TypeName } from 'json-schema';
-import { BaseSchemaType, ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType, SchemaField } from '../schema-analyzer';
+import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType, SchemaField } from '../schema-analyzer';
 import { type ExpandedJSONSchema } from '../types';
 import { InternalTypeToStandardTypeMap, RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 import { InternalTypeToBsonTypeMap } from './internalToMongoDB';

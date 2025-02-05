@@ -4,7 +4,7 @@ import { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 
 describe('internalSchemaToExpanded', async function() {
   describe('Converts: ', async function() {
-    it.only('various types', async function() {
+    it('various types', async function() {
       const internal = {
         count: 1,
         fields: [

@@ -27,7 +27,7 @@ const bsonDocuments = [{
   }
 }];
 
-describe.only('Documents -> Generate schema -> Validate Documents against the schema', function() {
+describe('Documents -> Generate schema -> Validate Documents against the schema', function() {
   it('Standard JSON Schema with Relaxed EJSON', async function() {
     const ajv = new Ajv2020();
     // First we get the JSON schema from BSON

@@ -1,13 +1,12 @@
 import { analyzeDocuments } from '../../src';
 import Ajv2020 from 'ajv/dist/2020';
 import assert from 'assert';
+import { ObjectId, Int32, Double, EJSON } from 'bson';
 
-const documents = [{
-  _id: {
-    $oid: '67863e82fb817085a6b0ebad'
-  },
+const bsonDocuments = [{
+  _id: new ObjectId('67863e82fb817085a6b0ebad'),
   title: 'My book',
-  year: 1983,
+  year: new Int32(1983),
   genres: [
     'crimi',
     'comedy',
@@ -16,30 +15,32 @@ const documents = [{
       long: 'science fiction'
     }
   ],
-  number: {
-    $numberDouble: 'Infinity'
-  }
+  number: Double.fromString('Infinity')
 },
 {
-  _id: {
-    $oid: '67863eacfb817085a6b0ebae'
-  },
+  _id: new ObjectId('67863eacfb817085a6b0ebae'),
   title: 'Other book',
-  year: 1999,
+  year: new Int32('1999'),
   author: {
     name: 'Peter Sonder',
-    rating: 1.3
+    rating: new Double(1.3)
   }
 }];
 
-describe('Documents -> Generate schema -> Validate Documents against the schema', function() {
+describe.only('Documents -> Generate schema -> Validate Documents against the schema', function() {
   it('Standard JSON Schema with Relaxed EJSON', async function() {
     const ajv = new Ajv2020();
-    const analyzedDocuments = await analyzeDocuments(documents);
+    // First we get the schema
+    const analyzedDocuments = await analyzeDocuments(bsonDocuments);
     const schema = await analyzedDocuments.getStandardJsonSchema();
     const validate = ajv.compile(schema);
-    for (const doc of documents) {
-      assert.strictEqual(validate(doc), true);
+    for (const doc of bsonDocuments) {
+      // Then we get EJSON documents
+      const relaxedEJSONDoc = EJSON.serialize(doc, { relaxed: true });
+      // Which we validate against the schema
+      const valid = validate(relaxedEJSONDoc);
+      if (validate.errors) console.error('Validation failed', validate.errors);
+      assert.strictEqual(valid, true);
     }
   });
 });

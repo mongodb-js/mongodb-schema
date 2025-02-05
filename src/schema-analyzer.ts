@@ -346,6 +346,7 @@ function getCappedValue(bsonType: SchemaBSONType, value: BSONValue) {
       ? new Code(cropString(value.code, 10000), value.scope)
       : value;
   }
+  return value;
 }
 
 function computeHasDuplicatesForType(type: SchemaAnalysisType, unique?: number) {

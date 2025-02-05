@@ -60,7 +60,12 @@ export const RELAXED_EJSON_DEFINITIONS = Object.freeze({
     oneOf: [
       { type: 'number' },
       {
-        enum: ['Infinity', '-Infinity', 'NaN']
+        type: 'object',
+        properties: {
+          $numberDouble: {
+            enum: ['Infinity', '-Infinity', 'NaN']
+          }
+        }
       }
     ]
   },

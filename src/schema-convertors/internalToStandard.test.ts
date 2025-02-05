@@ -958,7 +958,7 @@ describe('internalSchemaToStandard', async function() {
             $ref: '#/$defs/DBRef'
           },
           decimal: {
-            $ref: '#/$defs/Decimal'
+            $ref: '#/$defs/Decimal128'
           },
           double: {
             $ref: '#/$defs/Double'

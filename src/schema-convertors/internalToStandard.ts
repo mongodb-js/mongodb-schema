@@ -24,12 +24,12 @@ export const InternalTypeToStandardTypeMap: Record<
   DBRef: { $ref: '#/$defs/DBRef' },
   DBPointer: { $ref: '#/$defs/DBPointer' },
   BSONSymbol: { $ref: '#/$defs/BSONSymbol' },
-  Symbol: { $ref: '#/$defs/BSONSymbol' },
   Code: { $ref: '#/$defs/Code' },
+  CodeWScope: { $ref: '#/$defs/Code' },
   Int32: { type: 'integer' },
   Timestamp: { $ref: '#/$defs/Timestamp' },
   Long: { type: 'integer' },
-  Decimal128: { $ref: '#/$defs/Decimal' },
+  Decimal128: { $ref: '#/$defs/Decimal128' },
   MinKey: { $ref: '#/$defs/MinKey' },
   MaxKey: { $ref: '#/$defs/MaxKey' }
 };
@@ -176,7 +176,7 @@ export const RELAXED_EJSON_DEFINITIONS = Object.freeze({
             type: 'string'
           },
           $id: {
-            $ref: '#/$defs/Decimal'
+            $ref: '#/$defs/ObjectId'
           }
         },
         required: ['$ref', '$id'],

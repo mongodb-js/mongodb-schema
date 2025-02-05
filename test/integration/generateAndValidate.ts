@@ -30,14 +30,14 @@ const bsonDocuments = [{
 describe.only('Documents -> Generate schema -> Validate Documents against the schema', function() {
   it('Standard JSON Schema with Relaxed EJSON', async function() {
     const ajv = new Ajv2020();
-    // First we get the schema
+    // First we get the JSON schema from BSON
     const analyzedDocuments = await analyzeDocuments(bsonDocuments);
     const schema = await analyzedDocuments.getStandardJsonSchema();
     const validate = ajv.compile(schema);
     for (const doc of bsonDocuments) {
-      // Then we get EJSON documents
+      // Then we get EJSON
       const relaxedEJSONDoc = EJSON.serialize(doc, { relaxed: true });
-      // Which we validate against the schema
+      // And validate it agains the JSON Schema
       const valid = validate(relaxedEJSONDoc);
       if (validate.errors) console.error('Validation failed', validate.errors);
       assert.strictEqual(valid, true);

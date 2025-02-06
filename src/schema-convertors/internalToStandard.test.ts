@@ -576,12 +576,12 @@ describe('internalSchemaToStandard', async function() {
               'javascriptWithScope'
             ],
             count: 1,
-            type: 'Code',
+            type: 'CodeWScope',
             probability: 0.8,
             hasDuplicates: false,
             types: [
               {
-                name: 'Code',
+                name: 'CodeWScope',
                 path: [
                   'javascriptWithScope'
                 ],
@@ -598,7 +598,7 @@ describe('internalSchemaToStandard', async function() {
                     }
                   }
                 ],
-                bsonType: 'Code'
+                bsonType: 'CodeWScope'
               }
             ]
           },
@@ -970,7 +970,7 @@ describe('internalSchemaToStandard', async function() {
             $ref: '#/$defs/Code'
           },
           javascriptWithScope: {
-            $ref: '#/$defs/Code'
+            $ref: '#/$defs/CodeWScope'
           },
           long: {
             type: 'integer'

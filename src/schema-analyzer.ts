@@ -24,6 +24,7 @@ type TypeCastMap = {
   Binary: Binary;
   Boolean: boolean;
   Code: Code;
+  CodeWScope: Code;
   Date: Date;
   Decimal128: Decimal128;
   Double: Double;
@@ -214,6 +215,9 @@ function getBSONType(value: any): SchemaBSONType {
   if (bsonType === 'Object') {
     // In the resulting schema we rename `Object` to `Document`.
     return 'Document';
+  }
+  if (bsonType === 'Code' && (value as Code).scope) {
+    return 'CodeWScope';
   }
   return bsonType;
 }

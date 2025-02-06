@@ -573,12 +573,12 @@ describe('internalSchemaToMongoDB', async function() {
               'javascriptWithScope'
             ],
             count: 1,
-            type: 'Code',
+            type: 'CodeWScope',
             probability: 0.8,
             hasDuplicates: false,
             types: [
               {
-                name: 'Code',
+                name: 'CodeWScope',
                 path: [
                   'javascriptWithScope'
                 ],
@@ -595,7 +595,7 @@ describe('internalSchemaToMongoDB', async function() {
                     }
                   }
                 ],
-                bsonType: 'Code'
+                bsonType: 'CodeWScope'
               }
             ]
           },
@@ -964,7 +964,7 @@ describe('internalSchemaToMongoDB', async function() {
             bsonType: 'javascript'
           },
           javascriptWithScope: {
-            bsonType: 'javascript'
+            bsonType: 'javascriptWithScope'
           },
           long: {
             bsonType: 'long'

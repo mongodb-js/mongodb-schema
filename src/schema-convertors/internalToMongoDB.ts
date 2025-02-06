@@ -26,6 +26,7 @@ export const InternalTypeToBsonTypeMap: Record<
   BSONSymbol: 'symbol',
   Symbol: 'symbol',
   Code: 'javascript',
+  CodeWScope: 'javascriptWithScope',
   Int32: 'int',
   Timestamp: 'timestamp',
   Long: 'long',

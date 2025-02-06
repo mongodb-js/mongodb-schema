@@ -18,6 +18,7 @@ describe('using a document with all bson types', function() {
       'Binary',
       'Boolean',
       'Code',
+      'CodeWScope',
       'Date',
       'Decimal128',
       'Double',

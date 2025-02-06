@@ -544,7 +544,7 @@ export class SchemaAnalyzer {
       } else if (this.options.storeValues && !isNullType(type)) {
         // When the `storeValues` option is enabled, store some example values.
         if (!type.values) {
-          type.values = bsonType === 'String'
+          type.values = ['String', 'Binary', 'Code'].includes(bsonType)
             ? Reservoir(100) : Reservoir(10000);
         }
 

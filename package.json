@@ -21,7 +21,8 @@
   "main": "lib/index.js",
   "exports": {
     "require": "./lib/index.js",
-    "import": "./.esm-wrapper.mjs"
+    "import": "./.esm-wrapper.mjs",
+    "types": "./lib/index.d.ts"
   },
   "types": "./lib/index.d.ts",
   "files": [
@@ -39,7 +40,7 @@
     "test-time": "ts-node ./test/time-testing.ts",
     "build": "npm run compile-ts && gen-esm-wrapper . ./.esm-wrapper.mjs",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prepack": "npm run build",
+    "prepare": "npm run build",
     "compile-ts": "tsc -p tsconfig.json",
     "lint": "eslint \"{src,test,examples,bin}/**/*.ts\"",
     "depcheck": "depcheck",

@@ -25,7 +25,7 @@ export const InternalTypeToStandardTypeMap: Record<
   DBPointer: { $ref: '#/$defs/DBPointer' },
   BSONSymbol: { $ref: '#/$defs/BSONSymbol' },
   Code: { $ref: '#/$defs/Code' },
-  CodeWScope: { $ref: '#/$defs/Code' },
+  CodeWScope: { $ref: '#/$defs/CodeWScope' },
   Int32: { type: 'integer' },
   Timestamp: { $ref: '#/$defs/Timestamp' },
   Long: { type: 'integer' },

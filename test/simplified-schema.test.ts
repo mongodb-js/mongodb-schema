@@ -99,7 +99,7 @@ const expected = {
   },
   javascriptWithScope: {
     types: [{
-      bsonType: 'Code'
+      bsonType: 'CodeWScope'
     }]
   },
   int: {

@@ -209,7 +209,6 @@ function getBSONType(value: any): SchemaBSONType {
   const bsonType = value?._bsontype
     ? value._bsontype
     : Object.prototype.toString.call(value).replace(/^\[object (\w+)\]$/, '$1');
-
   if (bsonType === 'Object') {
     // In the resulting schema we rename `Object` to `Document`.
     return 'Document';
@@ -324,10 +323,30 @@ function simplifiedSchema(fields: SchemaAnalysisFieldsMap): SimplifiedSchema {
   return finalizeDocumentFieldSchema(fields);
 }
 
-function cropStringAt10kCharacters(value: string) {
-  return value.charCodeAt(10000 - 1) === value.codePointAt(10000 - 1)
-    ? value.slice(0, 10000)
-    : value.slice(0, 10000 - 1);
+function cropString(value: string, limit: number) {
+  if (limit < 1) return '';
+  return value.charCodeAt(limit - 1) === value.codePointAt(10000 - 1)
+    ? value.slice(0, limit)
+    : value.slice(0, limit - 1);
+}
+
+function getCappedValue(bsonType: SchemaBSONType, value: BSONValue) {
+  if (bsonType === 'String') {
+    return cropString(value as string, 10000);
+  }
+  if (bsonType === 'Binary') {
+    value = value as Binary;
+    return value.buffer.length > 10000
+      ? new Binary(value.buffer.slice(0, 10000), value.sub_type)
+      : value;
+  }
+  if (bsonType === 'Code') {
+    value = value as Code;
+    return (value.code.length >= 10000)
+      ? new Code(cropString(value.code, 10000), value.scope)
+      : value;
+  }
+  return value;
 }
 
 function computeHasDuplicatesForType(type: SchemaAnalysisType, unique?: number) {
@@ -525,12 +544,12 @@ export class SchemaAnalyzer {
       } else if (this.options.storeValues && !isNullType(type)) {
         // When the `storeValues` option is enabled, store some example values.
         if (!type.values) {
-          type.values = bsonType === 'String'
+          type.values = ['String', 'Binary', 'Code'].includes(bsonType)
             ? Reservoir(100) : Reservoir(10000);
         }
 
         type.values.pushSome(
-          type.name === 'String' ? cropStringAt10kCharacters(value as string) : value
+          getCappedValue(type.bsonType, value)
         );
       }
     };

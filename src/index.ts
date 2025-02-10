@@ -77,7 +77,8 @@ export type {
   SimplifiedSchema,
   StandardJSONSchema,
   MongoDBJSONSchema,
-  ExpandedJSONSchema
+  ExpandedJSONSchema,
+  SchemaAccessor
 };
 
 export {

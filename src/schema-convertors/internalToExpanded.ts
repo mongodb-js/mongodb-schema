@@ -4,94 +4,120 @@ import { InternalTypeToStandardTypeMap, RELAXED_EJSON_DEFINITIONS } from './inte
 import { InternalTypeToBsonTypeMap } from './internalToMongoDB';
 import { allowAbort } from './util';
 
-const getStandardType = (internalType: string) => {
-  const type = { ...InternalTypeToStandardTypeMap[internalType] };
-  if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
-  return type;
-};
+class InternalToExpandedConvertor {
+  private usedDefinitions = new Set<string>();
 
-const getBsonType = (internalType: string) => {
-  const type = InternalTypeToBsonTypeMap[internalType];
-  if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
-  return type;
-};
-
-async function parseType(type: SchemaType, signal?: AbortSignal): Promise<ExpandedJSONSchema> {
-  await allowAbort(signal);
-  const schema: ExpandedJSONSchema = {
-    ...getStandardType(type.bsonType),
-    'x-bsonType': getBsonType(type.bsonType),
-    'x-metadata': getMetadata(type)
-  };
-  if ('values' in type && !!type.values) {
-    schema['x-sampleValues'] = type.values;
-  }
-  switch (type.bsonType) {
-    case 'Array':
-      schema.items = await parseTypes((type as ArraySchemaType).types);
-      break;
-    case 'Document':
-      Object.assign(schema,
-        await parseFields((type as DocumentSchemaType).fields, signal)
-      );
-      break;
+  private clearUsedDefintions() {
+    this.usedDefinitions.clear();
   }
 
-  return schema;
-}
+  private getUsedDefinitions() {
+    const filteredDefinitions = Object.fromEntries(
+      Object.entries(RELAXED_EJSON_DEFINITIONS)
+        .filter(([key]) => this.usedDefinitions.has(key))
+    );
+    return Object.freeze(filteredDefinitions);
+  }
 
-const getMetadata = <TType extends SchemaField | SchemaType>({
-  hasDuplicates,
-  probability,
-  count
-}: TType) => ({
-    ...(typeof hasDuplicates === 'boolean' ? { hasDuplicates } : {}),
+  private markUsedDefinition(ref: string) {
+    this.usedDefinitions.add(ref.split('/')[2]);
+  }
+
+  private getStandardType(internalType: string) {
+    const type = { ...InternalTypeToStandardTypeMap[internalType] };
+    if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
+    return type;
+  }
+
+  private getBsonType(internalType: string) {
+    const type = InternalTypeToBsonTypeMap[internalType];
+    if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
+    return type;
+  }
+
+  private async parseType(type: SchemaType, signal?: AbortSignal): Promise<ExpandedJSONSchema> {
+    await allowAbort(signal);
+    const schema: ExpandedJSONSchema = {
+      ...this.getStandardType(type.bsonType),
+      'x-bsonType': this.getBsonType(type.bsonType),
+      'x-metadata': this.getMetadata(type)
+    };
+    if ('values' in type && !!type.values) {
+      schema['x-sampleValues'] = type.values;
+    }
+    if (schema.$ref) this.markUsedDefinition(schema.$ref);
+    switch (type.bsonType) {
+      case 'Array':
+        schema.items = await this.parseTypes((type as ArraySchemaType).types);
+        break;
+      case 'Document':
+        Object.assign(schema,
+          await this.parseFields((type as DocumentSchemaType).fields, signal)
+        );
+        break;
+    }
+
+    return schema;
+  }
+
+  private getMetadata<TType extends SchemaField | SchemaType>({
+    hasDuplicates,
     probability,
     count
-  });
-
-async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<ExpandedJSONSchema> {
-  await allowAbort(signal);
-  const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
-  const isSingleType = definedTypes.length === 1;
-  if (isSingleType) {
-    return parseType(definedTypes[0], signal);
-  }
-  const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
-  return {
-    anyOf: parsedTypes
-  };
-}
-
-async function parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): Promise<{
-  required: ExpandedJSONSchema['required'],
-  properties: ExpandedJSONSchema['properties'],
-}> {
-  const required = [];
-  const properties: ExpandedJSONSchema['properties'] = {};
-  for (const field of fields) {
-    if (field.probability === 1) required.push(field.name);
-    properties[field.name] = {
-      ...await parseTypes(field.types, signal),
-      'x-metadata': getMetadata(field)
+  }: TType) {
+    return {
+      ...(typeof hasDuplicates === 'boolean' ? { hasDuplicates } : {}),
+      probability,
+      count
     };
   }
 
-  return { required, properties };
+  private async parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<ExpandedJSONSchema> {
+    await allowAbort(signal);
+    const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
+    const isSingleType = definedTypes.length === 1;
+    if (isSingleType) {
+      return this.parseType(definedTypes[0], signal);
+    }
+    const parsedTypes = await Promise.all(definedTypes.map(type => this.parseType(type, signal)));
+    return {
+      anyOf: parsedTypes
+    };
+  }
+
+  private async parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): Promise<{
+    required: ExpandedJSONSchema['required'],
+    properties: ExpandedJSONSchema['properties'],
+  }> {
+    const required = [];
+    const properties: ExpandedJSONSchema['properties'] = {};
+    for (const field of fields) {
+      if (field.probability === 1) required.push(field.name);
+      properties[field.name] = {
+        ...await this.parseTypes(field.types, signal),
+        'x-metadata': this.getMetadata(field)
+      };
+    }
+
+    return { required, properties };
+  }
+
+  public async convert(
+    internalSchema: InternalSchema,
+    options: {
+      signal?: AbortSignal
+  } = {}): Promise<ExpandedJSONSchema> {
+    this.clearUsedDefintions();
+    const { required, properties } = await this.parseFields(internalSchema.fields, options.signal);
+    const schema: ExpandedJSONSchema = {
+      type: 'object',
+      'x-bsonType': 'object',
+      required,
+      properties,
+      $defs: this.getUsedDefinitions()
+    };
+    return schema;
+  }
 }
 
-export default async function internalSchemaToMongodb(
-  internalSchema: InternalSchema,
-  options: {
-    signal?: AbortSignal
-} = {}): Promise<ExpandedJSONSchema> {
-  const { required, properties } = await parseFields(internalSchema.fields, options.signal);
-  const schema: ExpandedJSONSchema = {
-    type: 'object',
-    'x-bsonType': 'object',
-    required,
-    properties,
-    $defs: RELAXED_EJSON_DEFINITIONS
-  };
-  return schema;
-}
+export default InternalToExpandedConvertor;

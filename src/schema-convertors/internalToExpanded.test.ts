@@ -1,6 +1,7 @@
 import assert from 'assert';
-import internalSchemaToExpanded from './internalToExpanded';
 import { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
+import InternalToExpandedConvertor from './internalToExpanded';
+import { ObjectId } from 'bson';
 
 describe('internalSchemaToExpanded', async function() {
   describe('Converts: ', async function() {
@@ -336,12 +337,21 @@ describe('internalSchemaToExpanded', async function() {
           }
         ]
       };
-      const standard = await internalSchemaToExpanded(internal);
-      assert.deepStrictEqual(standard, {
+      const convertor = new InternalToExpandedConvertor();
+      const expanded = await convertor.convert(internal);
+      const expectedDefinitions: any = RELAXED_EJSON_DEFINITIONS;
+      delete expectedDefinitions.BSONSymbol;
+      delete expectedDefinitions.CodeWScope;
+      delete expectedDefinitions.DBPointer;
+      delete expectedDefinitions.DBRef;
+      delete expectedDefinitions.Date;
+      delete expectedDefinitions.MinKey;
+      delete expectedDefinitions.Undefined;
+      assert.deepStrictEqual(expanded, {
         type: 'object',
         'x-bsonType': 'object',
         required: [],
-        $defs: RELAXED_EJSON_DEFINITIONS,
+        $defs: expectedDefinitions,
         properties: {
           _id: {
             $ref: '#/$defs/ObjectId',
@@ -593,12 +603,16 @@ describe('internalSchemaToExpanded', async function() {
           }
         ]
       };
-      const standard = await internalSchemaToExpanded(internal);
-      assert.deepStrictEqual(standard, {
+      const convertor = new InternalToExpandedConvertor();
+      const expanded = await convertor.convert(internal);
+      const expectedDefinitions = {
+        Double: RELAXED_EJSON_DEFINITIONS.Double
+      };
+      assert.deepStrictEqual(expanded, {
         type: 'object',
         'x-bsonType': 'object',
         required: ['author'],
-        $defs: RELAXED_EJSON_DEFINITIONS,
+        $defs: expectedDefinitions,
         properties: {
           author: {
             type: 'object',
@@ -704,12 +718,13 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToExpanded(internal);
-        assert.deepStrictEqual(standard, {
+        const convertor = new InternalToExpandedConvertor();
+        const expanded = await convertor.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             genres: {
               type: 'array',
@@ -867,12 +882,13 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToExpanded(internal);
-        assert.deepStrictEqual(standard, {
+        const convertor = new InternalToExpandedConvertor();
+        const expanded = await convertor.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             genres: {
               type: 'array',
@@ -1002,12 +1018,13 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToExpanded(internal);
-        assert.deepStrictEqual(standard, {
+        const convertor = new InternalToExpandedConvertor();
+        const expanded = await convertor.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
           required: ['arrayMixedType'],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             arrayMixedType: {
               type: 'array',
@@ -1111,12 +1128,13 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToExpanded(internal);
-        assert.deepStrictEqual(standard, {
+        const convertor = new InternalToExpandedConvertor();
+        const expanded = await convertor.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             mixedType: {
               'x-metadata': {
@@ -1252,12 +1270,13 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToExpanded(internal);
-        assert.deepStrictEqual(standard, {
+        const convertor = new InternalToExpandedConvertor();
+        const expanded = await convertor.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             mixedComplexType: {
               'x-metadata': {
@@ -1360,12 +1379,16 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToExpanded(internal);
-        assert.deepStrictEqual(standard, {
+        const convertor = new InternalToExpandedConvertor();
+        const expanded = await convertor.convert(internal);
+        const expectedDefinitions = {
+          ObjectId: RELAXED_EJSON_DEFINITIONS.ObjectId
+        };
+        assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
           required: ['mixedType'],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: expectedDefinitions,
           properties: {
             mixedType: {
               'x-metadata': {
@@ -1507,7 +1530,8 @@ describe('internalSchemaToExpanded', async function() {
         ]
       };
       const abortController = new AbortController();
-      const promise = internalSchemaToExpanded(internal, { signal: abortController.signal });
+      const convertor = new InternalToExpandedConvertor();
+      const promise = convertor.convert(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {
         name: 'Error',

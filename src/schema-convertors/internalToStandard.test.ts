@@ -1,6 +1,6 @@
 import assert from 'assert';
 import Ajv2020 from 'ajv/dist/2020';
-import internalSchemaToStandard, { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
+import InternalToStandardConvertor, { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 
 describe('internalSchemaToStandard', async function() {
   const ajv = new Ajv2020();
@@ -895,13 +895,19 @@ describe('internalSchemaToStandard', async function() {
           }
         ]
       };
-      const standard = await internalSchemaToStandard(internal);
+      const convertor = new InternalToStandardConvertor();
+      const standard = await convertor.convert(internal);
       ajv.validateSchema(standard);
+      const expectedDefinitions: any = {
+        ...RELAXED_EJSON_DEFINITIONS
+      };
+      delete expectedDefinitions.Undefined;
+      delete expectedDefinitions.DBPointer;
       assert.deepStrictEqual(standard, {
         $schema: 'https://json-schema.org/draft/2020-12/schema',
         type: 'object',
         required: [],
-        $defs: RELAXED_EJSON_DEFINITIONS,
+        $defs: expectedDefinitions,
         properties: {
           _id: {
             $ref: '#/$defs/ObjectId'
@@ -1111,13 +1117,17 @@ describe('internalSchemaToStandard', async function() {
           }
         ]
       };
-      const standard = await internalSchemaToStandard(internal);
+      const convertor = new InternalToStandardConvertor();
+      const standard = await convertor.convert(internal);
+      const expectedDefinitions = {
+        Double: RELAXED_EJSON_DEFINITIONS.Double
+      };
       ajv.validateSchema(standard);
       assert.deepStrictEqual(standard, {
         $schema: 'https://json-schema.org/draft/2020-12/schema',
         type: 'object',
         required: ['author'],
-        $defs: RELAXED_EJSON_DEFINITIONS,
+        $defs: expectedDefinitions,
         properties: {
           author: {
             type: 'object',
@@ -1199,13 +1209,14 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToStandard(internal);
+        const convertor = new InternalToStandardConvertor();
+        const standard = await convertor.convert(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           type: 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             genres: {
               type: 'array',
@@ -1347,13 +1358,14 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToStandard(internal);
+        const convertor = new InternalToStandardConvertor();
+        const standard = await convertor.convert(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           type: 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             genres: {
               type: 'array',
@@ -1444,13 +1456,14 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToStandard(internal);
+        const convertor = new InternalToStandardConvertor();
+        const standard = await convertor.convert(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           type: 'object',
           required: ['arrayMixedType'],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             arrayMixedType: {
               type: 'array',
@@ -1525,13 +1538,14 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToStandard(internal);
+        const convertor = new InternalToStandardConvertor();
+        const standard = await convertor.convert(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           type: 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             mixedType: {
               type: ['integer', 'string']
@@ -1644,13 +1658,14 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToStandard(internal);
+        const convertor = new InternalToStandardConvertor();
+        const standard = await convertor.convert(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           type: 'object',
           required: [],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: {},
           properties: {
             mixedComplexType: {
               anyOf: [
@@ -1724,13 +1739,17 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const standard = await internalSchemaToStandard(internal);
+        const convertor = new InternalToStandardConvertor();
+        const standard = await convertor.convert(internal);
         ajv.validateSchema(standard);
+        const expectedDefinitions = {
+          ObjectId: RELAXED_EJSON_DEFINITIONS.ObjectId
+        };
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
           type: 'object',
           required: ['mixedType'],
-          $defs: RELAXED_EJSON_DEFINITIONS,
+          $defs: expectedDefinitions,
           properties: {
             mixedType: {
               anyOf: [{
@@ -1849,7 +1868,8 @@ describe('internalSchemaToStandard', async function() {
         ]
       };
       const abortController = new AbortController();
-      const promise = internalSchemaToStandard(internal, { signal: abortController.signal });
+      const convertor = new InternalToStandardConvertor();
+      const promise = convertor.convert(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {
         name: 'Error',

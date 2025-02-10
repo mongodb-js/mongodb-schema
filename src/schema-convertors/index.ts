@@ -1,9 +1,3 @@
-import internalSchemaToExpanded from './internalToExpanded';
-import internalSchemaToMongoDB from './internalToMongoDB';
-import internalSchemaToStandard from './internalToStandard';
-
-export const convertors = {
-  internalSchemaToStandard,
-  internalSchemaToMongoDB,
-  internalSchemaToExpanded
-};
+export * from './internalToExpanded';
+export * from './internalToMongoDB';
+export * from './internalToStandard';

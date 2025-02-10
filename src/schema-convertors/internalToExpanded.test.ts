@@ -1,7 +1,6 @@
 import assert from 'assert';
 import { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 import InternalToExpandedConvertor from './internalToExpanded';
-import { ObjectId } from 'bson';
 
 describe('internalSchemaToExpanded', async function() {
   describe('Converts: ', async function() {

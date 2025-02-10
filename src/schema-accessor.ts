@@ -2,15 +2,15 @@ import { Schema as InternalSchema } from './schema-analyzer';
 import { convertors } from './schema-convertors';
 import { ExpandedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
-export interface SchemaAccessor {
-  getStandardJsonSchema: () => Promise<StandardJSONSchema>;
-  getMongoDBJsonSchema: () => Promise<MongoDBJSONSchema>;
-  getExpandedJSONSchema: () => Promise<ExpandedJSONSchema>;
-  getInternalSchema: () => Promise<InternalSchema>;
-}
-
 type Options = {
   signal?: AbortSignal;
+}
+
+export interface SchemaAccessor {
+  getStandardJsonSchema: (options?: Options) => Promise<StandardJSONSchema>;
+  getMongoDBJsonSchema: (options?: Options) => Promise<MongoDBJSONSchema>;
+  getExpandedJSONSchema: (options?: Options) => Promise<ExpandedJSONSchema>;
+  getInternalSchema: (options?: Options) => Promise<InternalSchema>;
 }
 
 /**

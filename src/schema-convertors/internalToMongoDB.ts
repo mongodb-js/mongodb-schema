@@ -35,7 +35,7 @@ export const InternalTypeToBsonTypeMap: Record<
   MaxKey: 'maxKey'
 };
 
-class InternalToMongoDBConvertor {
+class InternalToMongoDBConverter {
   private convertInternalType(type: string) {
     const bsonType = InternalTypeToBsonTypeMap[type];
     if (!bsonType) throw new Error(`Encountered unknown type: ${type}`);
@@ -112,4 +112,4 @@ class InternalToMongoDBConvertor {
   }
 }
 
-export default InternalToMongoDBConvertor;
+export default InternalToMongoDBConverter;

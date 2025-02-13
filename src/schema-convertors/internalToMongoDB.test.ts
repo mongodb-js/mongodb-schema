@@ -1,5 +1,5 @@
 import assert from 'assert';
-import InternalToMongoDBConvertor from './internalToMongoDB';
+import InternalToMongoDBConverter from './internalToMongoDB';
 
 describe('internalSchemaToMongoDB', async function() {
   describe('Converts: ', async function() {
@@ -892,8 +892,8 @@ describe('internalSchemaToMongoDB', async function() {
           }
         ]
       };
-      const convertor = new InternalToMongoDBConvertor();
-      const mongodb = await convertor.convert(internal);
+      const converter = new InternalToMongoDBConverter();
+      const mongodb = await converter.convert(internal);
       assert.deepStrictEqual(mongodb, {
         bsonType: 'object',
         required: [],
@@ -1106,8 +1106,8 @@ describe('internalSchemaToMongoDB', async function() {
           }
         ]
       };
-      const convertor = new InternalToMongoDBConvertor();
-      const mongodb = await convertor.convert(internal);
+      const converter = new InternalToMongoDBConverter();
+      const mongodb = await converter.convert(internal);
       assert.deepStrictEqual(mongodb, {
         bsonType: 'object',
         required: ['author'],
@@ -1192,8 +1192,8 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const convertor = new InternalToMongoDBConvertor();
-        const mongodb = await convertor.convert(internal);
+        const converter = new InternalToMongoDBConverter();
+        const mongodb = await converter.convert(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
           required: [],
@@ -1338,8 +1338,8 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const convertor = new InternalToMongoDBConvertor();
-        const mongodb = await convertor.convert(internal);
+        const converter = new InternalToMongoDBConverter();
+        const mongodb = await converter.convert(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
           required: [],
@@ -1433,8 +1433,8 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const convertor = new InternalToMongoDBConvertor();
-        const mongodb = await convertor.convert(internal);
+        const converter = new InternalToMongoDBConverter();
+        const mongodb = await converter.convert(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
           required: ['arrayMixedType'],
@@ -1512,8 +1512,8 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const convertor = new InternalToMongoDBConvertor();
-        const mongodb = await convertor.convert(internal);
+        const converter = new InternalToMongoDBConverter();
+        const mongodb = await converter.convert(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
           required: [],
@@ -1629,8 +1629,8 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const convertor = new InternalToMongoDBConvertor();
-        const mongodb = await convertor.convert(internal);
+        const converter = new InternalToMongoDBConverter();
+        const mongodb = await converter.convert(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
           required: [],
@@ -1764,8 +1764,8 @@ describe('internalSchemaToMongoDB', async function() {
         ]
       };
       const abortController = new AbortController();
-      const convertor = new InternalToMongoDBConvertor();
-      const promise = convertor.convert(internal, { signal: abortController.signal });
+      const converter = new InternalToMongoDBConverter();
+      const promise = converter.convert(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {
         name: 'Error',

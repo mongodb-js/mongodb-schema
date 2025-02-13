@@ -1,7 +1,7 @@
 import { Schema as InternalSchema } from './schema-analyzer';
-import InternalToExpandedConvertor from './schema-convertors/internalToExpanded';
-import InternalToMongoDBConvertor from './schema-convertors/internalToMongoDB';
-import InternalToStandardConvertor from './schema-convertors/internalToStandard';
+import InternalToExpandedConverter from './schema-converters/internalToExpanded';
+import InternalToMongoDBConverter from './schema-converters/internalToMongoDB';
+import InternalToStandardConverter from './schema-converters/internalToStandard';
 import { ExpandedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
 export interface SchemaAccessor {
@@ -26,15 +26,15 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
   private standardJSONSchema?: StandardJSONSchema;
   private mongodbJSONSchema?: MongoDBJSONSchema;
   private ExpandedJSONSchema?: ExpandedJSONSchema;
-  public internalToStandardConvertor: InternalToStandardConvertor;
-  public internalToExpandedConvertor: InternalToExpandedConvertor;
-  public internalToMongoDBConvertor: InternalToMongoDBConvertor;
+  public internalToStandardConverter: InternalToStandardConverter;
+  public internalToExpandedConverter: InternalToExpandedConverter;
+  public internalToMongoDBConverter: InternalToMongoDBConverter;
 
   constructor(internalSchema: InternalSchema) {
     this.internalSchema = internalSchema;
-    this.internalToStandardConvertor = new InternalToStandardConvertor();
-    this.internalToExpandedConvertor = new InternalToExpandedConvertor();
-    this.internalToMongoDBConvertor = new InternalToMongoDBConvertor();
+    this.internalToStandardConverter = new InternalToStandardConverter();
+    this.internalToExpandedConverter = new InternalToExpandedConverter();
+    this.internalToMongoDBConverter = new InternalToMongoDBConverter();
   }
 
   async getInternalSchema(): Promise<InternalSchema> {
@@ -46,20 +46,20 @@ export class InternalSchemaBasedAccessor implements SchemaAccessor {
    * https://json-schema.org/draft/2020-12/schema
    */
   async getStandardJsonSchema(options: Options = {}): Promise<StandardJSONSchema> {
-    return this.standardJSONSchema ??= await this.internalToStandardConvertor.convert(this.internalSchema, options);
+    return this.standardJSONSchema ??= await this.internalToStandardConverter.convert(this.internalSchema, options);
   }
 
   /**
    * Get MongoDB's $jsonSchema
    */
   async getMongoDBJsonSchema(options: Options = {}): Promise<MongoDBJSONSchema> {
-    return this.mongodbJSONSchema ??= await this.internalToMongoDBConvertor.convert(this.internalSchema, options);
+    return this.mongodbJSONSchema ??= await this.internalToMongoDBConverter.convert(this.internalSchema, options);
   }
 
   /**
    * Get expanded JSON Schema - with additional properties
    */
   async getExpandedJSONSchema(options: Options = {}): Promise<ExpandedJSONSchema> {
-    return this.ExpandedJSONSchema ??= await this.internalToExpandedConvertor.convert(this.internalSchema, options);
+    return this.ExpandedJSONSchema ??= await this.internalToExpandedConverter.convert(this.internalSchema, options);
   }
 }

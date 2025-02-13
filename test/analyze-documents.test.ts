@@ -7,7 +7,7 @@ describe('analyzeDocuments', function() {
 
   it('Converts lazily', async function() {
     const analyzeResults = await analyzeDocuments(docs);
-    const convertSpy = sinon.spy((analyzeResults as any).internalToStandardConvertor, 'convert');
+    const convertSpy = sinon.spy((analyzeResults as any).internalToStandardConverter, 'convert');
     assert.strictEqual(convertSpy.called, false);
     await analyzeResults.getStandardJsonSchema();
     assert.strictEqual(convertSpy.calledOnce, true);
@@ -15,7 +15,7 @@ describe('analyzeDocuments', function() {
 
   it('Only converts the same format once', async function() {
     const analyzeResults = await analyzeDocuments(docs);
-    const convertSpy = sinon.spy((analyzeResults as any).internalToExpandedConvertor, 'convert');
+    const convertSpy = sinon.spy((analyzeResults as any).internalToExpandedConverter, 'convert');
     await analyzeResults.getExpandedJSONSchema();
     await analyzeResults.getExpandedJSONSchema();
     await analyzeResults.getExpandedJSONSchema();

@@ -1,7 +1,7 @@
 import { Schema as InternalSchema } from './schema-analyzer';
-import InternalToExpandedConverter from './schema-converters/internalToExpanded';
-import InternalToMongoDBConverter from './schema-converters/internalToMongoDB';
-import InternalToStandardConverter from './schema-converters/internalToStandard';
+import { InternalToExpandedConverter } from './schema-converters/internalToExpanded';
+import { InternalToMongoDBConverter } from './schema-converters/internalToMongoDB';
+import { InternalToStandardConverter } from './schema-converters/internalToStandard';
 import { ExpandedJSONSchema, MongoDBJSONSchema, StandardJSONSchema } from './types';
 
 export interface SchemaAccessor {

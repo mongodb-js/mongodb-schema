@@ -4,7 +4,7 @@ import { InternalTypeToStandardTypeMap, RELAXED_EJSON_DEFINITIONS } from './inte
 import { InternalTypeToBsonTypeMap } from './internalToMongoDB';
 import { allowAbort } from './util';
 
-class InternalToExpandedConverter {
+export class InternalToExpandedConverter {
   private usedDefinitions = new Set<string>();
 
   private clearUsedDefintions() {
@@ -119,5 +119,3 @@ class InternalToExpandedConverter {
     return schema;
   }
 }
-
-export default InternalToExpandedConverter;

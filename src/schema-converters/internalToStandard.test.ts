@@ -1,7 +1,10 @@
 import assert from 'assert';
-import InternalToMongoDBConverter from './internalToMongoDB';
+import Ajv2020 from 'ajv/dist/2020';
+import { InternalToStandardConverter, RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 
-describe('internalSchemaToMongoDB', async function() {
+describe('internalSchemaToStandard', async function() {
+  const ajv = new Ajv2020();
+
   describe('Converts: ', async function() {
     it('all the types', async function() {
       const internal = {
@@ -892,116 +895,124 @@ describe('internalSchemaToMongoDB', async function() {
           }
         ]
       };
-      const converter = new InternalToMongoDBConverter();
-      const mongodb = await converter.convert(internal);
-      assert.deepStrictEqual(mongodb, {
-        bsonType: 'object',
+      const converter = new InternalToStandardConverter();
+      const standard = await converter.convert(internal);
+      ajv.validateSchema(standard);
+      const expectedDefinitions: any = {
+        ...RELAXED_EJSON_DEFINITIONS
+      };
+      delete expectedDefinitions.Undefined;
+      delete expectedDefinitions.DBPointer;
+      assert.deepStrictEqual(standard, {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
         required: [],
+        $defs: expectedDefinitions,
         properties: {
           _id: {
-            bsonType: 'objectId'
+            $ref: '#/$defs/ObjectId'
           },
           array: {
-            bsonType: 'array',
+            type: 'array',
             items: {
-              bsonType: 'double'
+              $ref: '#/$defs/Double'
             }
           },
           binData: {
-            bsonType: 'binData'
+            $ref: '#/$defs/Binary'
           },
           binaries: {
-            bsonType: 'object',
+            type: 'object',
             properties: {
               binaryOld: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               compressedTimeSeries: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               custom: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               encrypted: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               functionData: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               generic: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               md5: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               uuid: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               },
               uuidOld: {
-                bsonType: 'binData'
+                $ref: '#/$defs/Binary'
               }
             },
             required: []
           },
           boolean: {
-            bsonType: 'bool'
+            type: 'boolean'
           },
           date: {
-            bsonType: 'date'
+            $ref: '#/$defs/Date'
           },
           dbRef: {
-            bsonType: 'dbPointer'
+            $ref: '#/$defs/DBRef'
           },
           decimal: {
-            bsonType: 'decimal'
+            $ref: '#/$defs/Decimal128'
           },
           double: {
-            bsonType: 'double'
+            $ref: '#/$defs/Double'
           },
           int: {
-            bsonType: 'int'
+            type: 'integer'
           },
           javascript: {
-            bsonType: 'javascript'
+            $ref: '#/$defs/Code'
           },
           javascriptWithScope: {
-            bsonType: 'javascriptWithScope'
+            $ref: '#/$defs/CodeWScope'
           },
           long: {
-            bsonType: 'long'
+            type: 'integer'
           },
           maxKey: {
-            bsonType: 'maxKey'
+            $ref: '#/$defs/MaxKey'
           },
           minKey: {
-            bsonType: 'minKey'
+            $ref: '#/$defs/MinKey'
           },
           null: {
-            bsonType: 'null'
+            type: 'null'
           },
           object: {
-            bsonType: 'object',
+            type: 'object',
             properties: {
               key: {
-                bsonType: 'string'
+                type: 'string'
               }
             },
             required: []
           },
           objectId: {
-            bsonType: 'objectId'
+            $ref: '#/$defs/ObjectId'
           },
           regex: {
-            bsonType: 'regex'
+            $ref: '#/$defs/RegExp'
           },
           string: {
-            bsonType: 'string'
+            type: 'string'
           },
           symbol: {
-            bsonType: 'symbol'
+            $ref: '#/$defs/BSONSymbol'
           },
           timestamp: {
-            bsonType: 'timestamp'
+            $ref: '#/$defs/Timestamp'
           }
         }
       });
@@ -1106,21 +1117,27 @@ describe('internalSchemaToMongoDB', async function() {
           }
         ]
       };
-      const converter = new InternalToMongoDBConverter();
-      const mongodb = await converter.convert(internal);
-      assert.deepStrictEqual(mongodb, {
-        bsonType: 'object',
+      const converter = new InternalToStandardConverter();
+      const standard = await converter.convert(internal);
+      const expectedDefinitions = {
+        Double: RELAXED_EJSON_DEFINITIONS.Double
+      };
+      ajv.validateSchema(standard);
+      assert.deepStrictEqual(standard, {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
         required: ['author'],
+        $defs: expectedDefinitions,
         properties: {
           author: {
-            bsonType: 'object',
+            type: 'object',
             required: ['name', 'rating'],
             properties: {
               name: {
-                bsonType: 'string'
+                type: 'string'
               },
               rating: {
-                bsonType: 'double'
+                $ref: '#/$defs/Double'
               }
             }
           }
@@ -1192,16 +1209,19 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const converter = new InternalToMongoDBConverter();
-        const mongodb = await converter.convert(internal);
-        assert.deepStrictEqual(mongodb, {
-          bsonType: 'object',
+        const converter = new InternalToStandardConverter();
+        const standard = await converter.convert(internal);
+        ajv.validateSchema(standard);
+        assert.deepStrictEqual(standard, {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
           required: [],
+          $defs: {},
           properties: {
             genres: {
-              bsonType: 'array',
+              type: 'array',
               items: {
-                bsonType: 'string'
+                type: 'string'
               }
             }
           }
@@ -1338,28 +1358,31 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const converter = new InternalToMongoDBConverter();
-        const mongodb = await converter.convert(internal);
-        assert.deepStrictEqual(mongodb, {
-          bsonType: 'object',
+        const converter = new InternalToStandardConverter();
+        const standard = await converter.convert(internal);
+        ajv.validateSchema(standard);
+        assert.deepStrictEqual(standard, {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
           required: [],
+          $defs: {},
           properties: {
             genres: {
-              bsonType: 'array',
+              type: 'array',
               items: {
                 anyOf: [
                   {
-                    bsonType: 'string'
+                    type: 'string'
                   },
                   {
-                    bsonType: 'object',
+                    type: 'object',
                     required: ['long', 'short'],
                     properties: {
                       long: {
-                        bsonType: 'string'
+                        type: 'string'
                       },
                       short: {
-                        bsonType: 'string'
+                        type: 'string'
                       }
                     }
                   }
@@ -1433,16 +1456,19 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const converter = new InternalToMongoDBConverter();
-        const mongodb = await converter.convert(internal);
-        assert.deepStrictEqual(mongodb, {
-          bsonType: 'object',
+        const converter = new InternalToStandardConverter();
+        const standard = await converter.convert(internal);
+        ajv.validateSchema(standard);
+        assert.deepStrictEqual(standard, {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
           required: ['arrayMixedType'],
+          $defs: {},
           properties: {
             arrayMixedType: {
-              bsonType: 'array',
+              type: 'array',
               items: {
-                bsonType: ['int', 'string']
+                type: ['integer', 'string']
               }
             }
           }
@@ -1512,20 +1538,23 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const converter = new InternalToMongoDBConverter();
-        const mongodb = await converter.convert(internal);
-        assert.deepStrictEqual(mongodb, {
-          bsonType: 'object',
+        const converter = new InternalToStandardConverter();
+        const standard = await converter.convert(internal);
+        ajv.validateSchema(standard);
+        assert.deepStrictEqual(standard, {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
           required: [],
+          $defs: {},
           properties: {
             mixedType: {
-              bsonType: ['int', 'string']
+              type: ['integer', 'string']
             }
           }
         });
       });
 
-      it('complex mixed type', async function() {
+      it('complex mixed type (with array and object)', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1629,30 +1658,105 @@ describe('internalSchemaToMongoDB', async function() {
             }
           ]
         };
-        const converter = new InternalToMongoDBConverter();
-        const mongodb = await converter.convert(internal);
-        assert.deepStrictEqual(mongodb, {
-          bsonType: 'object',
+        const converter = new InternalToStandardConverter();
+        const standard = await converter.convert(internal);
+        ajv.validateSchema(standard);
+        assert.deepStrictEqual(standard, {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
           required: [],
+          $defs: {},
           properties: {
             mixedComplexType: {
               anyOf: [
                 {
-                  bsonType: 'array',
+                  type: 'array',
                   items: {
-                    bsonType: 'int'
+                    type: 'integer'
                   }
                 },
                 {
-                  bsonType: 'object',
+                  type: 'object',
                   required: ['a'],
                   properties: {
                     a: {
-                      bsonType: 'string'
+                      type: 'string'
                     }
                   }
                 }
               ]
+            }
+          }
+        });
+      });
+
+      it('complex mixed type (with $refs)', async function() {
+        const internal = {
+          count: 2,
+          fields: [
+            {
+              name: 'mixedType',
+              path: [
+                'mixedType'
+              ],
+              count: 2,
+              type: [
+                'String',
+                'ObjectId'
+              ],
+              probability: 1,
+              hasDuplicates: false,
+              types: [
+                {
+                  name: 'String',
+                  path: [
+                    'mixedType'
+                  ],
+                  count: 1,
+                  probability: 0.3333333333333333,
+                  unique: 1,
+                  hasDuplicates: false,
+                  values: [
+                    'abc'
+                  ],
+                  bsonType: 'String'
+                },
+                {
+                  name: 'ObjectId',
+                  path: [
+                    'objectId'
+                  ],
+                  count: 1,
+                  probability: 0.8,
+                  unique: 1,
+                  hasDuplicates: false,
+                  values: [
+                    '642d766c7300158b1f22e975'
+                  ],
+                  bsonType: 'ObjectId'
+                }
+              ]
+            }
+          ]
+        };
+        const converter = new InternalToStandardConverter();
+        const standard = await converter.convert(internal);
+        ajv.validateSchema(standard);
+        const expectedDefinitions = {
+          ObjectId: RELAXED_EJSON_DEFINITIONS.ObjectId
+        };
+        assert.deepStrictEqual(standard, {
+          $schema: 'https://json-schema.org/draft/2020-12/schema',
+          type: 'object',
+          required: ['mixedType'],
+          $defs: expectedDefinitions,
+          properties: {
+            mixedType: {
+              anyOf: [{
+                type: 'string'
+              }, {
+                $ref: '#/$defs/ObjectId'
+              }]
             }
           }
         });
@@ -1764,7 +1868,7 @@ describe('internalSchemaToMongoDB', async function() {
         ]
       };
       const abortController = new AbortController();
-      const converter = new InternalToMongoDBConverter();
+      const converter = new InternalToStandardConverter();
       const promise = converter.convert(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {

@@ -247,7 +247,7 @@ export const RELAXED_EJSON_DEFINITIONS = {
   }
 };
 
-class InternalToStandardConverter {
+export class InternalToStandardConverter {
   private usedDefinitions = new Set<string>();
 
   private clearUsedDefintions() {
@@ -343,5 +343,3 @@ class InternalToStandardConverter {
     return schema;
   }
 }
-
-export default InternalToStandardConverter;

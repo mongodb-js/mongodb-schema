@@ -1,15 +1,14 @@
 import assert from 'assert';
-import Ajv2020 from 'ajv/dist/2020';
-import InternalToStandardConverter, { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
+import { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
+import { InternalToExpandedConverter } from './internalToExpanded';
 
-describe('internalSchemaToStandard', async function() {
-  const ajv = new Ajv2020();
-
+describe('internalSchemaToExpanded', async function() {
   describe('Converts: ', async function() {
-    it('all the types', async function() {
+    it('various types', async function() {
       const internal = {
         count: 1,
         fields: [
+          // types with ref
           {
             name: '_id',
             path: [
@@ -33,50 +32,6 @@ describe('internalSchemaToStandard', async function() {
                   '642d766b7300158b1f22e972'
                 ],
                 bsonType: 'ObjectId'
-              }
-            ]
-          },
-          {
-            name: 'array',
-            path: [
-              'array'
-            ],
-            count: 1,
-            type: 'Array',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'Array',
-                path: [
-                  'array'
-                ],
-                count: 1,
-                probability: 0.8,
-                bsonType: 'Array',
-                types: [
-                  {
-                    name: 'Number',
-                    path: [
-                      'array'
-                    ],
-                    count: 3,
-                    probability: 0.8,
-                    unique: 3,
-                    hasDuplicates: false,
-                    values: [
-                      1,
-                      2,
-                      3
-                    ],
-                    bsonType: 'Number'
-                  }
-                ],
-                totalCount: 3,
-                lengths: [
-                  3
-                ],
-                averageLength: 3
               }
             ]
           },
@@ -126,230 +81,6 @@ describe('internalSchemaToStandard', async function() {
                         bsonType: 'Binary'
                       }
                     ]
-                  },
-                  {
-                    name: 'compressedTimeSeries',
-                    path: [
-                      'binaries',
-                      'compressedTimeSeries'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'compressedTimeSeries'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'c//SZESzTGmQ6OfR38A11A=='
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'custom',
-                    path: [
-                      'binaries',
-                      'custom'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'custom'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          '//8='
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'encrypted',
-                    path: [
-                      'binaries',
-                      'encrypted'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'encrypted'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'c//SZESzTGmQ6OfR38A11A=='
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'functionData',
-                    path: [
-                      'binaries',
-                      'functionData'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'functionData'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          '//8='
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'generic',
-                    path: [
-                      'binaries',
-                      'generic'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'generic'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'AQID'
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'md5',
-                    path: [
-                      'binaries',
-                      'md5'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'md5'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'c//SZESzTGmQ6OfR38A11A=='
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'uuid',
-                    path: [
-                      'binaries',
-                      'uuid'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'uuid'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
-                  },
-                  {
-                    name: 'uuidOld',
-                    path: [
-                      'binaries',
-                      'uuidOld'
-                    ],
-                    count: 1,
-                    type: 'Binary',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'Binary',
-                        path: [
-                          'binaries',
-                          'uuidOld'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'c//SZESzTGmQ6OfR38A11A=='
-                        ],
-                        bsonType: 'Binary'
-                      }
-                    ]
                   }
                 ]
               }
@@ -381,6 +112,7 @@ describe('internalSchemaToStandard', async function() {
               }
             ]
           },
+          // type with different standard and bsonType
           {
             name: 'boolean',
             path: [
@@ -404,61 +136,6 @@ describe('internalSchemaToStandard', async function() {
                   true
                 ],
                 bsonType: 'Boolean'
-              }
-            ]
-          },
-          {
-            name: 'date',
-            path: [
-              'date'
-            ],
-            count: 1,
-            type: 'Date',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'Date',
-                path: [
-                  'date'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  '2023-04-05T13:25:08.445Z'
-                ],
-                bsonType: 'Date'
-              }
-            ]
-          },
-          {
-            name: 'dbRef',
-            path: [
-              'dbRef'
-            ],
-            count: 1,
-            type: 'DBRef',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'DBRef',
-                path: [
-                  'dbRef'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  {
-                    $ref: 'namespace',
-                    $id: '642d76b4b7ebfab15d3c4a78'
-                  }
-                ],
-                bsonType: 'DBRef'
               }
             ]
           },
@@ -517,32 +194,6 @@ describe('internalSchemaToStandard', async function() {
             ]
           },
           {
-            name: 'int',
-            path: [
-              'int'
-            ],
-            count: 1,
-            type: 'Int32',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'Int32',
-                path: [
-                  'int'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  12345
-                ],
-                bsonType: 'Int32'
-              }
-            ]
-          },
-          {
             name: 'javascript',
             path: [
               'javascript'
@@ -567,38 +218,6 @@ describe('internalSchemaToStandard', async function() {
                   }
                 ],
                 bsonType: 'Code'
-              }
-            ]
-          },
-          {
-            name: 'javascriptWithScope',
-            path: [
-              'javascriptWithScope'
-            ],
-            count: 1,
-            type: 'CodeWScope',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'CodeWScope',
-                path: [
-                  'javascriptWithScope'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  {
-                    code: 'function() {}',
-                    scope: {
-                      foo: 1,
-                      bar: 'a'
-                    }
-                  }
-                ],
-                bsonType: 'CodeWScope'
               }
             ]
           },
@@ -659,132 +278,6 @@ describe('internalSchemaToStandard', async function() {
             ]
           },
           {
-            name: 'minKey',
-            path: [
-              'minKey'
-            ],
-            count: 1,
-            type: 'MinKey',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'MinKey',
-                path: [
-                  'minKey'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  {}
-                ],
-                bsonType: 'MinKey'
-              }
-            ]
-          },
-          {
-            name: 'null',
-            path: [
-              'null'
-            ],
-            count: 1,
-            type: 'Null',
-            probability: 0.8,
-            hasDuplicates: true,
-            types: [
-              {
-                name: 'Null',
-                path: [
-                  'null'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: true,
-                bsonType: 'Null'
-              }
-            ]
-          },
-          {
-            name: 'object',
-            path: [
-              'object'
-            ],
-            count: 1,
-            type: 'Document',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'Document',
-                path: [
-                  'object'
-                ],
-                count: 1,
-                probability: 0.8,
-                bsonType: 'Document',
-                fields: [
-                  {
-                    name: 'key',
-                    path: [
-                      'object',
-                      'key'
-                    ],
-                    count: 1,
-                    type: 'String',
-                    probability: 0.8,
-                    hasDuplicates: false,
-                    types: [
-                      {
-                        name: 'String',
-                        path: [
-                          'object',
-                          'key'
-                        ],
-                        count: 1,
-                        probability: 0.8,
-                        unique: 1,
-                        hasDuplicates: false,
-                        values: [
-                          'value'
-                        ],
-                        bsonType: 'String'
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            name: 'objectId',
-            path: [
-              'objectId'
-            ],
-            count: 1,
-            type: 'ObjectId',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'ObjectId',
-                path: [
-                  'objectId'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  '642d766c7300158b1f22e975'
-                ],
-                bsonType: 'ObjectId'
-              }
-            ]
-          },
-          {
             name: 'regex',
             path: [
               'regex'
@@ -810,58 +303,6 @@ describe('internalSchemaToStandard', async function() {
                   }
                 ],
                 bsonType: 'BSONRegExp'
-              }
-            ]
-          },
-          {
-            name: 'string',
-            path: [
-              'string'
-            ],
-            count: 1,
-            type: 'String',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'String',
-                path: [
-                  'string'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  'Hello, world!'
-                ],
-                bsonType: 'String'
-              }
-            ]
-          },
-          {
-            name: 'symbol',
-            path: [
-              'symbol'
-            ],
-            count: 1,
-            type: 'BSONSymbol',
-            probability: 0.8,
-            hasDuplicates: false,
-            types: [
-              {
-                name: 'BSONSymbol',
-                path: [
-                  'symbol'
-                ],
-                count: 1,
-                probability: 0.8,
-                unique: 1,
-                hasDuplicates: false,
-                values: [
-                  'symbol'
-                ],
-                bsonType: 'BSONSymbol'
               }
             ]
           },
@@ -895,124 +336,168 @@ describe('internalSchemaToStandard', async function() {
           }
         ]
       };
-      const converter = new InternalToStandardConverter();
-      const standard = await converter.convert(internal);
-      ajv.validateSchema(standard);
-      const expectedDefinitions: any = {
-        ...RELAXED_EJSON_DEFINITIONS
-      };
-      delete expectedDefinitions.Undefined;
+      const converter = new InternalToExpandedConverter();
+      const expanded = await converter.convert(internal);
+      const expectedDefinitions: any = RELAXED_EJSON_DEFINITIONS;
+      delete expectedDefinitions.BSONSymbol;
+      delete expectedDefinitions.CodeWScope;
       delete expectedDefinitions.DBPointer;
-      assert.deepStrictEqual(standard, {
-        $schema: 'https://json-schema.org/draft/2020-12/schema',
+      delete expectedDefinitions.DBRef;
+      delete expectedDefinitions.Date;
+      delete expectedDefinitions.MinKey;
+      delete expectedDefinitions.Undefined;
+      assert.deepStrictEqual(expanded, {
         type: 'object',
+        'x-bsonType': 'object',
         required: [],
         $defs: expectedDefinitions,
         properties: {
           _id: {
-            $ref: '#/$defs/ObjectId'
-          },
-          array: {
-            type: 'array',
-            items: {
-              $ref: '#/$defs/Double'
-            }
+            $ref: '#/$defs/ObjectId',
+            'x-bsonType': 'objectId',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [
+              '642d766b7300158b1f22e972'
+            ]
           },
           binData: {
-            $ref: '#/$defs/Binary'
+            $ref: '#/$defs/Binary',
+            'x-bsonType': 'binData',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [
+              'AQID'
+            ]
           },
           binaries: {
             type: 'object',
+            'x-bsonType': 'object',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
             properties: {
               binaryOld: {
-                $ref: '#/$defs/Binary'
-              },
-              compressedTimeSeries: {
-                $ref: '#/$defs/Binary'
-              },
-              custom: {
-                $ref: '#/$defs/Binary'
-              },
-              encrypted: {
-                $ref: '#/$defs/Binary'
-              },
-              functionData: {
-                $ref: '#/$defs/Binary'
-              },
-              generic: {
-                $ref: '#/$defs/Binary'
-              },
-              md5: {
-                $ref: '#/$defs/Binary'
-              },
-              uuid: {
-                $ref: '#/$defs/Binary'
-              },
-              uuidOld: {
-                $ref: '#/$defs/Binary'
+                $ref: '#/$defs/Binary',
+                'x-bsonType': 'binData',
+                'x-metadata': {
+                  count: 1,
+                  hasDuplicates: false,
+                  probability: 0.8
+                },
+                'x-sampleValues': [
+                  '//8='
+                ]
               }
             },
             required: []
           },
           boolean: {
-            type: 'boolean'
-          },
-          date: {
-            $ref: '#/$defs/Date'
-          },
-          dbRef: {
-            $ref: '#/$defs/DBRef'
+            type: 'boolean',
+            'x-bsonType': 'bool',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [
+              true
+            ]
           },
           decimal: {
-            $ref: '#/$defs/Decimal128'
+            $ref: '#/$defs/Decimal128',
+            'x-bsonType': 'decimal',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [{
+              $numberDecimal: '5.477284286264328586719275128128001E-4088'
+            }]
           },
           double: {
-            $ref: '#/$defs/Double'
-          },
-          int: {
-            type: 'integer'
+            $ref: '#/$defs/Double',
+            'x-bsonType': 'double',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [
+              1.2
+            ]
           },
           javascript: {
-            $ref: '#/$defs/Code'
-          },
-          javascriptWithScope: {
-            $ref: '#/$defs/CodeWScope'
+            $ref: '#/$defs/Code',
+            'x-bsonType': 'javascript',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [{
+              code: 'function() {}'
+            }]
           },
           long: {
-            type: 'integer'
+            type: 'integer',
+            'x-bsonType': 'long',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [{
+              low: -1395630315,
+              high: 28744523,
+              unsigned: false
+            }]
           },
           maxKey: {
-            $ref: '#/$defs/MaxKey'
-          },
-          minKey: {
-            $ref: '#/$defs/MinKey'
-          },
-          null: {
-            type: 'null'
-          },
-          object: {
-            type: 'object',
-            properties: {
-              key: {
-                type: 'string'
-              }
+            $ref: '#/$defs/MaxKey',
+            'x-bsonType': 'maxKey',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
             },
-            required: []
-          },
-          objectId: {
-            $ref: '#/$defs/ObjectId'
+            'x-sampleValues': [
+              {}
+            ]
           },
           regex: {
-            $ref: '#/$defs/RegExp'
-          },
-          string: {
-            type: 'string'
-          },
-          symbol: {
-            $ref: '#/$defs/BSONSymbol'
+            $ref: '#/$defs/RegExp',
+            'x-bsonType': 'regex',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [{
+              options: 'i',
+              pattern: 'pattern'
+            }]
           },
           timestamp: {
-            $ref: '#/$defs/Timestamp'
+            $ref: '#/$defs/Timestamp',
+            'x-bsonType': 'timestamp',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 0.8
+            },
+            'x-sampleValues': [{
+              $timestamp: '7218556297505931265'
+            }]
           }
         }
       });
@@ -1117,27 +602,50 @@ describe('internalSchemaToStandard', async function() {
           }
         ]
       };
-      const converter = new InternalToStandardConverter();
-      const standard = await converter.convert(internal);
+      const converter = new InternalToExpandedConverter();
+      const expanded = await converter.convert(internal);
       const expectedDefinitions = {
         Double: RELAXED_EJSON_DEFINITIONS.Double
       };
-      ajv.validateSchema(standard);
-      assert.deepStrictEqual(standard, {
-        $schema: 'https://json-schema.org/draft/2020-12/schema',
+      assert.deepStrictEqual(expanded, {
         type: 'object',
+        'x-bsonType': 'object',
         required: ['author'],
         $defs: expectedDefinitions,
         properties: {
           author: {
             type: 'object',
+            'x-bsonType': 'object',
+            'x-metadata': {
+              count: 1,
+              hasDuplicates: false,
+              probability: 1
+            },
             required: ['name', 'rating'],
             properties: {
               name: {
-                type: 'string'
+                type: 'string',
+                'x-bsonType': 'string',
+                'x-metadata': {
+                  count: 1,
+                  hasDuplicates: false,
+                  probability: 1
+                },
+                'x-sampleValues': [
+                  'Peter Sonder'
+                ]
               },
               rating: {
-                $ref: '#/$defs/Double'
+                $ref: '#/$defs/Double',
+                'x-bsonType': 'double',
+                'x-metadata': {
+                  count: 1,
+                  hasDuplicates: false,
+                  probability: 1
+                },
+                'x-sampleValues': [
+                  1.3
+                ]
               }
             }
           }
@@ -1209,26 +717,41 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
-        ajv.validateSchema(standard);
-        assert.deepStrictEqual(standard, {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
+        const converter = new InternalToExpandedConverter();
+        const expanded = await converter.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
+          'x-bsonType': 'object',
           required: [],
           $defs: {},
           properties: {
             genres: {
               type: 'array',
+              'x-bsonType': 'array',
+              'x-metadata': {
+                probability: 0.5,
+                hasDuplicates: false,
+                count: 1
+              },
               items: {
-                type: 'string'
+                type: 'string',
+                'x-bsonType': 'string',
+                'x-metadata': {
+                  count: 2,
+                  probability: 1,
+                  hasDuplicates: false
+                },
+                'x-sampleValues': [
+                  'crimi',
+                  'comedy'
+                ]
               }
             }
           }
         });
       });
 
-      it('array - complex mixed type', async function() {
+      it('array - mixed type', async function() {
         const internal = {
           count: 2,
           fields: [
@@ -1358,31 +881,69 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
-        ajv.validateSchema(standard);
-        assert.deepStrictEqual(standard, {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
+        const converter = new InternalToExpandedConverter();
+        const expanded = await converter.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
+          'x-bsonType': 'object',
           required: [],
           $defs: {},
           properties: {
             genres: {
               type: 'array',
+              'x-bsonType': 'array',
+              'x-metadata': {
+                probability: 0.5,
+                hasDuplicates: false,
+                count: 1
+              },
               items: {
                 anyOf: [
                   {
-                    type: 'string'
+                    type: 'string',
+                    'x-bsonType': 'string',
+                    'x-metadata': {
+                      count: 2,
+                      probability: 0.6666666666666666,
+                      hasDuplicates: false
+                    },
+                    'x-sampleValues': [
+                      'crimi',
+                      'comedy'
+                    ]
                   },
                   {
                     type: 'object',
+                    'x-bsonType': 'object',
+                    'x-metadata': {
+                      count: 1,
+                      probability: 0.3333333333333333
+                    },
                     required: ['long', 'short'],
                     properties: {
                       long: {
-                        type: 'string'
+                        type: 'string',
+                        'x-bsonType': 'string',
+                        'x-metadata': {
+                          count: 1,
+                          probability: 1,
+                          hasDuplicates: false
+                        },
+                        'x-sampleValues': [
+                          'science fiction'
+                        ]
                       },
                       short: {
-                        type: 'string'
+                        type: 'string',
+                        'x-bsonType': 'string',
+                        'x-metadata': {
+                          count: 1,
+                          probability: 1,
+                          hasDuplicates: false
+                        },
+                        'x-sampleValues': [
+                          'scifi'
+                        ]
                       }
                     }
                   }
@@ -1456,19 +1017,47 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
-        ajv.validateSchema(standard);
-        assert.deepStrictEqual(standard, {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
+        const converter = new InternalToExpandedConverter();
+        const expanded = await converter.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
+          'x-bsonType': 'object',
           required: ['arrayMixedType'],
           $defs: {},
           properties: {
             arrayMixedType: {
               type: 'array',
+              'x-bsonType': 'array',
+              'x-metadata': {
+                count: 1,
+                probability: 1,
+                hasDuplicates: false
+              },
               items: {
-                type: ['integer', 'string']
+                anyOf: [{
+                  type: 'integer',
+                  'x-bsonType': 'int',
+                  'x-metadata': {
+                    count: 2,
+                    hasDuplicates: false,
+                    probability: 0.6666666666666666
+                  },
+                  'x-sampleValues': [
+                    1,
+                    3
+                  ]
+                }, {
+                  type: 'string',
+                  'x-bsonType': 'string',
+                  'x-metadata': {
+                    count: 1,
+                    hasDuplicates: false,
+                    probability: 0.3333333333333333
+                  },
+                  'x-sampleValues': [
+                    '2'
+                  ]
+                }]
               }
             }
           }
@@ -1538,17 +1127,39 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
-        ajv.validateSchema(standard);
-        assert.deepStrictEqual(standard, {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
+        const converter = new InternalToExpandedConverter();
+        const expanded = await converter.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
+          'x-bsonType': 'object',
           required: [],
           $defs: {},
           properties: {
             mixedType: {
-              type: ['integer', 'string']
+              'x-metadata': {
+                probability: 0.6666666666666666,
+                hasDuplicates: false,
+                count: 2
+              },
+              anyOf: [{
+                type: 'integer',
+                'x-bsonType': 'int',
+                'x-metadata': {
+                  probability: 0.3333333333333333,
+                  hasDuplicates: false,
+                  count: 1
+                },
+                'x-sampleValues': [1]
+              }, {
+                type: 'string',
+                'x-bsonType': 'string',
+                'x-metadata': {
+                  probability: 0.3333333333333333,
+                  hasDuplicates: false,
+                  count: 1
+                },
+                'x-sampleValues': ['abc']
+              }]
             }
           }
         });
@@ -1658,29 +1269,57 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
-        ajv.validateSchema(standard);
-        assert.deepStrictEqual(standard, {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
+        const converter = new InternalToExpandedConverter();
+        const expanded = await converter.convert(internal);
+        assert.deepStrictEqual(expanded, {
           type: 'object',
+          'x-bsonType': 'object',
           required: [],
           $defs: {},
           properties: {
             mixedComplexType: {
+              'x-metadata': {
+                probability: 0.6666666666666666,
+                hasDuplicates: false,
+                count: 2
+              },
               anyOf: [
                 {
                   type: 'array',
+                  'x-bsonType': 'array',
+                  'x-metadata': {
+                    count: 1,
+                    probability: 0.3333333333333333
+                  },
                   items: {
-                    type: 'integer'
+                    type: 'integer',
+                    'x-bsonType': 'int',
+                    'x-metadata': {
+                      probability: 1,
+                      hasDuplicates: false,
+                      count: 3
+                    },
+                    'x-sampleValues': [1, 2, 3]
                   }
                 },
                 {
                   type: 'object',
+                  'x-bsonType': 'object',
                   required: ['a'],
+                  'x-metadata': {
+                    count: 1,
+                    probability: 0.3333333333333333
+                  },
                   properties: {
                     a: {
-                      type: 'string'
+                      type: 'string',
+                      'x-bsonType': 'string',
+                      'x-metadata': {
+                        probability: 1,
+                        hasDuplicates: false,
+                        count: 1
+                      },
+                      'x-sampleValues': ['bc']
                     }
                   }
                 }
@@ -1739,23 +1378,45 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
-        ajv.validateSchema(standard);
+        const converter = new InternalToExpandedConverter();
+        const expanded = await converter.convert(internal);
         const expectedDefinitions = {
           ObjectId: RELAXED_EJSON_DEFINITIONS.ObjectId
         };
-        assert.deepStrictEqual(standard, {
-          $schema: 'https://json-schema.org/draft/2020-12/schema',
+        assert.deepStrictEqual(expanded, {
           type: 'object',
+          'x-bsonType': 'object',
           required: ['mixedType'],
           $defs: expectedDefinitions,
           properties: {
             mixedType: {
+              'x-metadata': {
+                count: 2,
+                hasDuplicates: false,
+                probability: 1
+              },
               anyOf: [{
-                type: 'string'
+                type: 'string',
+                'x-bsonType': 'string',
+                'x-metadata': {
+                  count: 1,
+                  hasDuplicates: false,
+                  probability: 0.3333333333333333
+                },
+                'x-sampleValues': [
+                  'abc'
+                ]
               }, {
-                $ref: '#/$defs/ObjectId'
+                $ref: '#/$defs/ObjectId',
+                'x-bsonType': 'objectId',
+                'x-metadata': {
+                  count: 1,
+                  hasDuplicates: false,
+                  probability: 0.8
+                },
+                'x-sampleValues': [
+                  '642d766c7300158b1f22e975'
+                ]
               }]
             }
           }
@@ -1868,7 +1529,7 @@ describe('internalSchemaToStandard', async function() {
         ]
       };
       const abortController = new AbortController();
-      const converter = new InternalToStandardConverter();
+      const converter = new InternalToExpandedConverter();
       const promise = converter.convert(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {

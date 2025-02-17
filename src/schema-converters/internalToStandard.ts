@@ -250,10 +250,6 @@ export const RELAXED_EJSON_DEFINITIONS = {
 const createConvertInternalToStandard = function() {
   const usedDefinitions = new Set<string>();
 
-  function clearUsedDefinitions() {
-    usedDefinitions.clear();
-  }
-
   function getUsedDefinitions() {
     const filteredDefinitions = Object.fromEntries(
       Object.entries(RELAXED_EJSON_DEFINITIONS).filter(([key]) => usedDefinitions.has(key))
@@ -325,7 +321,6 @@ const createConvertInternalToStandard = function() {
     internalSchema: InternalSchema,
     options: { signal?: AbortSignal } = {}
   ): Promise<StandardJSONSchema> {
-    clearUsedDefinitions();
     const { required, properties } = await parseFields(internalSchema.fields, options.signal);
     const schema: StandardJSONSchema = {
       $schema: 'https://json-schema.org/draft/2020-12/schema',

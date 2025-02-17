@@ -7,10 +7,6 @@ import { allowAbort } from './util';
 const createConvertInternalToExpanded = function() {
   const usedDefinitions = new Set<string>();
 
-  function clearUsedDefinitions() {
-    usedDefinitions.clear();
-  }
-
   function getUsedDefinitions() {
     const filteredDefinitions = Object.fromEntries(
       Object.entries(RELAXED_EJSON_DEFINITIONS).filter(([key]) => usedDefinitions.has(key))
@@ -102,7 +98,6 @@ const createConvertInternalToExpanded = function() {
     internalSchema: InternalSchema,
     options: { signal?: AbortSignal } = {}
   ): Promise<ExpandedJSONSchema> {
-    clearUsedDefinitions();
     const { required, properties } = await parseFields(internalSchema.fields, options.signal);
     const schema: ExpandedJSONSchema = {
       type: 'object',

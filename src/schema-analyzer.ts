@@ -167,6 +167,7 @@ type AllSchemaParseOptions = {
   storeValues: boolean;
   signal?: AbortSignal;
   storedValuesLengthLimit: number;
+  distinctFieldsAbortThreshold?: number;
 };
 export type SchemaParseOptions = Partial<AllSchemaParseOptions>;
 
@@ -469,6 +470,7 @@ export class SchemaAnalyzer {
   semanticTypes: SemanticTypeMap;
   options: AllSchemaParseOptions;
   documentsAnalyzed = 0;
+  fieldsCount = 0;
   schemaAnalysisRoot: SchemaAnalysisRoot = {
     fields: Object.create(null),
     count: 0
@@ -505,6 +507,14 @@ export class SchemaAnalyzer {
         .forEach(([k, v]) => {
           this.semanticTypes[k] = v;
         });
+    }
+  }
+
+  increaseFieldCount() {
+    if (!this.options.distinctFieldsAbortThreshold) return;
+    this.fieldsCount++;
+    if (this.fieldsCount > this.options.distinctFieldsAbortThreshold) {
+      throw new Error(`Schema analysis aborted: Fields count above ${this.options.distinctFieldsAbortThreshold}`);
     }
   }
 
@@ -580,6 +590,7 @@ export class SchemaAnalyzer {
           count: 0,
           types: Object.create(null)
         };
+        this.increaseFieldCount();
       }
       const field = schema[fieldName];
 

@@ -37,7 +37,7 @@ async function analyzeDocuments(
  */
 async function parseSchema(
   source: AnyIterable,
-  options?: SchemaParseOptions
+  options?: Partial<SchemaParseOptions>
 ): Promise<InternalSchema> {
   return (await getCompletedSchemaAnalyzer(source, options)).getResult();
 }

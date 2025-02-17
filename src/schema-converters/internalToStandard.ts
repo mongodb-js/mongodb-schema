@@ -247,7 +247,7 @@ export const RELAXED_EJSON_DEFINITIONS = {
   }
 };
 
-export const convertInternalToStandard = (function() {
+const createConvertInternalToStandard = function() {
   const usedDefinitions = new Set<string>();
 
   function clearUsedDefinitions() {
@@ -336,4 +336,11 @@ export const convertInternalToStandard = (function() {
     };
     return schema;
   };
-})();
+};
+
+export function convertInternalToStandard(
+  internalSchema: InternalSchema,
+  options: { signal?: AbortSignal } = {}
+): Promise<StandardJSONSchema> {
+  return createConvertInternalToStandard()(internalSchema, options);
+}

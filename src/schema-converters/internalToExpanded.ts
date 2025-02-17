@@ -4,7 +4,7 @@ import { InternalTypeToStandardTypeMap, RELAXED_EJSON_DEFINITIONS } from './inte
 import { InternalTypeToBsonTypeMap } from './internalToMongoDB';
 import { allowAbort } from './util';
 
-export const convertInternalToExpanded = (function() {
+const createConvertInternalToExpanded = function() {
   const usedDefinitions = new Set<string>();
 
   function clearUsedDefinitions() {
@@ -113,4 +113,11 @@ export const convertInternalToExpanded = (function() {
     };
     return schema;
   };
-})();
+};
+
+export function convertInternalToExpanded(
+  internalSchema: InternalSchema,
+  options: { signal?: AbortSignal } = {}
+): Promise<ExpandedJSONSchema> {
+  return createConvertInternalToExpanded()(internalSchema, options);
+}

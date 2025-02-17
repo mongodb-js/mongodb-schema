@@ -1,4 +1,5 @@
 import { type JSONSchema4 } from 'json-schema';
+import { InternalSchema } from '.';
 
 export type StandardJSONSchema = JSONSchema4;
 
@@ -23,3 +24,9 @@ export type ExpandedJSONSchema = StandardJSONSchema & {
 }
 
 export type AnyIterable<T = any> = Iterable<T> | AsyncIterable<T>;
+
+type AnySchema = InternalSchema | StandardJSONSchema | MongoDBJSONSchema | ExpandedJSONSchema;
+export type SchemaConverterFn<InputSchema = AnySchema, OutputSchema = AnySchema> = (
+  input: InputSchema,
+  options: { signal?: AbortSignal },
+) => Promise<OutputSchema>;

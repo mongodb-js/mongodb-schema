@@ -4,63 +4,59 @@ import { InternalTypeToStandardTypeMap, RELAXED_EJSON_DEFINITIONS } from './inte
 import { InternalTypeToBsonTypeMap } from './internalToMongoDB';
 import { allowAbort } from './util';
 
-export class InternalToExpandedConverter {
-  private usedDefinitions = new Set<string>();
+export const convertInternalToExpanded = (function() {
+  const usedDefinitions = new Set<string>();
 
-  private clearUsedDefintions() {
-    this.usedDefinitions.clear();
+  function clearUsedDefinitions() {
+    usedDefinitions.clear();
   }
 
-  private getUsedDefinitions() {
+  function getUsedDefinitions() {
     const filteredDefinitions = Object.fromEntries(
-      Object.entries(RELAXED_EJSON_DEFINITIONS)
-        .filter(([key]) => this.usedDefinitions.has(key))
+      Object.entries(RELAXED_EJSON_DEFINITIONS).filter(([key]) => usedDefinitions.has(key))
     );
     return Object.freeze(filteredDefinitions);
   }
 
-  private markUsedDefinition(ref: string) {
-    this.usedDefinitions.add(ref.split('/')[2]);
+  function markUsedDefinition(ref: string) {
+    usedDefinitions.add(ref.split('/')[2]);
   }
 
-  private getStandardType(internalType: string) {
-    const type = { ...InternalTypeToStandardTypeMap[internalType] };
+  function getStandardType(internalType: string) {
+    const type = InternalTypeToStandardTypeMap[internalType];
     if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
-    return type;
+    return { ...type };
   }
 
-  private getBsonType(internalType: string) {
+  function getBsonType(internalType: string) {
     const type = InternalTypeToBsonTypeMap[internalType];
     if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
     return type;
   }
 
-  private async parseType(type: SchemaType, signal?: AbortSignal): Promise<ExpandedJSONSchema> {
+  async function parseType(type: SchemaType, signal?: AbortSignal): Promise<ExpandedJSONSchema> {
     await allowAbort(signal);
     const schema: ExpandedJSONSchema = {
-      ...this.getStandardType(type.bsonType),
-      'x-bsonType': this.getBsonType(type.bsonType),
-      'x-metadata': this.getMetadata(type)
+      ...getStandardType(type.bsonType),
+      'x-bsonType': getBsonType(type.bsonType),
+      'x-metadata': getMetadata(type)
     };
-    if ('values' in type && !!type.values) {
+    if ('values' in type && type.values) {
       schema['x-sampleValues'] = type.values;
     }
-    if (schema.$ref) this.markUsedDefinition(schema.$ref);
+    if (schema.$ref) markUsedDefinition(schema.$ref);
     switch (type.bsonType) {
       case 'Array':
-        schema.items = await this.parseTypes((type as ArraySchemaType).types);
+        schema.items = await parseTypes((type as ArraySchemaType).types, signal);
         break;
       case 'Document':
-        Object.assign(schema,
-          await this.parseFields((type as DocumentSchemaType).fields, signal)
-        );
+        Object.assign(schema, await parseFields((type as DocumentSchemaType).fields, signal));
         break;
     }
-
     return schema;
   }
 
-  private getMetadata<TType extends SchemaField | SchemaType>({
+  function getMetadata<TType extends SchemaField | SchemaType>({
     hasDuplicates,
     probability,
     count
@@ -72,50 +68,49 @@ export class InternalToExpandedConverter {
     };
   }
 
-  private async parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<ExpandedJSONSchema> {
+  async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<ExpandedJSONSchema> {
     await allowAbort(signal);
     const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
     const isSingleType = definedTypes.length === 1;
     if (isSingleType) {
-      return this.parseType(definedTypes[0], signal);
+      return parseType(definedTypes[0], signal);
     }
-    const parsedTypes = await Promise.all(definedTypes.map(type => this.parseType(type, signal)));
+    const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
     return {
       anyOf: parsedTypes
     };
   }
 
-  private async parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): Promise<{
-    required: ExpandedJSONSchema['required'],
-    properties: ExpandedJSONSchema['properties'],
-  }> {
+  async function parseFields(
+    fields: DocumentSchemaType['fields'],
+    signal?: AbortSignal
+  ): Promise<{ required: ExpandedJSONSchema['required']; properties: ExpandedJSONSchema['properties'] }> {
     const required = [];
     const properties: ExpandedJSONSchema['properties'] = {};
     for (const field of fields) {
       if (field.probability === 1) required.push(field.name);
       properties[field.name] = {
-        ...await this.parseTypes(field.types, signal),
-        'x-metadata': this.getMetadata(field)
+        ...await parseTypes(field.types, signal),
+        'x-metadata': getMetadata(field)
       };
     }
 
     return { required, properties };
   }
 
-  public async convert(
+  return async function convert(
     internalSchema: InternalSchema,
-    options: {
-      signal?: AbortSignal
-  } = {}): Promise<ExpandedJSONSchema> {
-    this.clearUsedDefintions();
-    const { required, properties } = await this.parseFields(internalSchema.fields, options.signal);
+    options: { signal?: AbortSignal } = {}
+  ): Promise<ExpandedJSONSchema> {
+    clearUsedDefinitions();
+    const { required, properties } = await parseFields(internalSchema.fields, options.signal);
     const schema: ExpandedJSONSchema = {
       type: 'object',
       'x-bsonType': 'object',
       required,
       properties,
-      $defs: this.getUsedDefinitions()
+      $defs: getUsedDefinitions()
     };
     return schema;
-  }
-}
+  };
+})();

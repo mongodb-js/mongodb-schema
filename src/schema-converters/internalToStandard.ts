@@ -247,62 +247,58 @@ export const RELAXED_EJSON_DEFINITIONS = {
   }
 };
 
-export class InternalToStandardConverter {
-  private usedDefinitions = new Set<string>();
+export const convertInternalToStandard = (function() {
+  const usedDefinitions = new Set<string>();
 
-  private clearUsedDefintions() {
-    this.usedDefinitions.clear();
+  function clearUsedDefinitions() {
+    usedDefinitions.clear();
   }
 
-  private getUsedDefinitions() {
+  function getUsedDefinitions() {
     const filteredDefinitions = Object.fromEntries(
-      Object.entries(RELAXED_EJSON_DEFINITIONS)
-        .filter(([key]) => this.usedDefinitions.has(key))
+      Object.entries(RELAXED_EJSON_DEFINITIONS).filter(([key]) => usedDefinitions.has(key))
     );
     return Object.freeze(filteredDefinitions);
   }
 
-  private markUsedDefinition(ref: string) {
-    this.usedDefinitions.add(ref.split('/')[2]);
+  function markUsedDefinition(ref: string) {
+    usedDefinitions.add(ref.split('/')[2]);
   }
 
-  private convertInternalType(internalType: string) {
-    const type = { ...InternalTypeToStandardTypeMap[internalType] };
+  function convertInternalType(internalType: string) {
+    const type = InternalTypeToStandardTypeMap[internalType];
     if (!type) throw new Error(`Encountered unknown type: ${internalType}`);
-    return type;
+    return { ...type };
   }
 
-  private async parseType(type: SchemaType, signal?: AbortSignal): Promise<StandardJSONSchema> {
+  async function parseType(type: SchemaType, signal?: AbortSignal): Promise<StandardJSONSchema> {
     await allowAbort(signal);
-    const schema: StandardJSONSchema = this.convertInternalType(type.bsonType);
-    if (schema.$ref) this.markUsedDefinition(schema.$ref);
+    const schema: StandardJSONSchema = convertInternalType(type.bsonType);
+    if (schema.$ref) markUsedDefinition(schema.$ref);
     switch (type.bsonType) {
       case 'Array':
-        schema.items = await this.parseTypes((type as ArraySchemaType).types);
+        schema.items = await parseTypes((type as ArraySchemaType).types, signal);
         break;
       case 'Document':
-        Object.assign(schema,
-          await this.parseFields((type as DocumentSchemaType).fields, signal)
-        );
+        Object.assign(schema, await parseFields((type as DocumentSchemaType).fields, signal));
         break;
     }
-
     return schema;
   }
 
-  private isPlainTypesOnly(types: StandardJSONSchema[]): types is { type: JSONSchema4TypeName }[] {
+  function isPlainTypesOnly(types: StandardJSONSchema[]): types is { type: JSONSchema4TypeName }[] {
     return types.every(definition => !!definition.type && Object.keys(definition).length === 1);
   }
 
-  private async parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<StandardJSONSchema> {
+  async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<StandardJSONSchema> {
     await allowAbort(signal);
     const definedTypes = types.filter(type => type.bsonType.toLowerCase() !== 'undefined');
     const isSingleType = definedTypes.length === 1;
     if (isSingleType) {
-      return this.parseType(definedTypes[0], signal);
+      return parseType(definedTypes[0], signal);
     }
-    const parsedTypes = await Promise.all(definedTypes.map(type => this.parseType(type, signal)));
-    if (this.isPlainTypesOnly(parsedTypes)) {
+    const parsedTypes = await Promise.all(definedTypes.map(type => parseType(type, signal)));
+    if (isPlainTypesOnly(parsedTypes)) {
       return {
         type: parsedTypes.map(({ type }) => type)
       };
@@ -312,34 +308,32 @@ export class InternalToStandardConverter {
     };
   }
 
-  private async parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): Promise<{
-    required: StandardJSONSchema['required'],
-    properties: StandardJSONSchema['properties'],
-  }> {
+  async function parseFields(
+    fields: DocumentSchemaType['fields'],
+    signal?: AbortSignal
+  ): Promise<{ required: StandardJSONSchema['required']; properties: StandardJSONSchema['properties'] }> {
     const required = [];
     const properties: StandardJSONSchema['properties'] = {};
     for (const field of fields) {
       if (field.probability === 1) required.push(field.name);
-      properties[field.name] = await this.parseTypes(field.types, signal);
+      properties[field.name] = await parseTypes(field.types, signal);
     }
-
     return { required, properties };
   }
 
-  public async convert(
+  return async function convert(
     internalSchema: InternalSchema,
-    options: {
-      signal?: AbortSignal
-  } = {}): Promise<StandardJSONSchema> {
-    this.clearUsedDefintions();
-    const { required, properties } = await this.parseFields(internalSchema.fields, options.signal);
+    options: { signal?: AbortSignal } = {}
+  ): Promise<StandardJSONSchema> {
+    clearUsedDefinitions();
+    const { required, properties } = await parseFields(internalSchema.fields, options.signal);
     const schema: StandardJSONSchema = {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       type: 'object',
       required,
       properties,
-      $defs: this.getUsedDefinitions()
+      $defs: getUsedDefinitions()
     };
     return schema;
-  }
-}
+  };
+})();

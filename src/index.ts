@@ -17,6 +17,9 @@ import type {
   SimplifiedSchemaField,
   SimplifiedSchema
 } from './schema-analyzer';
+import { convertInternalToExpanded } from './schema-converters/internalToExpanded';
+import { convertInternalToMongodb } from './schema-converters/internalToMongoDB';
+import { convertInternalToStandard } from './schema-converters/internalToStandard';
 import * as schemaStats from './stats';
 import { AnyIterable, StandardJSONSchema, MongoDBJSONSchema, ExpandedJSONSchema } from './types';
 
@@ -28,7 +31,11 @@ async function analyzeDocuments(
   options?: SchemaParseOptions
 ): Promise<SchemaAccessor> {
   const internalSchema = (await getCompletedSchemaAnalyzer(source, options)).getResult();
-  return new InternalSchemaBasedAccessor(internalSchema);
+  return new InternalSchemaBasedAccessor(internalSchema, {
+    internalToStandard: convertInternalToStandard,
+    internalToMongoDB: convertInternalToMongodb,
+    internalToExpanded: convertInternalToExpanded
+  });
 }
 
 /**

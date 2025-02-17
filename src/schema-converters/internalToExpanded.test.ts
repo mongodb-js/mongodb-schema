@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
-import { InternalToExpandedConverter } from './internalToExpanded';
+import { convertInternalToExpanded } from './internalToExpanded';
 
 describe('internalSchemaToExpanded', async function() {
   describe('Converts: ', async function() {
@@ -336,8 +336,7 @@ describe('internalSchemaToExpanded', async function() {
           }
         ]
       };
-      const converter = new InternalToExpandedConverter();
-      const expanded = await converter.convert(internal);
+      const expanded = await convertInternalToExpanded(internal);
       const expectedDefinitions: any = RELAXED_EJSON_DEFINITIONS;
       delete expectedDefinitions.BSONSymbol;
       delete expectedDefinitions.CodeWScope;
@@ -602,8 +601,7 @@ describe('internalSchemaToExpanded', async function() {
           }
         ]
       };
-      const converter = new InternalToExpandedConverter();
-      const expanded = await converter.convert(internal);
+      const expanded = await convertInternalToExpanded(internal);
       const expectedDefinitions = {
         Double: RELAXED_EJSON_DEFINITIONS.Double
       };
@@ -717,8 +715,7 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const converter = new InternalToExpandedConverter();
-        const expanded = await converter.convert(internal);
+        const expanded = await convertInternalToExpanded(internal);
         assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
@@ -881,8 +878,7 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const converter = new InternalToExpandedConverter();
-        const expanded = await converter.convert(internal);
+        const expanded = await convertInternalToExpanded(internal);
         assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
@@ -1017,8 +1013,7 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const converter = new InternalToExpandedConverter();
-        const expanded = await converter.convert(internal);
+        const expanded = await convertInternalToExpanded(internal);
         assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
@@ -1127,8 +1122,7 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const converter = new InternalToExpandedConverter();
-        const expanded = await converter.convert(internal);
+        const expanded = await convertInternalToExpanded(internal);
         assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
@@ -1269,8 +1263,7 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const converter = new InternalToExpandedConverter();
-        const expanded = await converter.convert(internal);
+        const expanded = await convertInternalToExpanded(internal);
         assert.deepStrictEqual(expanded, {
           type: 'object',
           'x-bsonType': 'object',
@@ -1378,8 +1371,7 @@ describe('internalSchemaToExpanded', async function() {
             }
           ]
         };
-        const converter = new InternalToExpandedConverter();
-        const expanded = await converter.convert(internal);
+        const expanded = await convertInternalToExpanded(internal);
         const expectedDefinitions = {
           ObjectId: RELAXED_EJSON_DEFINITIONS.ObjectId
         };
@@ -1529,8 +1521,7 @@ describe('internalSchemaToExpanded', async function() {
         ]
       };
       const abortController = new AbortController();
-      const converter = new InternalToExpandedConverter();
-      const promise = converter.convert(internal, { signal: abortController.signal });
+      const promise = convertInternalToExpanded(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {
         name: 'Error',

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import Ajv2020 from 'ajv/dist/2020';
-import { InternalToStandardConverter, RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
+import { convertInternalToStandard, RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 
 describe('internalSchemaToStandard', async function() {
   const ajv = new Ajv2020();
@@ -895,8 +895,7 @@ describe('internalSchemaToStandard', async function() {
           }
         ]
       };
-      const converter = new InternalToStandardConverter();
-      const standard = await converter.convert(internal);
+      const standard = await convertInternalToStandard(internal);
       ajv.validateSchema(standard);
       const expectedDefinitions: any = {
         ...RELAXED_EJSON_DEFINITIONS
@@ -1117,8 +1116,7 @@ describe('internalSchemaToStandard', async function() {
           }
         ]
       };
-      const converter = new InternalToStandardConverter();
-      const standard = await converter.convert(internal);
+      const standard = await convertInternalToStandard(internal);
       const expectedDefinitions = {
         Double: RELAXED_EJSON_DEFINITIONS.Double
       };
@@ -1209,8 +1207,7 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
+        const standard = await convertInternalToStandard(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -1358,8 +1355,7 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
+        const standard = await convertInternalToStandard(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -1456,8 +1452,7 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
+        const standard = await convertInternalToStandard(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -1538,8 +1533,7 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
+        const standard = await convertInternalToStandard(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -1658,8 +1652,7 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
+        const standard = await convertInternalToStandard(internal);
         ajv.validateSchema(standard);
         assert.deepStrictEqual(standard, {
           $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -1739,8 +1732,7 @@ describe('internalSchemaToStandard', async function() {
             }
           ]
         };
-        const converter = new InternalToStandardConverter();
-        const standard = await converter.convert(internal);
+        const standard = await convertInternalToStandard(internal);
         ajv.validateSchema(standard);
         const expectedDefinitions = {
           ObjectId: RELAXED_EJSON_DEFINITIONS.ObjectId
@@ -1868,8 +1860,7 @@ describe('internalSchemaToStandard', async function() {
         ]
       };
       const abortController = new AbortController();
-      const converter = new InternalToStandardConverter();
-      const promise = converter.convert(internal, { signal: abortController.signal });
+      const promise = convertInternalToStandard(internal, { signal: abortController.signal });
       abortController.abort(new Error('Too long, didn\'t wait.'));
       await assert.rejects(promise, {
         name: 'Error',

@@ -337,7 +337,7 @@ describe('internalSchemaToExpanded', async function() {
         ]
       };
       const expanded = await convertInternalToExpanded(internal);
-      const expectedDefinitions: any = RELAXED_EJSON_DEFINITIONS;
+      const expectedDefinitions: Partial<typeof RELAXED_EJSON_DEFINITIONS> = { ...RELAXED_EJSON_DEFINITIONS };
       delete expectedDefinitions.BSONSymbol;
       delete expectedDefinitions.CodeWScope;
       delete expectedDefinitions.DBPointer;

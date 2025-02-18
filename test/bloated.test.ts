@@ -46,7 +46,7 @@ describe('bloated documents', function() {
     const documents = [{
       str: generateRandomString(20000)
     }];
-    const schema = await getSchema(documents, { sampleLengthLimit: 5 });
+    const schema = await getSchema(documents, { storedValuesLengthLimit: 5 });
     const stringLength = ((schema.fields[0].types[0] as PrimitiveSchemaType).values[0] as string).length;
     assert.ok(stringLength === 5);
   });

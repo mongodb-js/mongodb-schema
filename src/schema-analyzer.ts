@@ -166,14 +166,14 @@ type AllSchemaParseOptions = {
   semanticTypes: boolean | SemanticTypeMap;
   storeValues: boolean;
   signal?: AbortSignal;
-  sampleLengthLimit: number;
+  storedValuesLengthLimit: number;
 };
 export type SchemaParseOptions = Partial<AllSchemaParseOptions>;
 
 const defaultSchemaParseOptions: AllSchemaParseOptions = {
   semanticTypes: false,
   storeValues: true,
-  sampleLengthLimit: 10000
+  storedValuesLengthLimit: 10000
 };
 
 /**
@@ -563,7 +563,7 @@ export class SchemaAnalyzer {
         }
 
         type.values.pushSome(
-          getCappedValue(type.bsonType, value, this.options.sampleLengthLimit)
+          getCappedValue(type.bsonType, value, this.options.storedValuesLengthLimit)
         );
       }
     };

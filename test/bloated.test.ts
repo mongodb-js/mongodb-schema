@@ -41,4 +41,13 @@ describe('bloated documents', function() {
     assert.ok(binary.length() <= 10000);
     assert.strictEqual(binary.sub_type, 2);
   });
+
+  it('the limit is configurable', async function() {
+    const documents = [{
+      str: generateRandomString(20000)
+    }];
+    const schema = await getSchema(documents, { storedValuesLengthLimit: 5 });
+    const stringLength = ((schema.fields[0].types[0] as PrimitiveSchemaType).values[0] as string).length;
+    assert.ok(stringLength === 5);
+  });
 });

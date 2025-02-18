@@ -162,10 +162,18 @@ type SemanticTypeMap = {
   [typeName: string]: SemanticTypeFunction | boolean;
 };
 
-export type SchemaParseOptions = {
-  semanticTypes?: boolean | SemanticTypeMap;
-  storeValues?: boolean;
+type AllSchemaParseOptions = {
+  semanticTypes: boolean | SemanticTypeMap;
+  storeValues: boolean;
   signal?: AbortSignal;
+  storedValuesLengthLimit: number;
+};
+export type SchemaParseOptions = Partial<AllSchemaParseOptions>;
+
+const defaultSchemaParseOptions: AllSchemaParseOptions = {
+  semanticTypes: false,
+  storeValues: true,
+  storedValuesLengthLimit: 10000
 };
 
 /**
@@ -331,25 +339,25 @@ function simplifiedSchema(fields: SchemaAnalysisFieldsMap): SimplifiedSchema {
 
 function cropString(value: string, limit: number) {
   if (limit < 1) return '';
-  return value.charCodeAt(limit - 1) === value.codePointAt(10000 - 1)
+  return value.charCodeAt(limit - 1) === value.codePointAt(limit - 1)
     ? value.slice(0, limit)
     : value.slice(0, limit - 1);
 }
 
-function getCappedValue(bsonType: SchemaBSONType, value: BSONValue) {
+function getCappedValue(bsonType: SchemaBSONType, value: BSONValue, limit: number) {
   if (bsonType === 'String') {
-    return cropString(value as string, 10000);
+    return cropString(value as string, limit);
   }
   if (bsonType === 'Binary') {
     value = value as Binary;
-    return value.buffer.length > 10000
-      ? new Binary(value.buffer.slice(0, 10000), value.sub_type)
+    return value.buffer.length > limit
+      ? new Binary(value.buffer.slice(0, limit), value.sub_type)
       : value;
   }
   if (bsonType === 'Code') {
     value = value as Code;
-    return (value.code.length >= 10000)
-      ? new Code(cropString(value.code, 10000), value.scope)
+    return (value.code.length >= limit)
+      ? new Code(cropString(value.code, limit), value.scope)
       : value;
   }
   return value;
@@ -459,7 +467,7 @@ function finalizeSchema(schemaAnalysis: SchemaAnalysisRoot): SchemaField[] {
 
 export class SchemaAnalyzer {
   semanticTypes: SemanticTypeMap;
-  options: SchemaParseOptions;
+  options: AllSchemaParseOptions;
   documentsAnalyzed = 0;
   schemaAnalysisRoot: SchemaAnalysisRoot = {
     fields: Object.create(null),
@@ -474,7 +482,7 @@ export class SchemaAnalyzer {
 
   constructor(options?: SchemaParseOptions) {
     // Set default options.
-    this.options = { semanticTypes: false, storeValues: true, ...options };
+    this.options = { ...defaultSchemaParseOptions, ...options };
 
     this.semanticTypes = {
       ...semanticTypes
@@ -555,7 +563,7 @@ export class SchemaAnalyzer {
         }
 
         type.values.pushSome(
-          getCappedValue(type.bsonType, value)
+          getCappedValue(type.bsonType, value, this.options.storedValuesLengthLimit)
         );
       }
     };

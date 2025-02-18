@@ -87,5 +87,27 @@ describe('bloated documents', function() {
         assert.strictEqual((error as Error).message, 'Schema analysis aborted: Fields count above 4');
       }
     });
+
+    it('does not count the same field in different documents', async function() {
+      const documents = [{
+        field1: {
+          field2: {
+            field3: 'abc'
+          }
+        }
+      }, {
+        field1: {
+          field2: {
+            field3: 'bca'
+          }
+        }
+      }];
+      try {
+        await getSchema(documents, { distinctFieldsAbortThreshold: 4 });
+        assert.ok('Analysis finished');
+      } catch (error) {
+        assert.fail('Analysis aborted unexpectedly');
+      }
+    });
   });
 });

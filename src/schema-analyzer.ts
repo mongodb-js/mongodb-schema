@@ -167,6 +167,8 @@ type AllSchemaParseOptions = {
   storeValues: boolean;
   signal?: AbortSignal;
   storedValuesLengthLimit: number;
+  /** Complexity limit:
+   * The analysis will be aborted if the threshold is exceeded. */
   distinctFieldsAbortThreshold?: number;
 };
 export type SchemaParseOptions = Partial<AllSchemaParseOptions>;

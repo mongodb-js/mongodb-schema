@@ -1,7 +1,7 @@
 {
   "name": "mongodb-schema",
   "description": "Infer the probabilistic schema for a MongoDB collection.",
-  "version": "12.3.2",
+  "version": "12.4.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

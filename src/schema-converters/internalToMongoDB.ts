@@ -96,7 +96,7 @@ async function parseFields(fields: DocumentSchemaType['fields'], signal?: AbortS
   return { required, properties };
 }
 
-export default async function internalSchemaToMongodb(
+export async function convertInternalToMongodb(
   internalSchema: InternalSchema,
   options: {
     signal?: AbortSignal

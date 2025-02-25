@@ -2,7 +2,7 @@ import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaTy
 import { type ExpandedJSONSchema } from '../types';
 import { InternalTypeToStandardTypeMap, RELAXED_EJSON_DEFINITIONS } from './internalToStandard';
 import { InternalTypeToBsonTypeMap } from './internalToMongoDB';
-import { allowAbort } from './util';
+import { allowAbort } from '../util';
 
 const createConvertInternalToExpanded = function() {
   const usedDefinitions = new Set<string>();

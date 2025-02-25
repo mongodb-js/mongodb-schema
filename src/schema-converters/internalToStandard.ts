@@ -1,7 +1,7 @@
 import { JSONSchema4TypeName } from 'json-schema';
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { StandardJSONSchema } from '../types';
-import { allowAbort } from './util';
+import { allowAbort } from '../util';
 
 type StandardTypeDefinition = { type: JSONSchema4TypeName, $ref?: never; } | { $ref: string, type?: never };
 

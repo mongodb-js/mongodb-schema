@@ -3,7 +3,7 @@
  */
 import { ArraySchemaType, DocumentSchemaType, Schema as InternalSchema, SchemaType } from '../schema-analyzer';
 import { MongoDBJSONSchema } from '../types';
-import { allowAbort } from './util';
+import { allowAbort } from '../util';
 
 export const InternalTypeToBsonTypeMap: Record<
   SchemaType['name'] | 'Double' | 'BSONSymbol',

@@ -54,6 +54,7 @@
     "reservoir": "^0.1.2"
   },
   "devDependencies": {
+    "@mongodb-js/compass-test-server": "^0.3.2",
     "@types/json-schema": "^7.0.15",
     "@types/mocha": "^10.0.1",
     "@types/node": "^22.13.1",

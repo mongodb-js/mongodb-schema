@@ -517,7 +517,7 @@ export class SchemaAnalyzer {
     }
   }
 
-  allowAbort() {
+  allowAbortDuringAnalysis() {
     // Allow aborting the analysis.
     if (this.fieldAndTypeAnalysisCounter++ % ALLOW_ABORT_INTERVAL_COUNT === 0) {
       allowAbort();
@@ -551,7 +551,7 @@ export class SchemaAnalyzer {
      * Note: This mutates the `schema` argument.
      */
     const addToType = async(path: string[], value: BSONValue, schema: SchemaAnalysisFieldTypes) => {
-      await this.allowAbort();
+      await this.allowAbortDuringAnalysis();
       const bsonType = getBSONType(value);
       // If semantic type detection is enabled, the type is the semantic type
       // or the original bson type if no semantic type was detected. If disabled,

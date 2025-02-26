@@ -2,10 +2,8 @@ import { analyzeDocuments } from '../../src';
 import Ajv2020 from 'ajv/dist/2020';
 import assert from 'assert';
 import { ObjectId, Int32, Double, EJSON } from 'bson';
-import { MongoCluster } from 'mongodb-runner';
 import { MongoClient, type Db } from 'mongodb';
-import path from 'path';
-import os from 'os';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const bsonDocuments = [{
   _id: new ObjectId('67863e82fb817085a6b0ebad'),
@@ -50,9 +48,9 @@ describe('Documents -> Generate schema -> Validate Documents against the schema'
 });
 
 describe('Documents -> Generate schema -> Use schema in validation rule in MongoDB -> Validate documents against the schema', function() {
-  let cluster: MongoCluster | undefined;
   let client: MongoClient;
   let db: Db;
+  const cluster = mochaTestServer();
 
   before(async function() {
     // Create the schema validation rule.
@@ -63,14 +61,7 @@ describe('Documents -> Generate schema -> Use schema in validation rule in Mongo
     };
 
     // Connect to the mongodb instance.
-    cluster = await MongoCluster.start({
-      topology: 'standalone',
-      tmpDir: path.join(
-        os.tmpdir(),
-        'mongodb-schema-test'
-      )
-    });
-    const connectionString = cluster.connectionString;
+    const connectionString = cluster().connectionString;
     client = new MongoClient(connectionString);
     await client.connect();
     db = client.db('test');
@@ -81,10 +72,7 @@ describe('Documents -> Generate schema -> Use schema in validation rule in Mongo
     });
   });
   after(async function() {
-    await db?.collection('books').drop();
     await client?.close();
-    await cluster?.close();
-    cluster = undefined;
   });
 
   it('allows inserting valid documents', async function() {

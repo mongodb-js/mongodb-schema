@@ -601,7 +601,7 @@ export class SchemaAnalyzer {
      * Note: This mutates the `schema` argument.
      */
     const addToField = async(fieldName: string, path: string[], value: BSONValue, schema: SchemaAnalysisFieldsMap) => {
-      await this.allowAbort();
+      await this.allowAbortDuringAnalysis();
       if (!schema[fieldName]) {
         schema[fieldName] = {
           name: fieldName,

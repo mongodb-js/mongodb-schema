@@ -49,9 +49,33 @@ export const allBSONTypesDoc = {
     uuid: new UUID('AAAAAAAA-AAAA-4AAA-AAAA-AAAAAAAAAAAA'), // 4
     md5: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 5), // 5
     encrypted: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 6), // 6
-    compressedTimeSeries: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 7), // 7
+    compressedTimeSeries: new Binary(
+      Buffer.from(
+        'CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==',
+        'base64'
+      ),
+      7
+    ), // 7
     custom: Binary.createFromBase64('//8=', 128) // 128
   },
 
   dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')) // not actually a separate type, just a convention
+};
+
+// Includes some edge cases like empty objects, nested empty arrays, etc.
+export const allBSONTypesWithEdgeCasesDoc = {
+  ...allBSONTypesDoc,
+  emptyObject: {},
+  objectWithNestedEmpty: {
+    nestedEmpty: {}
+  },
+  emptyArray: [],
+  arrayOfEmptyArrays: [[], []],
+  // infinityNum: new Double(Infinity),
+  // negativeInfinityNum: new Double(-Infinity),
+  // NaNNum: new Double(NaN)
+
+  infinityNum: Infinity,
+  negativeInfinityNum: -Infinity,
+  NaNNum: NaN
 };

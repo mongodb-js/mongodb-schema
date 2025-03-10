@@ -895,7 +895,6 @@ describe('internalSchemaToMongoDB', async function() {
       const mongodb = await convertInternalToMongodb(internal);
       assert.deepStrictEqual(mongodb, {
         bsonType: 'object',
-        required: [],
         properties: {
           _id: {
             bsonType: 'objectId'
@@ -939,8 +938,7 @@ describe('internalSchemaToMongoDB', async function() {
               uuidOld: {
                 bsonType: 'binData'
               }
-            },
-            required: []
+            }
           },
           boolean: {
             bsonType: 'bool'
@@ -984,8 +982,7 @@ describe('internalSchemaToMongoDB', async function() {
               key: {
                 bsonType: 'string'
               }
-            },
-            required: []
+            }
           },
           objectId: {
             bsonType: 'objectId'
@@ -1193,7 +1190,6 @@ describe('internalSchemaToMongoDB', async function() {
         const mongodb = await convertInternalToMongodb(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
-          required: [],
           properties: {
             genres: {
               bsonType: 'array',
@@ -1338,7 +1334,6 @@ describe('internalSchemaToMongoDB', async function() {
         const mongodb = await convertInternalToMongodb(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
-          required: [],
           properties: {
             genres: {
               bsonType: 'array',
@@ -1510,7 +1505,6 @@ describe('internalSchemaToMongoDB', async function() {
         const mongodb = await convertInternalToMongodb(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
-          required: [],
           properties: {
             mixedType: {
               bsonType: ['int', 'string']
@@ -1626,7 +1620,6 @@ describe('internalSchemaToMongoDB', async function() {
         const mongodb = await convertInternalToMongodb(internal);
         assert.deepStrictEqual(mongodb, {
           bsonType: 'object',
-          required: [],
           properties: {
             mixedComplexType: {
               anyOf: [

@@ -71,10 +71,6 @@ export const allBSONTypesWithEdgeCasesDoc = {
   },
   emptyArray: [],
   arrayOfEmptyArrays: [[], []],
-  // infinityNum: new Double(Infinity),
-  // negativeInfinityNum: new Double(-Infinity),
-  // NaNNum: new Double(NaN)
-
   infinityNum: Infinity,
   negativeInfinityNum: -Infinity,
   NaNNum: NaN

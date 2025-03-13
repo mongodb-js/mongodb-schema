@@ -1,4 +1,3 @@
-import assert from 'assert';
 import type { MongoDBJSONSchema } from './types';
 
 function getBSONType(property: MongoDBJSONSchema): string | string[] | undefined {
@@ -15,6 +14,12 @@ function isBSONArrayProperty(property: MongoDBJSONSchema): boolean {
 
 function isBSONPrimitive(property: MongoDBJSONSchema): boolean {
   return !(isBSONArrayProperty(property) || isBSONObjectProperty(property));
+}
+
+function assertIsDefined<T>(value: T): asserts value is NonNullable<T> {
+  if (value === undefined || value === null) {
+    throw new Error(`${value} is not defined`);
+  }
 }
 
 function toTypeName(type: string): string {
@@ -100,7 +105,7 @@ function indentSpaces(indent: number) {
 }
 
 function arrayType(types: string[]) {
-  assert(types.length, 'expected types');
+  assertIsDefined(types.length);
 
   if (types.length === 1) {
     return `${types[0]}[]`;
@@ -115,22 +120,22 @@ function toTypescriptType(properties: Record<string, MongoDBJSONSchema>, indent:
     }
 
     if (isBSONArrayProperty(schema)) {
-      assert(schema.items, 'expected schema.items');
+      assertIsDefined(schema.items);
       return `${indentSpaces(indent)}${propertyName}?: ${arrayType([...uniqueTypes(schema.items)])}`;
     }
 
     if (isBSONObjectProperty(schema)) {
-      assert(schema.properties, 'expected schema.properties');
+      assertIsDefined(schema.properties);
       return `${indentSpaces(indent)}${propertyName}?: ${toTypescriptType(schema.properties, indent + 1)}`;
     }
 
-    assert(false, 'this should not be possible');
+    throw new Error('We should never get here');
   });
 
   return `{\n${eachFieldDefinition.join(';\n')}\n${indentSpaces(indent - 1)}}`;
 }
 export function toTypescriptTypeDefinition(databaseName: string, collectionName: string, schema: MongoDBJSONSchema): string {
-  assert(schema.properties, 'expected schama.properties');
+  assertIsDefined(schema.properties);
 
   return `module ${databaseName} {
   type ${collectionName} = ${toTypescriptType(schema.properties, 2)};

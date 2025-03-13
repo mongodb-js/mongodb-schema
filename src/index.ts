@@ -22,6 +22,7 @@ import { convertInternalToMongodb } from './schema-converters/internalToMongoDB'
 import { convertInternalToStandard } from './schema-converters/internalToStandard';
 import * as schemaStats from './stats';
 import { AnyIterable, StandardJSONSchema, MongoDBJSONSchema, ExpandedJSONSchema } from './types';
+import { toTypescriptTypeDefinition } from './to-typescript';
 
 /**
  * Analyze documents - schema can be retrieved in different formats.
@@ -94,5 +95,6 @@ export {
   getSchemaPaths,
   getSimplifiedSchema,
   SchemaAnalyzer,
-  schemaStats
+  schemaStats,
+  toTypescriptTypeDefinition
 };

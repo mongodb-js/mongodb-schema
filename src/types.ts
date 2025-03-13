@@ -3,7 +3,7 @@ import { InternalSchema } from '.';
 
 export type StandardJSONSchema = JSONSchema4;
 
-export type MongoDBJSONSchema = Pick<StandardJSONSchema, 'title' | 'required' | 'description'> & {
+export type MongoDBJSONSchema = Partial<StandardJSONSchema> & Pick<StandardJSONSchema, 'title' | 'required' | 'description'> & {
   bsonType?: string | string[];
   properties?: Record<string, MongoDBJSONSchema>;
   items?: MongoDBJSONSchema | MongoDBJSONSchema[];

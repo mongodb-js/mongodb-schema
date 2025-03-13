@@ -34,7 +34,7 @@
     ".esm-wrapper.mjs"
   ],
   "scripts": {
-    "test": "nyc mocha --timeout 5000 --colors -r ts-node/register test/*.ts test/**/*.ts src/**/*.test.ts",
+    "test": "nyc mocha --timeout 5000 --colors -r ts-node/register test/*.ts test/**/*.ts src/*.test.ts src/**/*.test.ts",
     "test-example-parse-from-file": "ts-node examples/parse-from-file.ts",
     "test-example-parse-schema": "ts-node examples/parse-schema.ts",
     "test-time": "ts-node ./test/time-testing.ts",

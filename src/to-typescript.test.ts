@@ -1,4 +1,4 @@
-import { analyzeDocuments, StandardJSONSchema, toTypescriptTypeDefinition } from '.';
+import { analyzeDocuments, StandardJSONSchema, toTypescriptTypeDefinition } from './index';
 
 import assert from 'assert/strict';
 

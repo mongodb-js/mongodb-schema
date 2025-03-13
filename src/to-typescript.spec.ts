@@ -116,7 +116,7 @@ const jsonSchema: StandardJSONSchema = {
   required: ['name', 'age']
 };
 
-describe.only('toTypescriptTypeDefinition', function() {
+describe('toTypescriptTypeDefinition', function() {
   it('converts a MongoDB JSON schema to TypeScript', async function() {
     const databaseName = 'myDb';
     const collectionName = 'myCollection';
@@ -125,7 +125,45 @@ describe.only('toTypescriptTypeDefinition', function() {
 
     console.log(inspect(schema, { depth: null }));
 
-    assert.equal(toTypescriptTypeDefinition(databaseName, collectionName, schema), '');
+    assert.equal(toTypescriptTypeDefinition(databaseName, collectionName, schema), `module myDb {
+  type myCollection = {
+    _id?: bson.ObjectId;
+    array?: bson.Double[];
+    binaries?: {
+      binaryOld?: bson.Binary;
+      compressedTimeSeries?: bson.Binary;
+      custom?: bson.Binary;
+      encrypted?: bson.Binary;
+      functionData?: bson.Binary;
+      generic?: bson.Binary;
+      md5?: bson.Binary;
+      uuid?: bson.Binary;
+      uuidOld?: bson.Binary
+    };
+    binData?: bson.Binary;
+    boolean?: boolean;
+    date?: bson.Date;
+    dbRef?: bson.DBPointer;
+    decimal?: bson.Decimal128;
+    double?: bson.Double;
+    doubleThatIsAlsoAnInteger?: bson.Double;
+    int?: bson.Int32;
+    javascript?: bson.Code;
+    javascriptWithScope?: bson.Code;
+    long?: bson.Long;
+    maxKey?: bson.MaxKey;
+    minKey?: bson.MinKey;
+    null?: null;
+    object?: {
+      key?: string
+    };
+    objectId?: bson.ObjectId;
+    regex?: bson.BSONRegExp;
+    string?: string;
+    symbol?: bson.BSONSymbol;
+    timestamp?: bson.Timestamp
+  };
+};`);
   });
 
   it('converts a standard JSON schema to TypeScript', function() {
@@ -134,6 +172,18 @@ describe.only('toTypescriptTypeDefinition', function() {
 
     console.log(inspect(jsonSchema, { depth: null }));
 
-    assert.equal(toTypescriptTypeDefinition(databaseName, collectionName, jsonSchema), '');
+    assert.equal(toTypescriptTypeDefinition(databaseName, collectionName, jsonSchema), `module myDb {
+  type myCollection = {
+    name?: string;
+    age?: number;
+    address?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string
+    };
+    hobbies?: string[]
+  };
+};`);
   });
 });

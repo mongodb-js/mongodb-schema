@@ -9,7 +9,7 @@ import {
 import { MongoClient, type Db } from 'mongodb';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
-import { allBSONTypesWithEdgeCasesDoc } from '../all-bson-types-fixture';
+import { allValidBSONTypesWithEdgeCasesDoc } from '../all-bson-types-fixture';
 import { analyzeDocuments } from '../../src';
 
 const bsonDocuments = [{
@@ -134,8 +134,8 @@ describe('With a MongoDB Cluster', function() {
     const allTypesCollection = 'allTypes';
 
     before(async function() {
-      await db.collection(allTypesCollection).insertOne(allBSONTypesWithEdgeCasesDoc);
-      const docsFromCollection = await db.collection(allTypesCollection).find().toArray();
+      await db.collection(allTypesCollection).insertOne(allValidBSONTypesWithEdgeCasesDoc);
+      const docsFromCollection = await db.collection(allTypesCollection).find({}, { promoteValues: false }).toArray();
 
       // Create the schema validation rule.
       const analyzedDocuments = await analyzeDocuments(docsFromCollection);
@@ -152,10 +152,10 @@ describe('With a MongoDB Cluster', function() {
 
     it('allows inserting valid documents (does not error)', async function() {
       const docs = [{
-        ...allBSONTypesWithEdgeCasesDoc,
+        ...allValidBSONTypesWithEdgeCasesDoc,
         _id: new ObjectId()
       }, {
-        ...allBSONTypesWithEdgeCasesDoc,
+        ...allValidBSONTypesWithEdgeCasesDoc,
         _id: new ObjectId()
       }];
 

@@ -62,9 +62,14 @@ export const allBSONTypesDoc = {
   dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')) // not actually a separate type, just a convention
 };
 
+const {
+  dbRef,
+  ...allValidBSONTypesDoc
+} = allBSONTypesDoc;
+
 // Includes some edge cases like empty objects, nested empty arrays, etc.
-export const allBSONTypesWithEdgeCasesDoc = {
-  ...allBSONTypesDoc,
+export const allValidBSONTypesWithEdgeCasesDoc = {
+  ...allValidBSONTypesDoc,
   emptyObject: {},
   objectWithNestedEmpty: {
     nestedEmpty: {}

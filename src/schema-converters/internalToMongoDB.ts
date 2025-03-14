@@ -46,15 +46,17 @@ async function parseType(type: SchemaType, signal?: AbortSignal): Promise<MongoD
   const schema: MongoDBJSONSchema = {
     bsonType: convertInternalType(type.bsonType)
   };
-  switch (type.bsonType) {
-    case 'Array':
-      schema.items = await parseTypes((type as ArraySchemaType).types);
-      break;
-    case 'Document':
-      Object.assign(schema,
-        await parseFields((type as DocumentSchemaType).fields, signal)
-      );
-      break;
+
+  if (type.bsonType === 'Array') {
+    const items = await parseTypes((type as ArraySchemaType).types);
+    // Don't include empty bson type arrays (it's invalid).
+    if (!items.bsonType || items.bsonType?.length > 0) {
+      schema.items = items;
+    }
+  } else if (type.bsonType === 'Document') {
+    Object.assign(schema,
+      await parseFields((type as DocumentSchemaType).fields, signal)
+    );
   }
 
   return schema;
@@ -83,17 +85,17 @@ async function parseTypes(types: SchemaType[], signal?: AbortSignal): Promise<Mo
 }
 
 async function parseFields(fields: DocumentSchemaType['fields'], signal?: AbortSignal): Promise<{
-  required: MongoDBJSONSchema['required'],
+  required?: MongoDBJSONSchema['required'],
   properties: MongoDBJSONSchema['properties'],
 }> {
-  const required = [];
+  const required: string[] = [];
   const properties: MongoDBJSONSchema['properties'] = {};
   for (const field of fields) {
     if (field.probability === 1) required.push(field.name);
     properties[field.name] = await parseTypes(field.types, signal);
   }
 
-  return { required, properties };
+  return { properties, ...(required.length > 0 ? { required } : {}) };
 }
 
 export async function convertInternalToMongodb(
@@ -104,7 +106,8 @@ export async function convertInternalToMongodb(
   const { required, properties } = await parseFields(internalSchema.fields, options.signal);
   const schema: MongoDBJSONSchema = {
     bsonType: 'object',
-    required,
+    // Prevent adding an empty required array as it isn't valid.
+    ...((required === undefined) ? {} : { required }),
     properties
   };
   return schema;

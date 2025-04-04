@@ -22,6 +22,7 @@ import { convertInternalToMongodb } from './schema-converters/internalToMongoDB'
 import { convertInternalToStandard } from './schema-converters/internalToStandard';
 import * as schemaStats from './stats';
 import { AnyIterable, StandardJSONSchema, MongoDBJSONSchema, ExpandedJSONSchema } from './types';
+import type { JSONSchema } from './to-typescript';
 import { toTypescriptTypeDefinition } from './to-typescript';
 
 /**
@@ -86,6 +87,7 @@ export type {
   StandardJSONSchema,
   MongoDBJSONSchema,
   ExpandedJSONSchema,
+  JSONSchema,
   SchemaAccessor
 };
 

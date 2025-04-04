@@ -1,7 +1,4 @@
-import type { JSONSchema4 } from 'json-schema';
-import type { MongoDBJSONSchema } from './types';
-
-export type JSONSchema = Partial<JSONSchema4> & MongoDBJSONSchema;
+import type { JSONSchema } from './types';
 
 function getBSONType(property: JSONSchema): string | string[] | undefined {
   return property.bsonType || property.type;

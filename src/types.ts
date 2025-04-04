@@ -23,6 +23,8 @@ export type ExpandedJSONSchema = StandardJSONSchema & {
   anyOf?: ExpandedJSONSchema[];
 }
 
+export type JSONSchema = Partial<JSONSchema4> & MongoDBJSONSchema;
+
 export type AnyIterable<T = any> = Iterable<T> | AsyncIterable<T>;
 
 type AnySchema = InternalSchema | StandardJSONSchema | MongoDBJSONSchema | ExpandedJSONSchema;

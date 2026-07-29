@@ -1,3 +1,7 @@
+### ⚠️ This repository is archived. The source code is now available at https://github.com/mongodb-js/devtools-shared/tree/main/packages/mongodb-schema
+
+---
+
 # mongodb-schema [![][npm_img]][npm_url] [![][coverage_img]][coverage_url]
 
 Infer a probabilistic schema for a MongoDB collection.

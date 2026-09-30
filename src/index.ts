@@ -20,6 +20,7 @@ import type {
 import { convertInternalToExpanded } from './schema-converters/internalToExpanded';
 import { convertInternalToMongodb } from './schema-converters/internalToMongoDB';
 import { convertInternalToStandard } from './schema-converters/internalToStandard';
+import { convertMongoDBJSONSchemaToSimplified } from './schema-converters/mongodbToSimplified';
 import * as schemaStats from './stats';
 import { AnyIterable, StandardJSONSchema, MongoDBJSONSchema, ExpandedJSONSchema, JSONSchema } from './types';
 import { toTypescriptTypeDefinition } from './to-typescript';
@@ -95,6 +96,7 @@ export {
   analyzeDocuments,
   getSchemaPaths,
   getSimplifiedSchema,
+  convertMongoDBJSONSchemaToSimplified,
   SchemaAnalyzer,
   schemaStats,
   toTypescriptTypeDefinition

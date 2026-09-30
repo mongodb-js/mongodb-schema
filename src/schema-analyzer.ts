@@ -30,7 +30,8 @@ type TypeCastMap = {
   Decimal128: Decimal128;
   Double: Double;
   Int32: Int32;
-  Int64: Long;
+  // Keyed by the BSON `_bsontype` value, which is what `getBSONType` reports.
+  Long: Long;
   MaxKey: MaxKey;
   MinKey: MinKey;
   Null: null;
@@ -102,7 +103,10 @@ export type Schema = {
   fields: SchemaField[]
 }
 
-type SchemaBSONType = Exclude<keyof TypeCastMap, 'Object'> | 'Document';
+// Note: not fully exhaustive of what `getBSONType` can return, since it reports
+// the raw `_bsontype`. `DBRef` is listed because it has no `TypeCastMap` entry;
+// `Number`, `RegExp` and `Symbol` are also reachable at runtime but absent here.
+export type SchemaBSONType = Exclude<keyof TypeCastMap, 'Object'> | 'Document' | 'DBRef';
 
 type SchemaAnalysisBaseType = {
   name: string;

@@ -164,6 +164,52 @@ A high-level view of the schema tree structure is as follows:
 ![](./docs/mongodb-schema_diagram.png)
 
 
+## Using a collection's schema validator
+
+If a collection has a [`$jsonSchema` validator][json-schema-validator] set on it, that
+validator already describes the collection's shape, so you can read it directly instead of
+sampling documents. `convertMongoDBJSONSchemaToSimplified` turns a `$jsonSchema` into the
+same simplified schema `getSimplifiedSchema` returns:
+
+```javascript
+const { convertMongoDBJSONSchemaToSimplified, getSimplifiedSchema } = require('mongodb-schema');
+
+const [collInfo] = await database.listCollections({ name: 'data' }).toArray();
+const jsonSchema = collInfo?.options?.validator?.$jsonSchema;
+
+const schema = jsonSchema
+  ? convertMongoDBJSONSchemaToSimplified(jsonSchema)
+  : await getSimplifiedSchema(database.collection('data').find());
+```
+
+The function takes the `$jsonSchema` subdocument itself, not the enclosing `validator`
+document. A validator can combine `$jsonSchema` with other query operators, e.g.
+`{ $and: [{ $jsonSchema: {...} }, { status: { $in: [...] } }] }`; extracting it from those
+is left to the caller, as the example above does only for the top-level case. This is
+distinct from `anyOf`/`oneOf`/`allOf` *inside* the `$jsonSchema`, which are handled (see
+below).
+
+A validator constrains documents rather than describing them, so the conversion is
+intentionally lossy and never throws. Value-level constraints (`enum`, `minimum`, `pattern`,
+`maxLength`, ...) are ignored, since the simplified schema records types only, as are
+`required`, `patternProperties` and `additionalProperties`. Beyond that:
+
+- `anyOf`, `oneOf` and `allOf` all contribute to a single type union, including at the root.
+  A branch with no type of its own adds to the types of the schema it belongs to, so
+  `{ bsonType: 'object', oneOf: [{ properties: { a } }, { properties: { b } }] }` describes
+  one document with fields `a` and `b`.
+- A subschema with no `bsonType` or `type` is read as a document if it has `properties`, and
+  as an array if it has `items`.
+- Fields encrypted with client-side field level encryption (`encrypt`) are reported as
+  `Binary`, which is how they are stored.
+- A document with `$ref` and `$id` properties is reported as `DBRef`, as the driver
+  deserializes one.
+- A field whose subschema says nothing about its type is omitted from the result.
+
+Note that a validator need not cover every field in the collection (most leave out `_id`,
+for example), and may be configured with a lenient `validationLevel` or `validationAction`.
+Where completeness matters, prefer inferring the schema from documents.
+
 ## BSON Types
 
 `mongodb-schema` supports all [BSON types][bson-types].
@@ -351,6 +397,7 @@ Apache 2.0
 
 
 [bson-types]: http://docs.mongodb.org/manual/reference/bson-types/
+[json-schema-validator]: https://www.mongodb.com/docs/manual/core/schema-validation/specify-json-schema/
 [tests]: https://github.com/mongodb-js/mongodb-schema/tree/main/test
 
 [npm_img]: https://img.shields.io/npm/v/mongodb-schema.svg

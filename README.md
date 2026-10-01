@@ -168,7 +168,9 @@ A high-level view of the schema tree structure is as follows:
 
 If a collection has a [`$jsonSchema` validator][json-schema-validator] set on it, that
 validator already describes the collection's shape, so you can read it directly instead of
-sampling documents. `convertMongoDBJSONSchemaToSimplified` turns a `$jsonSchema` into the
+sampling documents. How far the existing documents actually match it depends on the
+collection's `validationLevel` (see [below](#validation-levels)).
+`convertMongoDBJSONSchemaToSimplified` turns a `$jsonSchema` into the
 same simplified schema `getSimplifiedSchema` returns:
 
 ```javascript
@@ -191,7 +193,7 @@ below).
 
 A validator constrains documents rather than describing them, so the conversion is
 intentionally lossy and never throws. Value-level constraints (`enum`, `minimum`, `pattern`,
-`maxLength`, ...) are ignored, since the simplified schema records types only, as are
+`maxLength`, ...) are ignored, since the simplified schema records BSON types only, as are
 `required`, `patternProperties` and `additionalProperties`. Beyond that:
 
 - `anyOf`, `oneOf` and `allOf` all contribute to a single type union, including at the root.
@@ -206,9 +208,25 @@ intentionally lossy and never throws. Value-level constraints (`enum`, `minimum`
   deserializes one.
 - A field whose subschema says nothing about its type is omitted from the result.
 
-Note that a validator need not cover every field in the collection (most leave out `_id`,
-for example), and may be configured with a lenient `validationLevel` or `validationAction`.
-Where completeness matters, prefer inferring the schema from documents.
+### Validation levels
+
+A validator only describes the documents it has actually been enforced on, and the
+collection's `validationLevel` and `validationAction` decide which ones those are:
+
+- `constraint` (MongoDB 9.0+): every document in the collection is guaranteed to match.
+  The server checks existing documents when the level is set, and rejects
+  `bypassDocumentValidation` writes.
+- `strict`: all inserts and updates are validated, but documents that were already in the
+  collection before the validator was set, or that were written with
+  `bypassDocumentValidation`, may not match.
+- `moderate`: updates to documents that don't already match are not validated, so
+  non-matching documents can stay that way.
+- `off`, or a `validationAction` of `warn`: nothing is enforced, and the validator may
+  describe the intended shape rather than the actual one.
+
+Even with `constraint`, a validator need not cover every field in the collection (most
+leave out `_id`, for example) unless it sets `additionalProperties: false`. Where
+completeness matters, prefer inferring the schema from documents.
 
 ## BSON Types
 
